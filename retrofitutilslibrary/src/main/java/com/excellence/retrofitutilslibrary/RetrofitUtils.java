@@ -4,6 +4,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.excellence.retrofitutilslibrary.interfaces.Error;
+import com.excellence.retrofitutilslibrary.interfaces.Success;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +14,15 @@ import java.util.List;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import retrofit2.Call;
 import retrofit2.CallAdapter;
+import retrofit2.Callback;
 import retrofit2.Converter;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
+
+import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * <pre>
@@ -116,6 +124,32 @@ public class RetrofitUtils
 			RetrofitHttpService service = retrofit.create(RetrofitHttpService.class);
 			return new RetrofitUtils(service, mBaseUrl, mClient);
 		}
+	}
+
+	public void get(@NonNull String requestUrl, @NonNull final Success successCall, @NonNull final Error errorCall)
+	{
+		mService.get(requestUrl).enqueue(new Callback<String>()
+		{
+			@Override
+			public void onResponse(Call<String> call, Response<String> response)
+			{
+				if (response.code() == HTTP_OK)
+				{
+					successCall.success(response.body());
+				}
+				else
+				{
+					errorCall.error(response.code(), Utils.inputStream2String(response.errorBody().byteStream()));
+				}
+			}
+
+			@Override
+			public void onFailure(Call<String> call, Throwable t)
+			{
+				if (!call.isCanceled())
+					errorCall.error(0, Utils.printException(t));
+			}
+		});
 	}
 
 	private static class LoggingInterceptor implements Interceptor
