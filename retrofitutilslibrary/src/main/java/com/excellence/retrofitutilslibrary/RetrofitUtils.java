@@ -44,6 +44,8 @@ public class RetrofitUtils
 	private OkHttpClient mClient = null;
 	private Map<String, String> mParams = new HashMap<>();
 	private Map<String, String> mHeaders = new HashMap<>();
+	private final Map<String, Call> CALL_MAP = new HashMap<>();
+	private Object mTag = null;
 
 	private RetrofitUtils(RetrofitHttpService service, String baseUrl, OkHttpClient client)
 	{
@@ -154,9 +156,11 @@ public class RetrofitUtils
 		return this;
 	}
 
-	public void get(@NonNull String requestUrl, @NonNull final Success successCall, @NonNull final Error errorCall)
+	public void get(@NonNull final String requestUrl, @NonNull final Success successCall, @NonNull final Error errorCall)
 	{
-		mService.get(requestUrl, checkParams(mParams), checkHeaders(mHeaders)).enqueue(new Callback<String>()
+		Call call = mService.get(requestUrl, checkParams(mParams), checkHeaders(mHeaders));
+		addCall(mTag, requestUrl, call);
+		call.enqueue(new Callback<String>()
 		{
 			@Override
 			public void onResponse(Call<String> call, Response<String> response)
@@ -169,6 +173,7 @@ public class RetrofitUtils
 				{
 					errorCall.error(response.code(), Utils.inputStream2String(response.errorBody().byteStream()));
 				}
+				removeCall(requestUrl);
 			}
 
 			@Override
@@ -176,6 +181,7 @@ public class RetrofitUtils
 			{
 				if (!call.isCanceled())
 					errorCall.error(0, Utils.printException(t));
+				removeCall(requestUrl);
 			}
 		});
 	}
@@ -208,6 +214,74 @@ public class RetrofitUtils
 				headers.put(entry.getKey(), "");
 		}
 		return headers;
+	}
+
+	public RetrofitUtils setTag(Object tag)
+	{
+		mTag = tag;
+		return this;
+	}
+
+	/**
+	 * 添加网络请求队列
+	 * @param tag 标签
+	 * @param url 请求链接
+	 * @param call 网络请求
+	 */
+	private synchronized void addCall(Object tag, String url, Call call)
+	{
+		if (tag == null)
+			return;
+		synchronized (CALL_MAP)
+		{
+			CALL_MAP.put(tag.toString() + url, call);
+		}
+	}
+
+	/**
+	 * 取消单个网络请求
+	 *
+	 * @param url 请求链接
+	 */
+	private synchronized void removeCall(String url)
+	{
+		if (mTag == null)
+			return;
+		synchronized (CALL_MAP)
+		{
+			for (String key : CALL_MAP.keySet())
+			{
+				if (key.contains(url))
+				{
+					url = key;
+					break;
+				}
+			}
+			CALL_MAP.remove(url);
+		}
+	}
+
+	/**
+	 * 取消单个界面的所有请求，或取消某个tag的所有请求
+	 *
+	 * @param tag 标签
+	 */
+	public synchronized void cancel(Object tag)
+	{
+		if (tag == null)
+			return;
+		synchronized (CALL_MAP)
+		{
+			for (String key : CALL_MAP.keySet())
+			{
+				if (key.startsWith(tag.toString()))
+				{
+					CALL_MAP.get(key).cancel();
+					removeCall(key);
+				}
+			}
+		}
+
 	}
 
 	private static class LoggingInterceptor implements Interceptor
