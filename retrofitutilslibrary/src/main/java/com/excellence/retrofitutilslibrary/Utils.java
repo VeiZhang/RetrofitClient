@@ -59,7 +59,7 @@ public class Utils
 		try
 		{
 			String msg = t.getMessage();
-			if (TextUtils.isEmpty(msg))
+			if (!TextUtils.isEmpty(msg))
 				exceptionStr.append(msg).append("\n");
 			exceptionStr.append("Trace: ").append("\n");
 			Writer writer = new StringWriter();

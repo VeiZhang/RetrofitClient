@@ -10,7 +10,7 @@ import com.excellence.retrofitutilslibrary.interfaces.Success;
 public class MainActivity extends AppCompatActivity
 {
 	private static final String BASE_URL = "http://gank.io/api/";
-	private static final String REQUEST_URL = "http://gank.io/api/data/%E7%A6%8F%E5%88%A9/0/1";
+	private static final String REQUEST_URL = "http://gank.io/api/data/%E7%A6%8F%E5%88%A9/1/1";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)

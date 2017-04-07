@@ -9,7 +9,9 @@ import com.excellence.retrofitutilslibrary.interfaces.Success;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -40,6 +42,8 @@ public class RetrofitUtils
 	private RetrofitHttpService mService = null;
 	private String mBaseUrl = null;
 	private OkHttpClient mClient = null;
+	private Map<String, String> mParams = new HashMap<>();
+	private Map<String, String> mHeaders = new HashMap<>();
 
 	private RetrofitUtils(RetrofitHttpService service, String baseUrl, OkHttpClient client)
 	{
@@ -126,9 +130,33 @@ public class RetrofitUtils
 		}
 	}
 
+	public RetrofitUtils setParam(String key, String value)
+	{
+		mParams.put(key, value);
+		return this;
+	}
+
+	public RetrofitUtils setParams(Map<String, String> params)
+	{
+		mParams.putAll(params);
+		return this;
+	}
+
+	public RetrofitUtils setHeader(String key, String value)
+	{
+		mHeaders.put(key, value);
+		return this;
+	}
+
+	public RetrofitUtils setHeaders(Map<String, String> headers)
+	{
+		mHeaders.putAll(headers);
+		return this;
+	}
+
 	public void get(@NonNull String requestUrl, @NonNull final Success successCall, @NonNull final Error errorCall)
 	{
-		mService.get(requestUrl).enqueue(new Callback<String>()
+		mService.get(requestUrl, checkParams(mParams), checkHeaders(mHeaders)).enqueue(new Callback<String>()
 		{
 			@Override
 			public void onResponse(Call<String> call, Response<String> response)
@@ -150,6 +178,36 @@ public class RetrofitUtils
 					errorCall.error(0, Utils.printException(t));
 			}
 		});
+	}
+
+	/**
+	 * 检验请求参数，不能为空
+	 *
+	 * @param params 请求参数
+	 * @return 请求参数
+	 */
+	private Map<String, String> checkParams(Map<String, String> params)
+	{
+		if (params == null)
+			params = new HashMap<>();
+		for (Map.Entry<String, String> entry : params.entrySet())
+		{
+			if (entry.getValue() == null)
+				params.put(entry.getKey(), "");
+		}
+		return params;
+	}
+
+	private Map<String, String> checkHeaders(Map<String, String> headers)
+	{
+		if (headers == null)
+			headers = new HashMap<>();
+		for (Map.Entry<String, String> entry : headers.entrySet())
+		{
+			if (entry.getValue() == null)
+				headers.put(entry.getKey(), "");
+		}
+		return headers;
 	}
 
 	private static class LoggingInterceptor implements Interceptor

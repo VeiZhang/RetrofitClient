@@ -9,7 +9,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Url;
 import retrofit2.http.QueryMap;
 import retrofit2.http.FieldMap;
-import retrofit2.http.Header;
+import retrofit2.http.HeaderMap;
 
 /**
  * <pre>
@@ -26,14 +26,14 @@ public interface RetrofitHttpService
 	Call<String> get(@Url String url);
 
 	@GET
-	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @Header("Cache-Time") String time);
+	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> time);
 
 	@POST
-	Call<String> post(@Url String url, @FieldMap Map<String, String> params, @Header("Cache-Time") String time);
+	Call<String> post(@Url String url, @FieldMap Map<String, String> params, @HeaderMap Map<String, String> time);
 
 	@GET
-	Observer<String> obGet(@Url String url, @QueryMap Map<String, String> params, @Header("Cache-Time") String time);
+	Observer<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> time);
 
 	@POST
-	Observer<String> obPost(@Url String url, @FieldMap Map<String, String> params, @Header("Cache-Time") String time);
+	Observer<String> obPost(@Url String url, @FieldMap Map<String, String> params, @HeaderMap Map<String, String> time);
 }
