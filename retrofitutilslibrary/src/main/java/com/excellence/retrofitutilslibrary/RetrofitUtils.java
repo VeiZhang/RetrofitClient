@@ -31,7 +31,13 @@ import static java.net.HttpURLConnection.HTTP_OK;
  *     author : VeiZhang
  *     blog   : https://veizhang.github.io/
  *     time   : 2017/4/7
- *     desc   :
+ *     desc   : Retrofit封装
+ *     			<ul>
+ *     			   <li>get、post请求封装</li>
+ *     			   <li>参数可配置</li>
+ *     			   <li>异步统一回调接口</li>
+ *     			   <li>单个界面所有请求取消</li>
+ *     			</ul>
  * </pre>
  */
 
@@ -42,9 +48,25 @@ public class RetrofitUtils
 	private RetrofitHttpService mService = null;
 	private String mBaseUrl = null;
 	private OkHttpClient mClient = null;
+
+	/**
+	 * 请求参数
+	 */
 	private Map<String, String> mParams = new HashMap<>();
+
+	/**
+	 * 请求头
+	 */
 	private Map<String, String> mHeaders = new HashMap<>();
-	private final Map<String, Call> CALL_MAP = new HashMap<>();
+
+	/**
+	 * 网络请求队列
+	 */
+	private static final Map<String, Call> CALL_MAP = new HashMap<>();
+
+	/**
+	 * 网络请求标识
+	 */
 	private Object mTag = null;
 
 	private RetrofitUtils(RetrofitHttpService service, String baseUrl, OkHttpClient client)
@@ -173,7 +195,8 @@ public class RetrofitUtils
 				{
 					errorCall.error(response.code(), Utils.inputStream2String(response.errorBody().byteStream()));
 				}
-				removeCall(requestUrl);
+				if (mTag != null)
+					removeCall(requestUrl);
 			}
 
 			@Override
@@ -181,7 +204,8 @@ public class RetrofitUtils
 			{
 				if (!call.isCanceled())
 					errorCall.error(0, Utils.printException(t));
-				removeCall(requestUrl);
+				if (mTag != null)
+					removeCall(requestUrl);
 			}
 		});
 	}
@@ -223,7 +247,8 @@ public class RetrofitUtils
 	}
 
 	/**
-	 * 添加网络请求队列
+	 * 添加网络请求队列，以 tag + url 作为标识
+	 *
 	 * @param tag 标签
 	 * @param url 请求链接
 	 * @param call 网络请求
@@ -243,10 +268,8 @@ public class RetrofitUtils
 	 *
 	 * @param url 请求链接
 	 */
-	private synchronized void removeCall(String url)
+	private static synchronized void removeCall(String url)
 	{
-		if (mTag == null)
-			return;
 		synchronized (CALL_MAP)
 		{
 			for (String key : CALL_MAP.keySet())
@@ -266,7 +289,7 @@ public class RetrofitUtils
 	 *
 	 * @param tag 标签
 	 */
-	public synchronized void cancel(Object tag)
+	public static synchronized void cancel(Object tag)
 	{
 		if (tag == null)
 			return;

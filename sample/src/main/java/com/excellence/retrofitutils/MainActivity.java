@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity
 		setContentView(R.layout.activity_main);
 
 		RetrofitUtils utils = new RetrofitUtils.Builder().baseUrl(BASE_URL).build();
-		utils.get(REQUEST_URL, new Success()
+		utils.setTag(this).get(REQUEST_URL, new Success()
 		{
 			@Override
 			public void success(String result)
@@ -34,7 +34,12 @@ public class MainActivity extends AppCompatActivity
 				System.out.println(code + " ### " + error);
 			}
 		});
-
 	}
 
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		RetrofitUtils.cancel(this);
+	}
 }
