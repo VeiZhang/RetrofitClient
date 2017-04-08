@@ -2,20 +2,18 @@ package com.excellence.retrofitutilslibrary;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.excellence.retrofitutilslibrary.interfaces.Error;
 import com.excellence.retrofitutilslibrary.interfaces.Success;
+import com.excellence.retrofitutilslibrary.utils.OkHttpProvider;
+import com.excellence.retrofitutilslibrary.utils.Utils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Callback;
@@ -135,7 +133,7 @@ public class RetrofitUtils
 
 			if (mClient == null)
 			{
-				mClient = new OkHttpClient.Builder().addInterceptor(new LoggingInterceptor()).build();
+				mClient = OkHttpProvider.okHttpClient();
 			}
 
 			if (mConverterFactories.isEmpty())
@@ -307,14 +305,4 @@ public class RetrofitUtils
 
 	}
 
-	private static class LoggingInterceptor implements Interceptor
-	{
-		@Override
-		public okhttp3.Response intercept(Chain chain) throws IOException
-		{
-			Request request = chain.request();
-			Log.e(request.url().toString(), String.format("发送请求 %s on %s%n%s", request.url(), chain.connection(), request.headers()));
-			return chain.proceed(request);
-		}
-	}
 }

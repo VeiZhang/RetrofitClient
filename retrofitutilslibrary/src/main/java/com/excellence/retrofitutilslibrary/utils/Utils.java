@@ -1,4 +1,4 @@
-package com.excellence.retrofitutilslibrary;
+package com.excellence.retrofitutilslibrary.utils;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
