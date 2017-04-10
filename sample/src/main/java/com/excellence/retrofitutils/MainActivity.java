@@ -18,8 +18,8 @@ public class MainActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		RetrofitUtils utils = new RetrofitUtils.Builder().baseUrl(BASE_URL).build();
-		utils.setTag(this).get(REQUEST_URL, new Success()
+		RetrofitUtils utils = new RetrofitUtils.Builder(this).baseUrl(BASE_URL).build();
+		utils.setHeader("Cache-Time", "24 * 3600").setTag(this).get(REQUEST_URL, new Success()
 		{
 			@Override
 			public void success(String result)

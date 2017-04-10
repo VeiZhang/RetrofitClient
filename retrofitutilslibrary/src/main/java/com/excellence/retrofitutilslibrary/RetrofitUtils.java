@@ -1,5 +1,6 @@
 package com.excellence.retrofitutilslibrary;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -35,6 +36,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
  *     			   <li>参数可配置</li>
  *     			   <li>异步统一回调接口</li>
  *     			   <li>单个界面所有请求取消</li>
+ *     			   <li>缓存策略</li>
  *     			</ul>
  * </pre>
  */
@@ -91,13 +93,15 @@ public class RetrofitUtils
 
 	public static class Builder
 	{
+		private Context mContext = null;
 		private String mBaseUrl = null;
 		private OkHttpClient mClient = null;
 		private List<Converter.Factory> mConverterFactories = new ArrayList<>();
 		private List<CallAdapter.Factory> mCallAdapterFactories = new ArrayList<>();
 
-		public Builder()
+		public Builder(@NonNull Context context)
 		{
+			mContext = context;
 		}
 
 		public Builder baseUrl(@NonNull String baseUrl)
@@ -133,7 +137,7 @@ public class RetrofitUtils
 
 			if (mClient == null)
 			{
-				mClient = OkHttpProvider.okHttpClient();
+				mClient = OkHttpProvider.okHttpClient(mContext);
 			}
 
 			if (mConverterFactories.isEmpty())

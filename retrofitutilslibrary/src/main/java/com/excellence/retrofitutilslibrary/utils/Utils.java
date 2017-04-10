@@ -1,5 +1,8 @@
 package com.excellence.retrofitutilslibrary.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -85,4 +88,15 @@ public class Utils
 		return exceptionStr.toString();
 	}
 
+	/**
+	 * 检测网络是否可用
+	 *
+	 * @param context 上下文
+	 * @return {@code true}：可用<br>{@code false}：不可用
+	 */
+	public static boolean isNetworkAvailable(Context context)
+	{
+		NetworkInfo networkInfo = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+		return networkInfo != null && networkInfo.isAvailable();
+	}
 }
