@@ -18,7 +18,7 @@ import okhttp3.Response;
  *     author : VeiZhang
  *     blog   : https://veizhang.github.io/
  *     time   : 2017/4/8
- *     desc   : 缓存拦截器：Get请求才缓存
+ *     desc   : 缓存拦截器
  * </pre>
  */
 

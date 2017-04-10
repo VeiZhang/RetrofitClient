@@ -34,6 +34,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
+import static com.excellence.retrofitutilslibrary.utils.DownloadInterceptor.DOWNLOAD;
+import static com.excellence.retrofitutilslibrary.utils.Utils.checkHeaders;
+import static com.excellence.retrofitutilslibrary.utils.Utils.checkParams;
+import static com.excellence.retrofitutilslibrary.utils.Utils.checkURL;
+import static com.excellence.retrofitutilslibrary.utils.Utils.isURLEmpty;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
@@ -146,8 +151,7 @@ public class RetrofitUtils
 
 		public RetrofitUtils build()
 		{
-			if (TextUtils.isEmpty(mBaseUrl))
-				throw new NullPointerException("base url can not be null");
+			checkURL(mBaseUrl);
 			if (!mBaseUrl.endsWith("/"))
 				mBaseUrl += "/";
 
@@ -211,7 +215,7 @@ public class RetrofitUtils
 
 	public void get(@NonNull final String url, @NonNull final Success successCall, @NonNull final Error errorCall)
 	{
-		Call call = mService.get(url, checkParams(mParams), checkHeaders(mHeaders));
+		Call call = mService.get(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
 		addCall(mTag, url, call);
 		call.enqueue(new Callback<String>()
 		{
@@ -250,7 +254,8 @@ public class RetrofitUtils
 
 	public void download(@NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
-		Call<ResponseBody> call = mService.download(url, checkParams(mParams), checkHeaders(mHeaders));
+		mHeaders.put(DOWNLOAD, DOWNLOAD);
+		Call<ResponseBody> call = mService.download(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
 		addCall(mTag, url, call);
 		call.enqueue(new Callback<ResponseBody>()
 		{
@@ -383,36 +388,6 @@ public class RetrofitUtils
 				listener.onError(e);
 			}
 		});
-	}
-
-	/**
-	 * 检验请求参数，不能为空
-	 *
-	 * @param params 请求参数
-	 * @return 请求参数
-	 */
-	private Map<String, String> checkParams(Map<String, String> params)
-	{
-		if (params == null)
-			params = new HashMap<>();
-		for (Map.Entry<String, String> entry : params.entrySet())
-		{
-			if (entry.getValue() == null)
-				params.put(entry.getKey(), "");
-		}
-		return params;
-	}
-
-	private Map<String, String> checkHeaders(Map<String, String> headers)
-	{
-		if (headers == null)
-			headers = new HashMap<>();
-		for (Map.Entry<String, String> entry : headers.entrySet())
-		{
-			if (entry.getValue() == null)
-				headers.put(entry.getKey(), "");
-		}
-		return headers;
 	}
 
 	public RetrofitUtils setTag(Object tag)
