@@ -195,7 +195,14 @@ public class RetrofitUtils
 				}
 				else
 				{
-					errorCall.error(new Throwable(Utils.inputStream2String(response.errorBody().byteStream())));
+					String errorMsg = Utils.inputStream2String(response.errorBody().byteStream());
+					if (!TextUtils.isEmpty(errorMsg))
+						errorCall.error(new Throwable(errorMsg));
+					else
+					{
+						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
+						errorCall.error(new Throwable("There may be no cache data!"));
+					}
 				}
 				if (mTag != null)
 					removeCall(requestUrl);
