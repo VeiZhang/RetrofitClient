@@ -29,9 +29,9 @@ public class MainActivity extends AppCompatActivity
 		}, new Error()
 		{
 			@Override
-			public void error(int code, String error)
+			public void error(Throwable t)
 			{
-				System.out.println(code + " ### " + error);
+				t.printStackTrace();
 			}
 		});
 	}

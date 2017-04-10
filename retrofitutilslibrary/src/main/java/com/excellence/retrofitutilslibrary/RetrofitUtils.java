@@ -195,7 +195,7 @@ public class RetrofitUtils
 				}
 				else
 				{
-					errorCall.error(response.code(), Utils.inputStream2String(response.errorBody().byteStream()));
+					errorCall.error(new Throwable(Utils.inputStream2String(response.errorBody().byteStream())));
 				}
 				if (mTag != null)
 					removeCall(requestUrl);
@@ -205,7 +205,7 @@ public class RetrofitUtils
 			public void onFailure(Call<String> call, Throwable t)
 			{
 				if (!call.isCanceled())
-					errorCall.error(0, Utils.printException(t));
+					errorCall.error(t);
 				if (mTag != null)
 					removeCall(requestUrl);
 			}

@@ -13,8 +13,7 @@ public interface Error
 {
 	/**
 	 *
-	 * @param code 错误代码 {@code 0}:异常错误<br>{@code >0}:网络返回值
-	 * @param error 错误信息
+	 * @param t 异常
 	 */
-	void error(int code, String error);
+	void error(Throwable t);
 }
