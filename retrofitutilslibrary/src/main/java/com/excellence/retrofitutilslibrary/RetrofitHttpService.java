@@ -2,13 +2,13 @@ package com.excellence.retrofitutilslibrary;
 
 import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.http.Streaming;
 import rx.Observer;
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
 import retrofit2.http.Url;
 import retrofit2.http.QueryMap;
-import retrofit2.http.FieldMap;
 import retrofit2.http.HeaderMap;
 
 /**
@@ -23,17 +23,12 @@ import retrofit2.http.HeaderMap;
 public interface RetrofitHttpService
 {
 	@GET
-	Call<String> get(@Url String url);
+	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
 	@GET
-	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> time);
+	Observer<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
-	@POST
-	Call<String> post(@Url String url, @FieldMap Map<String, String> params, @HeaderMap Map<String, String> time);
-
+	@Streaming
 	@GET
-	Observer<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> time);
-
-	@POST
-	Observer<String> obPost(@Url String url, @FieldMap Map<String, String> params, @HeaderMap Map<String, String> time);
+	Call<ResponseBody> download(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 }
