@@ -203,30 +203,63 @@ public class RetrofitUtils
 		}
 	}
 
+	/**
+	 * 设置单个请求参数
+	 *
+	 * @param key 键
+	 * @param value 键值
+	 * @return
+	 */
 	public RetrofitUtils setParam(String key, String value)
 	{
 		mParams.put(key, value);
 		return this;
 	}
 
+	/**
+	 * 设置请求参数集
+	 *
+	 * @param params 参数集
+	 * @return
+	 */
 	public RetrofitUtils setParams(Map<String, String> params)
 	{
 		mParams.putAll(params);
 		return this;
 	}
 
+	/**
+	 * 设置单个请求头
+	 *
+	 * @param key 键
+	 * @param value 键值
+	 * @return
+	 */
 	public RetrofitUtils setHeader(String key, String value)
 	{
 		mHeaders.put(key, value);
 		return this;
 	}
 
+	/**
+	 * 设置请求头
+	 *
+	 * @param headers 集合
+	 * @return
+	 */
 	public RetrofitUtils setHeaders(Map<String, String> headers)
 	{
 		mHeaders.putAll(headers);
 		return this;
 	}
 
+	/**
+	 * Get请求字符串数据
+	 *
+	 * @param url 请求链接
+	 * @param successCall 成功回调
+	 * @param errorCall 错误回调
+	 */
 	public void get(@NonNull final String url, @NonNull final Success successCall, @NonNull final Error errorCall)
 	{
 		Call<String> call = mService.get(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
@@ -266,6 +299,13 @@ public class RetrofitUtils
 		});
 	}
 
+	/**
+	 * RxJava结合Get请求字符串数据
+	 *
+	 * @param url 请求链接
+	 * @param successCall 成功回调
+	 * @param errorCall 错误回调
+	 */
 	public void obGet(@NonNull final String url, @NonNull final Success successCall, @NonNull final Error errorCall)
 	{
 		Observable<String> observable = mService.obGet(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
@@ -296,6 +336,13 @@ public class RetrofitUtils
 		addCall(mTag, url, subscription);
 	}
 
+	/**
+	 * 下载
+	 *
+	 * @param url 请求链接
+	 * @param path 文件保存地址
+	 * @param listener 下载进度回调
+	 */
 	public void download(@NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
@@ -341,6 +388,13 @@ public class RetrofitUtils
 		});
 	}
 
+	/**
+	 * 写入流文件
+	 *
+	 * @param listener 下载监听
+	 * @param path 文件保存路径
+	 * @param response 文件流信息
+	 */
 	private void writetoFile(DownloadListener listener, String path, ResponseBody response)
 	{
 		File file = new File(path);
@@ -386,6 +440,12 @@ public class RetrofitUtils
 		}
 	}
 
+	/**
+	 * 下载准备，可直接在UI线程更新界面
+	 *
+	 * @param listener 下载监听
+	 * @param fileSize 文件总长度
+	 */
 	private void onPreExecute(final DownloadListener listener, final long fileSize)
 	{
 		mResponseposter.execute(new Runnable()
@@ -398,6 +458,13 @@ public class RetrofitUtils
 		});
 	}
 
+	/**
+	 * 下载进度刷新，可直接在UI线程更新界面
+	 *
+	 * @param listener 下载监听
+	 * @param fileSize 文件总长度
+	 * @param downloadedSize 下载长度
+	 */
 	private void onProgressChange(final DownloadListener listener, final long fileSize, final long downloadedSize)
 	{
 		mResponseposter.execute(new Runnable()
@@ -410,6 +477,11 @@ public class RetrofitUtils
 		});
 	}
 
+	/**
+	 * 下载成功，可直接在UI线程更新界面
+	 *
+	 * @param listener 下载监听
+	 */
 	private void onSuccess(final DownloadListener listener)
 	{
 		mResponseposter.execute(new Runnable()
@@ -422,6 +494,12 @@ public class RetrofitUtils
 		});
 	}
 
+	/**
+	 * 下载失败，可直接在UI线程更新界面
+	 *
+	 * @param listener 下载监听
+	 * @param e 异常信息
+	 */
 	private void onError(final DownloadListener listener, final Exception e)
 	{
 		mResponseposter.execute(new Runnable()
@@ -434,6 +512,12 @@ public class RetrofitUtils
 		});
 	}
 
+	/**
+	 * 设置网络请求标识
+	 *
+	 * @param tag 标识
+	 * @return
+	 */
 	public RetrofitUtils setTag(Object tag)
 	{
 		mTag = tag;
@@ -458,7 +542,7 @@ public class RetrofitUtils
 	}
 
 	/**
-	 * 取消单个网络请求
+	 * 删除队列里的完成、错误的网络请求
 	 *
 	 * @param url 请求链接
 	 */
@@ -493,16 +577,42 @@ public class RetrofitUtils
 			{
 				if (key.startsWith(tag.toString()))
 				{
-					Object object = CALL_MAP.get(key);
-					if (object instanceof Call)
-						((Call) object).cancel();
-					else if (object instanceof Subscription)
-						((Subscription) object).unsubscribe();
-					removeCall(key);
+					cancel(key);
 				}
 			}
 		}
+	}
 
+	/**
+	 * 取消所有网络请求
+	 */
+	public static synchronized void cancelAll()
+	{
+		for (String key : CALL_MAP.keySet())
+		{
+			cancel(key);
+		}
+	}
+
+	/**
+	 * 取消单个网络请求
+	 *
+	 * @param key 请求标识：tag.toString() + url
+	 */
+	private static void cancel(String key)
+	{
+		Object object = CALL_MAP.get(key);
+		if (object instanceof Call)
+		{
+			if (!((Call) object).isCanceled())
+				((Call) object).cancel();
+		}
+		else if (object instanceof Subscription)
+		{
+			if (!((Subscription) object).isUnsubscribed())
+				((Subscription) object).unsubscribe();
+		}
+		removeCall(key);
 	}
 
 }
