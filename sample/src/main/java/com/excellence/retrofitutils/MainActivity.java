@@ -23,9 +23,10 @@ public class MainActivity extends AppCompatActivity
 		setContentView(R.layout.activity_main);
 
 		mRetrofitUtils = new RetrofitUtils.Builder(this).baseUrl(BASE_URL).build();
-        // get();
-		obGet();
+		// get();
+		// obGet();
 		// download();
+		obDownload();
 	}
 
 	private void get()
@@ -82,6 +83,47 @@ public class MainActivity extends AppCompatActivity
 			{
 				super.onProgressChange(fileSize, downloadedSize);
 				// System.out.println(fileSize + ":" + downloadedSize);
+			}
+
+			@Override
+			public void onCancel()
+			{
+				super.onCancel();
+				System.out.println("cancel");
+			}
+
+			@Override
+			public void onError(Throwable t)
+			{
+				super.onError(t);
+				t.printStackTrace();
+			}
+
+			@Override
+			public void onSuccess()
+			{
+				super.onSuccess();
+				System.out.println("success");
+			}
+		});
+	}
+
+	private void obDownload()
+	{
+		mRetrofitUtils.obDownload(DOWNLOAD_URL, "/sdcard/Duowan1.apk", new DownloadListener()
+		{
+			@Override
+			public void onPreExecute(long fileSize)
+			{
+				super.onPreExecute(fileSize);
+				System.out.println("pre :" + fileSize);
+			}
+
+			@Override
+			public void onProgressChange(long fileSize, long downloadedSize)
+			{
+				super.onProgressChange(fileSize, downloadedSize);
+				System.out.println(fileSize + ":" + downloadedSize);
 			}
 
 			@Override

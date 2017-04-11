@@ -31,4 +31,8 @@ public interface RetrofitHttpService
 	@Streaming
 	@GET
 	Call<ResponseBody> download(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+
+	@Streaming
+	@GET
+	Observable<ResponseBody> obDownload(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 }

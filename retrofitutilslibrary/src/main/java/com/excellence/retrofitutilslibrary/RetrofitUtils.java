@@ -341,10 +341,11 @@ public class RetrofitUtils
 	 *
 	 * @param url 请求链接
 	 * @param path 文件保存地址
-	 * @param listener 下载进度回调
+	 * @param listener 下载监听
 	 */
 	public void download(@NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
+		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Call<ResponseBody> call = mService.download(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
 		addCall(mTag, url, call);
@@ -386,6 +387,54 @@ public class RetrofitUtils
 					removeCall(url);
 			}
 		});
+	}
+
+	/**
+	 * RxJava结合下载
+	 *
+	 * @param url 请求链接
+	 * @param path 文件保存地址
+	 * @param listener 下载监听
+	 */
+	public void obDownload(@NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
+	{
+		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
+		mHeaders.put(DOWNLOAD, DOWNLOAD);
+		Observable<ResponseBody> observable = mService.obDownload(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
+		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<ResponseBody>()
+		{
+			@Override
+			public void onNext(final ResponseBody response)
+			{
+				new AsyncTask<Void, Long, Void>()
+				{
+					@Override
+					protected Void doInBackground(Void... params)
+					{
+						writetoFile(listener, path, response);
+						if (mTag != null)
+							removeCall(url);
+						return null;
+					}
+
+				}.execute();
+			}
+
+			@Override
+			public void onCompleted()
+			{
+
+			}
+
+			@Override
+			public void onError(Throwable e)
+			{
+				listener.onError(e);
+				if (mTag != null)
+					removeCall(url);
+			}
+		});
+		addCall(mTag, url, subscription);
 	}
 
 	/**

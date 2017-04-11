@@ -28,7 +28,6 @@ public class DownloadInterceptor implements Interceptor
 		if (!Utils.isURLEmpty(request.header(DOWNLOAD)))
 		{
 			// 文件下载，重新构造网络请求，避免缓存
-            System.out.println("下载");
             HttpUrl httpUrl = request.url();
 			Request newRequest = request.newBuilder().url(httpUrl).build();
 			return chain.proceed(newRequest);
