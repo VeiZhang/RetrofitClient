@@ -23,13 +23,33 @@ public class MainActivity extends AppCompatActivity
 		setContentView(R.layout.activity_main);
 
 		mRetrofitUtils = new RetrofitUtils.Builder(this).baseUrl(BASE_URL).build();
-		get();
-		download();
+        // get();
+		obGet();
+		// download();
 	}
 
 	private void get()
 	{
 		mRetrofitUtils.setHeader("Cache-Time", "24 * 3600").setTag(this).get(REQUEST_URL, new Success()
+		{
+			@Override
+			public void success(String result)
+			{
+				System.out.println(result);
+			}
+		}, new Error()
+		{
+			@Override
+			public void error(Throwable t)
+			{
+				t.printStackTrace();
+			}
+		});
+	}
+
+	private void obGet()
+	{
+		mRetrofitUtils.setHeader("Cache-Time", "24 * 3600").setTag(this).obGet(REQUEST_URL, new Success()
 		{
 			@Override
 			public void success(String result)
@@ -61,7 +81,7 @@ public class MainActivity extends AppCompatActivity
 			public void onProgressChange(long fileSize, long downloadedSize)
 			{
 				super.onProgressChange(fileSize, downloadedSize);
-				System.out.println(fileSize + ":" + downloadedSize);
+				// System.out.println(fileSize + ":" + downloadedSize);
 			}
 
 			@Override

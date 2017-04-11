@@ -32,13 +32,18 @@ import retrofit2.Callback;
 import retrofit2.Converter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static com.excellence.retrofitutilslibrary.utils.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofitutilslibrary.utils.Utils.checkHeaders;
 import static com.excellence.retrofitutilslibrary.utils.Utils.checkParams;
 import static com.excellence.retrofitutilslibrary.utils.Utils.checkURL;
-import static com.excellence.retrofitutilslibrary.utils.Utils.isURLEmpty;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
@@ -79,7 +84,7 @@ public class RetrofitUtils
 	/**
 	 * 网络请求队列
 	 */
-	private static final Map<String, Call> CALL_MAP = new HashMap<>();
+	private static final Map<String, Object> CALL_MAP = new HashMap<>();
 
 	/**
 	 * 网络请求标识
@@ -161,7 +166,16 @@ public class RetrofitUtils
 			}
 
 			if (mConverterFactories.isEmpty())
+			{
+				// 默认支持字符串数据
 				mConverterFactories.add(ScalarsConverterFactory.create());
+			}
+
+			if (mCallAdapterFactories.isEmpty())
+			{
+				// 默认支持RxJava
+				mCallAdapterFactories.add(RxJavaCallAdapterFactory.create());
+			}
 
 			if (mResponsePoster == null)
 			{
@@ -215,7 +229,7 @@ public class RetrofitUtils
 
 	public void get(@NonNull final String url, @NonNull final Success successCall, @NonNull final Error errorCall)
 	{
-		Call call = mService.get(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
+		Call<String> call = mService.get(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
 		addCall(mTag, url, call);
 		call.enqueue(new Callback<String>()
 		{
@@ -250,6 +264,36 @@ public class RetrofitUtils
 					removeCall(url);
 			}
 		});
+	}
+
+	public void obGet(@NonNull final String url, @NonNull final Success successCall, @NonNull final Error errorCall)
+	{
+		Observable<String> observable = mService.obGet(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
+		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
+		{
+			@Override
+			public void onNext(String result)
+			{
+				successCall.success(result);
+				if (mTag != null)
+					removeCall(url);
+			}
+
+			@Override
+			public void onCompleted()
+			{
+
+			}
+
+			@Override
+			public void onError(Throwable e)
+			{
+				errorCall.error(e);
+				if (mTag != null)
+					removeCall(url);
+			}
+		});
+		addCall(mTag, url, subscription);
 	}
 
 	public void download(@NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
@@ -401,15 +445,15 @@ public class RetrofitUtils
 	 *
 	 * @param tag 标签
 	 * @param url 请求链接
-	 * @param call 网络请求
+	 * @param object 网络请求
 	 */
-	private synchronized void addCall(Object tag, String url, Call call)
+	private synchronized void addCall(Object tag, String url, Object object)
 	{
 		if (tag == null)
 			return;
 		synchronized (CALL_MAP)
 		{
-			CALL_MAP.put(tag.toString() + url, call);
+			CALL_MAP.put(tag.toString() + url, object);
 		}
 	}
 
@@ -449,7 +493,11 @@ public class RetrofitUtils
 			{
 				if (key.startsWith(tag.toString()))
 				{
-					CALL_MAP.get(key).cancel();
+					Object object = CALL_MAP.get(key);
+					if (object instanceof Call)
+						((Call) object).cancel();
+					else if (object instanceof Subscription)
+						((Subscription) object).unsubscribe();
 					removeCall(key);
 				}
 			}

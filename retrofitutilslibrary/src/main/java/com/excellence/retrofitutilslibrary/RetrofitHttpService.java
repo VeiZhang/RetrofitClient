@@ -3,13 +3,13 @@ package com.excellence.retrofitutilslibrary;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
-import retrofit2.http.Streaming;
-import rx.Observer;
 import retrofit2.Call;
+import rx.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Url;
 import retrofit2.http.QueryMap;
 import retrofit2.http.HeaderMap;
+import retrofit2.http.Streaming;
 
 /**
  * <pre>
@@ -26,7 +26,7 @@ public interface RetrofitHttpService
 	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
 	@GET
-	Observer<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+	Observable<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
 	@Streaming
 	@GET
