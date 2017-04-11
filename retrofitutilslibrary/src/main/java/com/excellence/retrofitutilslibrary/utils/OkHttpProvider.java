@@ -35,13 +35,21 @@ public class OkHttpProvider
 				if (mOkHttpClient == null)
 				{
 					/** 默认缓存位置/sdcard/Android/data/YourPackageName/cache/ **/
+					CacheInterceptor cacheInterceptor = new CacheInterceptor(context);
+					/**
+					 * {@link okhttp3.OkHttpClient.Builder#addInterceptor(Interceptor)}
+					 * {@link okhttp3.OkHttpClient.Builder#addNetworkInterceptor(Interceptor)}
+					 * 需要同时添加 {@link CacheInterceptor} 缓存拦截器，在离线情况下才能读取缓存数据，
+					 * 只添加其中一个拦截器则不能读取，并且会出现异常
+					 **/
 					mOkHttpClient = new OkHttpClient.Builder().
 							addInterceptor(new LoggingInterceptor()).
 							addInterceptor(new DownloadInterceptor()).
-							addNetworkInterceptor(new CacheInterceptor(context)).
+							addInterceptor(cacheInterceptor).
+							addNetworkInterceptor(cacheInterceptor).
 							cache(new Cache(context.getExternalCacheDir(), CACHE_MAX_SIZE)).
                             retryOnConnectionFailure(true).
-							connectTimeout(DEFAULT_CONNECT_TIME, TimeUnit.SECONDS).
+                            connectTimeout(DEFAULT_CONNECT_TIME, TimeUnit.SECONDS).
 							readTimeout(DEFAULT_READ_TIME, TimeUnit.SECONDS).
 							writeTimeout(DEFAULT_WRITE_TIME, TimeUnit.SECONDS).
 							build();
