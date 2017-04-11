@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="activity_names">
+        <item>@string/get</item>
+        <item>@string/download</item>
+    </string-array>
+
+    <string-array name="activities">
+        <item>com.excellence.retrofitutils.GetActivity</item>
+        <item>com.excellence.retrofitutils.DownloadActivity</item>
+    </string-array>
+</resources>

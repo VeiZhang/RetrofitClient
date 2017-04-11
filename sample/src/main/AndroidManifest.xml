@@ -19,6 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".GetActivity">
+        </activity>
+        <activity android:name=".DownloadActivity">
+        </activity>
     </application>
 
 </manifest>

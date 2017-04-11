@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">RetrofitUtils</string>
+    <string name="get">Get请求</string>
+    <string name="download">Download下载</string>
+    <string name="get_request">Get</string>
+    <string name="obget_request">obGet</string>
+    <string name="request_failed">请求失败</string>
+    <string name="download_request">Download</string>
+    <string name="obdownload_request">obDownload</string>
+    <string name="start">开始</string>
+    <string name="cancel">取消</string>
+    <string name="failed">失败</string>
+    <string name="success">成功</string>
 </resources>
