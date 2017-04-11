@@ -13,6 +13,8 @@ public class MainActivity extends AppCompatActivity
 	private static final String BASE_URL = "http://gank.io/api/";
 	private static final String REQUEST_URL = "http://gank.io/api/data/%E7%A6%8F%E5%88%A9/1/0";
 	private static final String DOWNLOAD_URL = "http://download.game.yy.com/duowanapp/m/Duowan20140427.apk";
+	private static final String QQ_URL = "http://gdown.baidu.com/data/wisegame/dc429998555b7d4d/QQ_398.apk";
+	private static final String GAME_URL = "http://andl.guopan.cn/101919-3889-1467370568.apk";
 
 	private RetrofitUtils mRetrofitUtils = null;
 
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity
 
 	private void download()
 	{
-		mRetrofitUtils.download(DOWNLOAD_URL, "/sdcard/Duowan.apk", new DownloadListener()
+		mRetrofitUtils.download(QQ_URL, "/sdcard/QQ.apk", new DownloadListener()
 		{
 			@Override
 			public void onPreExecute(long fileSize)
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity
 
 	private void obDownload()
 	{
-		mRetrofitUtils.obDownload(DOWNLOAD_URL, "/sdcard/Duowan1.apk", new DownloadListener()
+		mRetrofitUtils.obDownload(QQ_URL, "/sdcard/QQ.apk", new DownloadListener()
 		{
 			@Override
 			public void onPreExecute(long fileSize)

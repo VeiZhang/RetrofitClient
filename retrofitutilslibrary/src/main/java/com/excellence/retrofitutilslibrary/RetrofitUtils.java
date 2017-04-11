@@ -401,23 +401,14 @@ public class RetrofitUtils
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Observable<ResponseBody> observable = mService.obDownload(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<ResponseBody>()
+		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
 		{
 			@Override
 			public void onNext(final ResponseBody response)
 			{
-				new AsyncTask<Void, Long, Void>()
-				{
-					@Override
-					protected Void doInBackground(Void... params)
-					{
-						writetoFile(listener, path, response);
-						if (mTag != null)
-							removeCall(url);
-						return null;
-					}
-
-				}.execute();
+				writetoFile(listener, path, response);
+				if (mTag != null)
+					removeCall(url);
 			}
 
 			@Override
@@ -467,6 +458,7 @@ public class RetrofitUtils
 				downloadedSize += read;
 				onProgressChange(listener, fileSize, downloadedSize);
 			}
+			out.flush();
 			onSuccess(listener);
 		}
 		catch (Exception e)
