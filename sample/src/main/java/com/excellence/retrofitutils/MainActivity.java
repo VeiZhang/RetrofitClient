@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
 import com.excellence.basetoolslibrary.utils.ActivityUtils;
-import com.excellence.retrofitutilslibrary.RetrofitUtils;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener
 {
@@ -31,13 +30,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 		mGridView = (GridView) findViewById(R.id.gridview);
 		mGridView.setAdapter(new ActivityAdapter(this, mActivityNames, android.R.layout.simple_list_item_1));
 		mGridView.setOnItemClickListener(this);
-	}
-
-	@Override
-	protected void onStop()
-	{
-		super.onStop();
-		RetrofitUtils.cancel(this);
 	}
 
 	@Override

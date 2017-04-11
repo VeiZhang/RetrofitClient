@@ -31,4 +31,11 @@ public class BaseActivity extends Activity
 		super.onCreate(savedInstanceState);
 		mRetrofitUtils = new RetrofitUtils.Builder(this).baseUrl(BASE_URL).build();
 	}
+
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		RetrofitUtils.cancel(this);
+	}
 }

@@ -40,7 +40,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static com.excellence.retrofitutilslibrary.utils.DownloadInterceptor.DOWNLOAD;
+import static com.excellence.retrofitutilslibrary.interceptor.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofitutilslibrary.utils.Utils.checkHeaders;
 import static com.excellence.retrofitutilslibrary.utils.Utils.checkParams;
 import static com.excellence.retrofitutilslibrary.utils.Utils.checkURL;

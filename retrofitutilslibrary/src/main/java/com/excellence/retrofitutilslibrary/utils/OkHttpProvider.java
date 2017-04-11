@@ -7,6 +7,8 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 
 import com.excellence.retrofitutilslibrary.interceptor.CacheInterceptor;
+import com.excellence.retrofitutilslibrary.interceptor.DownloadInterceptor;
+import com.excellence.retrofitutilslibrary.interceptor.LoggingInterceptor;
 
 /**
  * <pre>
