@@ -1,4 +1,4 @@
-package com.excellence.retrofitutilslibrary.interceptor;
+package com.excellence.retrofit.interceptor;
 
 import android.util.Log;
 

@@ -1,4 +1,4 @@
-package com.excellence.retrofitutilslibrary.interfaces;
+package com.excellence.retrofit.interfaces;
 
 /**
  * <pre>

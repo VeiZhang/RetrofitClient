@@ -1,4 +1,4 @@
-package com.excellence.retrofitutilslibrary;
+package com.excellence.retrofit;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,11 +7,11 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.excellence.retrofitutilslibrary.interfaces.DownloadListener;
-import com.excellence.retrofitutilslibrary.interfaces.Error;
-import com.excellence.retrofitutilslibrary.interfaces.Success;
-import com.excellence.retrofitutilslibrary.utils.OkHttpProvider;
-import com.excellence.retrofitutilslibrary.utils.Utils;
+import com.excellence.retrofit.interfaces.DownloadListener;
+import com.excellence.retrofit.interfaces.Error;
+import com.excellence.retrofit.interfaces.Success;
+import com.excellence.retrofit.utils.OkHttpProvider;
+import com.excellence.retrofit.utils.Utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,10 +40,10 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static com.excellence.retrofitutilslibrary.interceptor.DownloadInterceptor.DOWNLOAD;
-import static com.excellence.retrofitutilslibrary.utils.Utils.checkHeaders;
-import static com.excellence.retrofitutilslibrary.utils.Utils.checkParams;
-import static com.excellence.retrofitutilslibrary.utils.Utils.checkURL;
+import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
+import static com.excellence.retrofit.utils.Utils.checkHeaders;
+import static com.excellence.retrofit.utils.Utils.checkParams;
+import static com.excellence.retrofit.utils.Utils.checkURL;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 /**

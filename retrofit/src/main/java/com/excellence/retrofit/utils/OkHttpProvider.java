@@ -1,13 +1,15 @@
-package com.excellence.retrofitutilslibrary.utils;
+package com.excellence.retrofit.utils;
 
 import android.content.Context;
+
+import com.excellence.retrofit.interceptor.CacheInterceptor;
+import com.excellence.retrofit.interceptor.DownloadInterceptor;
+import com.excellence.retrofit.interceptor.LoggingInterceptor;
+
 import java.util.concurrent.TimeUnit;
+
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-
-import com.excellence.retrofitutilslibrary.interceptor.CacheInterceptor;
-import com.excellence.retrofitutilslibrary.interceptor.DownloadInterceptor;
-import com.excellence.retrofitutilslibrary.interceptor.LoggingInterceptor;
 
 /**
  * <pre>

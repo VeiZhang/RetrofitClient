@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.excellence.retrofitutilslibrary.interfaces.DownloadListener;
+import com.excellence.retrofit.interfaces.DownloadListener;
 
 import java.io.File;
 

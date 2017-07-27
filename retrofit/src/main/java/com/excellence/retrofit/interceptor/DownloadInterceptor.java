@@ -1,6 +1,6 @@
-package com.excellence.retrofitutilslibrary.interceptor;
+package com.excellence.retrofit.interceptor;
 
-import com.excellence.retrofitutilslibrary.utils.Utils;
+import com.excellence.retrofit.utils.Utils;
 
 import java.io.IOException;
 

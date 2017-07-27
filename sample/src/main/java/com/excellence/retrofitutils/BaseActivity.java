@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.excellence.retrofitutilslibrary.RetrofitUtils;
+import com.excellence.retrofit.RetrofitUtils;
 
 /**
  * <pre>

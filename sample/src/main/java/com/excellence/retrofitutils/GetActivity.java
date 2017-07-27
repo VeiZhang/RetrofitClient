@@ -5,8 +5,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.excellence.retrofitutilslibrary.interfaces.Success;
-import com.excellence.retrofitutilslibrary.interfaces.Error;
+import com.excellence.retrofit.interfaces.Success;
+import com.excellence.retrofit.interfaces.Error;
 
 public class GetActivity extends BaseActivity implements View.OnClickListener
 {

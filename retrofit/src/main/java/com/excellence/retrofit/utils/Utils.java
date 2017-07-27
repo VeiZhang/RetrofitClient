@@ -1,4 +1,4 @@
-package com.excellence.retrofitutilslibrary.utils;
+package com.excellence.retrofit.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

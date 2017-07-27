@@ -1,9 +1,36 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.novoda:bintray-release:0.3.4'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+
+    /**避免中文注释:编码GBK的不可映射字符**/
+    tasks.withType(Javadoc) {
+        options{
+            encoding "UTF-8"
+            charSet 'UTF-8'
+            links "http://docs.oracle.com/javase/7/docs/api"
+        }
+    }
+}
+
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
         minSdkVersion 17
@@ -20,17 +47,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
-        abortOnError false
-    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.android.support:appcompat-v7:25.+'
     testCompile 'junit:junit:4.12'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:converter-scalars:2.2.0'
@@ -49,9 +73,10 @@ tasks.withType(Javadoc) {
 /**发布到我的Bintray仓库**/
 publish {
     userOrg = 'veizhang'
+    repoName = 'android-utils'
     groupId = 'com.excellence'
-    artifactId = 'retrofitutils'
+    artifactId = 'volley'
     publishVersion = '1.0.0'
-    desc = 'Retrofit封装'
-    website = 'https://github.com/VeiZhang/RetrofitUtils'
+    desc = 'Retrofit辅助工具'
+    website = 'https://github.com/VeiZhang/RetrofitClient'
 }

@@ -1,10 +1,10 @@
-package com.excellence.retrofitutilslibrary.interceptor;
+package com.excellence.retrofit.interceptor;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.excellence.retrofitutilslibrary.utils.Utils;
+import com.excellence.retrofit.utils.Utils;
 
 import java.io.IOException;
 
