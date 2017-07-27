@@ -75,7 +75,7 @@ publish {
     userOrg = 'veizhang'
     repoName = 'android-utils'
     groupId = 'com.excellence'
-    artifactId = 'volley'
+    artifactId = 'retrofit'
     publishVersion = '1.0.0'
     desc = 'Retrofit辅助工具'
     website = 'https://github.com/VeiZhang/RetrofitClient'
