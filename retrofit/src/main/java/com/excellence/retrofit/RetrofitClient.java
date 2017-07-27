@@ -63,9 +63,9 @@ import static java.net.HttpURLConnection.HTTP_OK;
  * </pre>
  */
 
-public class RetrofitUtils
+public class RetrofitClient
 {
-	public static final String TAG = RetrofitUtils.class.getSimpleName();
+	public static final String TAG = RetrofitClient.class.getSimpleName();
 
 	private RetrofitHttpService mService = null;
 	private String mBaseUrl = null;
@@ -93,7 +93,7 @@ public class RetrofitUtils
 
 	private Executor mResponseposter = null;
 
-	private RetrofitUtils(RetrofitHttpService service, String baseUrl, OkHttpClient client, Executor responsePoster)
+	private RetrofitClient(RetrofitHttpService service, String baseUrl, OkHttpClient client, Executor responsePoster)
 	{
 		mService = service;
 		mBaseUrl = baseUrl;
@@ -154,7 +154,7 @@ public class RetrofitUtils
 			return this;
 		}
 
-		public RetrofitUtils build()
+		public RetrofitClient build()
 		{
 			checkURL(mBaseUrl);
 			if (!mBaseUrl.endsWith("/"))
@@ -199,7 +199,7 @@ public class RetrofitUtils
 				builder.addCallAdapterFactory(callAdapterFactory);
 			Retrofit retrofit = builder.build();
 			RetrofitHttpService service = retrofit.create(RetrofitHttpService.class);
-			return new RetrofitUtils(service, mBaseUrl, mClient, mResponsePoster);
+			return new RetrofitClient(service, mBaseUrl, mClient, mResponsePoster);
 		}
 	}
 
@@ -210,7 +210,7 @@ public class RetrofitUtils
 	 * @param value 键值
 	 * @return
 	 */
-	public RetrofitUtils setParam(String key, String value)
+	public RetrofitClient setParam(String key, String value)
 	{
 		mParams.put(key, value);
 		return this;
@@ -222,7 +222,7 @@ public class RetrofitUtils
 	 * @param params 参数集
 	 * @return
 	 */
-	public RetrofitUtils setParams(Map<String, String> params)
+	public RetrofitClient setParams(Map<String, String> params)
 	{
 		mParams.putAll(params);
 		return this;
@@ -235,7 +235,7 @@ public class RetrofitUtils
 	 * @param value 键值
 	 * @return
 	 */
-	public RetrofitUtils setHeader(String key, String value)
+	public RetrofitClient setHeader(String key, String value)
 	{
 		mHeaders.put(key, value);
 		return this;
@@ -247,7 +247,7 @@ public class RetrofitUtils
 	 * @param headers 集合
 	 * @return
 	 */
-	public RetrofitUtils setHeaders(Map<String, String> headers)
+	public RetrofitClient setHeaders(Map<String, String> headers)
 	{
 		mHeaders.putAll(headers);
 		return this;
@@ -559,7 +559,7 @@ public class RetrofitUtils
 	 * @param tag 标识
 	 * @return
 	 */
-	public RetrofitUtils setTag(Object tag)
+	public RetrofitClient setTag(Object tag)
 	{
 		mTag = tag;
 		return this;

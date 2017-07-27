@@ -50,7 +50,7 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 
 	private void download()
 	{
-		mRetrofitUtils.download(DOWNLOAD_URL, Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk", new DownloadListener()
+		mRetrofitClient.download(DOWNLOAD_URL, Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk", new DownloadListener()
 		{
 			@Override
 			public void onPreExecute(long fileSize)
@@ -98,7 +98,7 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 	 */
 	private void obDownload()
 	{
-		mRetrofitUtils.obDownload(DOWNLOAD_URL1, Environment.getExternalStorageDirectory() + File.separator + "Game.apk", new DownloadListener()
+		mRetrofitClient.obDownload(DOWNLOAD_URL1, Environment.getExternalStorageDirectory() + File.separator + "Game.apk", new DownloadListener()
 		{
 			@Override
 			public void onPreExecute(long fileSize)

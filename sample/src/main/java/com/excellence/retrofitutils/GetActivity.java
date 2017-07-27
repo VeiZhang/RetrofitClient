@@ -53,7 +53,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 	private void get()
 	{
-		mRetrofitUtils.setHeader("Cache-Time", "24 * 3600").setTag(this).get(REQUEST_URL, new Success()
+		mRetrofitClient.setHeader("Cache-Time", "24 * 3600").setTag(this).get(REQUEST_URL, new Success()
 		{
 			@Override
 			public void success(String result)
@@ -73,7 +73,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 	private void obGet()
 	{
-		mRetrofitUtils.setHeader("Cache-Time", "24 * 3600").setTag(this).obGet(REQUEST_URL1, new Success()
+		mRetrofitClient.setHeader("Cache-Time", "24 * 3600").setTag(this).obGet(REQUEST_URL1, new Success()
 		{
 			@Override
 			public void success(String result)

@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.excellence.retrofit.RetrofitUtils;
+import com.excellence.retrofit.RetrofitClient;
 
 /**
  * <pre>
@@ -23,19 +23,19 @@ public class BaseActivity extends Activity
 	protected static final String DOWNLOAD_URL = "http://download.game.yy.com/duowanapp/m/Duowan20140427.apk";
 	protected static final String DOWNLOAD_URL1 = "http://andl.guopan.cn/101919-3889-1467370568.apk";
 
-	protected RetrofitUtils mRetrofitUtils = null;
+	protected RetrofitClient mRetrofitClient = null;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		mRetrofitUtils = new RetrofitUtils.Builder(this).baseUrl(BASE_URL).build();
+		mRetrofitClient = new RetrofitClient.Builder(this).baseUrl(BASE_URL).build();
 	}
 
 	@Override
 	protected void onStop()
 	{
 		super.onStop();
-		RetrofitUtils.cancel(this);
+		RetrofitClient.cancel(this);
 	}
 }
