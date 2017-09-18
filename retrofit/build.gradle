@@ -73,10 +73,9 @@ tasks.withType(Javadoc) {
 /**发布到我的Bintray仓库**/
 publish {
     userOrg = 'veizhang'
-    repoName = 'android-utils'
     groupId = 'com.excellence'
     artifactId = 'retrofit'
     publishVersion = '1.0.0'
-    desc = 'Retrofit辅助工具'
+    desc = 'Retrofit封装'
     website = 'https://github.com/VeiZhang/RetrofitClient'
 }
