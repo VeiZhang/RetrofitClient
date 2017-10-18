@@ -6,7 +6,7 @@
     </string-array>
 
     <string-array name="activities">
-        <item>com.excellence.retrofitutils.GetActivity</item>
-        <item>com.excellence.retrofitutils.DownloadActivity</item>
+        <item>com.excellence.retrofit.sample.GetActivity</item>
+        <item>com.excellence.retrofit.sample.DownloadActivity</item>
     </string-array>
 </resources>

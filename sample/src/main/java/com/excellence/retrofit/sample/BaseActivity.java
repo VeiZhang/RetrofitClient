@@ -1,4 +1,4 @@
-package com.excellence.retrofitutils;
+package com.excellence.retrofit.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
