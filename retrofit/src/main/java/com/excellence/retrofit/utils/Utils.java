@@ -80,10 +80,10 @@ public class Utils
 	}
 
 	/**
-	 * 检验请求参数，不能为空
+	 * 检测请求参数，不能为空
 	 *
-	 * @param params 请求参数
-	 * @return 请求参数
+	 * @param params 请求参数集合
+	 * @return 请求参数集合
 	 */
 	public static Map<String, String> checkParams(Map<String, String> params)
 	{
@@ -97,6 +97,12 @@ public class Utils
 		return params;
 	}
 
+	/**
+	 * 检测请求头信息，不能为空
+	 *
+	 * @param headers 请求头
+	 * @return 请求头集合
+	 */
 	public static Map<String, String> checkHeaders(Map<String, String> headers)
 	{
 		if (headers == null)

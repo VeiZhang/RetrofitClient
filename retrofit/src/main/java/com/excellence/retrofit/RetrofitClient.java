@@ -70,16 +70,15 @@ public class RetrofitClient
 	private RetrofitHttpService mService = null;
 	private String mBaseUrl = null;
 	private OkHttpClient mClient = null;
+	/**
+	 * 全局请求头
+	 */
+	private Map<String, String> mHeaders = null;
 
 	/**
-	 * 请求参数
+	 * 全局请求参数
 	 */
-	private Map<String, String> mParams = new HashMap<>();
-
-	/**
-	 * 请求头
-	 */
-	private Map<String, String> mHeaders = new HashMap<>();
+	private Map<String, String> mParams = null;
 
 	/**
 	 * 网络请求队列
@@ -100,11 +99,13 @@ public class RetrofitClient
 		return mInstance;
 	}
 
-	private RetrofitClient(RetrofitHttpService service, String baseUrl, OkHttpClient client)
+	private RetrofitClient(RetrofitHttpService service, String baseUrl, Map<String, String> headers, Map<String, String> params, OkHttpClient client)
 	{
 		mService = service;
 		mBaseUrl = baseUrl;
 		mClient = client;
+		mHeaders = headers;
+		mParams = params;
 
 		final Handler handler = new Handler(Looper.getMainLooper());
 		mResponsePoster = new Executor()
@@ -130,56 +131,6 @@ public class RetrofitClient
 	public OkHttpClient getClient()
 	{
 		return mClient;
-	}
-
-	/**
-	 * 设置单个请求参数
-	 *
-	 * @param key 键
-	 * @param value 键值
-	 * @return
-	 */
-	public RetrofitClient setParam(String key, String value)
-	{
-		mParams.put(key, value);
-		return this;
-	}
-
-	/**
-	 * 设置请求参数集
-	 *
-	 * @param params 参数集
-	 * @return
-	 */
-	public RetrofitClient setParams(Map<String, String> params)
-	{
-		mParams.putAll(params);
-		return this;
-	}
-
-	/**
-	 * 设置单个请求头
-	 *
-	 * @param key 键
-	 * @param value 键值
-	 * @return
-	 */
-	public RetrofitClient setHeader(String key, String value)
-	{
-		mHeaders.put(key, value);
-		return this;
-	}
-
-	/**
-	 * 设置请求头
-	 *
-	 * @param headers 集合
-	 * @return
-	 */
-	public RetrofitClient setHeaders(Map<String, String> headers)
-	{
-		mHeaders.putAll(headers);
-		return this;
 	}
 
 	/**
@@ -596,7 +547,7 @@ public class RetrofitClient
 	}
 
 	/**
-	 * 使用该方式创建{@link #RetrofitClient(RetrofitHttpService, String, OkHttpClient)}的单例
+	 * 使用该方式创建{@link #RetrofitClient}的单例
 	 */
 	public static class Builder
 	{
@@ -605,6 +556,15 @@ public class RetrofitClient
 		private OkHttpClient mClient = null;
 		private List<Converter.Factory> mConverterFactories = new ArrayList<>();
 		private List<CallAdapter.Factory> mCallAdapterFactories = new ArrayList<>();
+		/**
+		 * 配置全局请求头
+		 */
+		private Map<String, String> mHeaders = new HashMap<>();
+
+		/**
+		 * 配置全局请求参数
+		 */
+		private Map<String, String> mParams = new HashMap<>();
 
 		public Builder(@NonNull Context context)
 		{
@@ -632,6 +592,56 @@ public class RetrofitClient
 		public Builder addCallAdapterFactory(@NonNull CallAdapter.Factory factory)
 		{
 			mCallAdapterFactories.add(factory);
+			return this;
+		}
+
+		/**
+		 * 设置统一请求头
+		 *
+		 * @param key 键
+		 * @param value 键值
+		 * @return
+		 */
+		public Builder setHeader(String key, String value)
+		{
+			mHeaders.put(key, value);
+			return this;
+		}
+
+		/**
+		 * 设置统一请求头集合
+		 *
+		 * @param headers 集合
+		 * @return
+		 */
+		public Builder setHeaders(Map<String, String> headers)
+		{
+			mHeaders.putAll(headers);
+			return this;
+		}
+
+		/**
+		 * 设置统一请求参数
+		 *
+		 * @param key 键
+		 * @param value 键值
+		 * @return
+		 */
+		public Builder setParam(String key, String value)
+		{
+			mParams.put(key, value);
+			return this;
+		}
+
+		/**
+		 * 设置统一请求参数集合
+		 *
+		 * @param params 参数集
+		 * @return
+		 */
+		public Builder setParams(Map<String, String> params)
+		{
+			mParams.putAll(params);
 			return this;
 		}
 
@@ -670,7 +680,7 @@ public class RetrofitClient
 				builder.addCallAdapterFactory(callAdapterFactory);
 			Retrofit retrofit = builder.build();
 			RetrofitHttpService service = retrofit.create(RetrofitHttpService.class);
-			mInstance = new RetrofitClient(service, mBaseUrl, mClient);
+			mInstance = new RetrofitClient(service, mBaseUrl, mHeaders, mParams, mClient);
 			return mInstance;
 		}
 	}
