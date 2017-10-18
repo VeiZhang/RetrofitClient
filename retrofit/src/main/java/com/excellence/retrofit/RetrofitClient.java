@@ -8,8 +8,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.excellence.retrofit.interfaces.DownloadListener;
-import com.excellence.retrofit.interfaces.Error;
-import com.excellence.retrofit.interfaces.Success;
+import com.excellence.retrofit.interfaces.IListener;
 import com.excellence.retrofit.utils.OkHttpProvider;
 import com.excellence.retrofit.utils.Utils;
 
@@ -187,10 +186,9 @@ public class RetrofitClient
 	 * Get请求字符串数据
 	 *
 	 * @param url 请求链接
-	 * @param successCall 成功回调
-	 * @param errorCall 错误回调
+	 * @param listener 结果回调
 	 */
-	public void get(@NonNull final String url, @NonNull final Success successCall, @NonNull final Error errorCall)
+	public void get(@NonNull final String url, final IListener listener)
 	{
 		Call<String> call = mService.get(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
 		addCall(mTag, url, call);
@@ -201,17 +199,17 @@ public class RetrofitClient
 			{
 				if (response.code() == HTTP_OK)
 				{
-					successCall.success(response.body());
+					handleSuccess(listener, response.body());
 				}
 				else
 				{
 					String errorMsg = Utils.inputStream2String(response.errorBody().byteStream());
 					if (!TextUtils.isEmpty(errorMsg))
-						errorCall.error(new Throwable(errorMsg));
+						handleError(listener, new Throwable(errorMsg));
 					else
 					{
 						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-						errorCall.error(new Throwable("There may be no cache data!"));
+						handleError(listener, new Throwable("There may be no cache data!"));
 					}
 				}
 				if (mTag != null)
@@ -222,21 +220,32 @@ public class RetrofitClient
 			public void onFailure(Call<String> call, Throwable t)
 			{
 				if (!call.isCanceled())
-					errorCall.error(t);
+					handleError(listener, t);
 				if (mTag != null)
 					removeCall(url);
 			}
 		});
 	}
 
+	private void handleSuccess(IListener listener, String result)
+	{
+		if (listener != null)
+			listener.onSuccess(result);
+	}
+
+	private void handleError(IListener listener, Throwable t)
+	{
+		if (listener != null)
+			listener.onError(t);
+	}
+
 	/**
 	 * RxJava结合Get请求字符串数据
 	 *
 	 * @param url 请求链接
-	 * @param successCall 成功回调
-	 * @param errorCall 错误回调
+	 * @param listener 结果回调
 	 */
-	public void obGet(@NonNull final String url, @NonNull final Success successCall, @NonNull final Error errorCall)
+	public void obGet(@NonNull final String url, final IListener listener)
 	{
 		Observable<String> observable = mService.obGet(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
@@ -244,7 +253,7 @@ public class RetrofitClient
 			@Override
 			public void onNext(String result)
 			{
-				successCall.success(result);
+				handleSuccess(listener, result);
 				if (mTag != null)
 					removeCall(url);
 			}
@@ -258,7 +267,7 @@ public class RetrofitClient
 			@Override
 			public void onError(Throwable e)
 			{
-				errorCall.error(e);
+				handleError(listener, e);
 				if (mTag != null)
 					removeCall(url);
 			}
@@ -630,6 +639,7 @@ public class RetrofitClient
 		{
 			if (mInstance != null)
 				return mInstance;
+
 			checkURL(mBaseUrl);
 			if (!mBaseUrl.endsWith("/"))
 				mBaseUrl += "/";

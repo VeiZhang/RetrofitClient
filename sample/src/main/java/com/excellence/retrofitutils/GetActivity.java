@@ -5,8 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.excellence.retrofit.interfaces.Success;
-import com.excellence.retrofit.interfaces.Error;
+import com.excellence.retrofit.interfaces.IListener;
 
 public class GetActivity extends BaseActivity implements View.OnClickListener
 {
@@ -53,17 +52,16 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 	private void get()
 	{
-		mRetrofitClient.setHeader("Cache-Time", "24 * 3600").setTag(this).get(REQUEST_URL, new Success()
+		mRetrofitClient.setHeader("Cache-Time", "24 * 3600").setTag(this).get(REQUEST_URL, new IListener()
 		{
 			@Override
-			public void success(String result)
+			public void onSuccess(String result)
 			{
 				mResultTextView.setText(result);
 			}
-		}, new Error()
-		{
+
 			@Override
-			public void error(Throwable t)
+			public void onError(Throwable t)
 			{
 				mResultTextView.setText(R.string.request_failed);
 				t.printStackTrace();
@@ -73,17 +71,16 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 	private void obGet()
 	{
-		mRetrofitClient.setHeader("Cache-Time", "24 * 3600").setTag(this).obGet(REQUEST_URL1, new Success()
+		mRetrofitClient.setHeader("Cache-Time", "24 * 3600").setTag(this).obGet(REQUEST_URL1, new IListener()
 		{
 			@Override
-			public void success(String result)
+			public void onSuccess(String result)
 			{
 				mResultTextView.setText(result);
 			}
-		}, new Error()
-		{
+
 			@Override
-			public void error(Throwable t)
+			public void onError(Throwable t)
 			{
 				mResultTextView.setText(R.string.request_failed);
 				t.printStackTrace();
