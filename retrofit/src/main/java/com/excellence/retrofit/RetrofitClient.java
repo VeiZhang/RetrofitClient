@@ -54,7 +54,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
  *     desc   : Retrofit封装
  *     			<ul>
  *     			   <li>get请求封装</li>
- *     			   <li>参数可配置</li>
+ *     			   <li>请求头和参数统一配置，分开配置</li>
  *     			   <li>异步统一回调接口</li>
  *     			   <li>单个界面所有请求取消</li>
  *     			   <li>缓存策略</li>
@@ -67,6 +67,7 @@ public class RetrofitClient
 {
 	public static final String TAG = RetrofitClient.class.getSimpleName();
 
+	private static RetrofitClient mInstance = null;
 	private RetrofitHttpService mService = null;
 	private String mBaseUrl = null;
 	private OkHttpClient mClient = null;
@@ -91,14 +92,30 @@ public class RetrofitClient
 	 */
 	private Object mTag = null;
 
-	private Executor mResponseposter = null;
+	private Executor mResponsePoster = null;
 
-	private RetrofitClient(RetrofitHttpService service, String baseUrl, OkHttpClient client, Executor responsePoster)
+	public static RetrofitClient getInstance()
+	{
+		if (mInstance == null)
+			throw new RuntimeException("Pls init " + Builder.class.getName());
+		return mInstance;
+	}
+
+	private RetrofitClient(RetrofitHttpService service, String baseUrl, OkHttpClient client)
 	{
 		mService = service;
 		mBaseUrl = baseUrl;
 		mClient = client;
-		mResponseposter = responsePoster;
+
+		final Handler handler = new Handler(Looper.getMainLooper());
+		mResponsePoster = new Executor()
+		{
+			@Override
+			public void execute(@NonNull Runnable command)
+			{
+				handler.post(command);
+			}
+		};
 	}
 
 	public RetrofitHttpService getService()
@@ -114,93 +131,6 @@ public class RetrofitClient
 	public OkHttpClient getClient()
 	{
 		return mClient;
-	}
-
-	public static class Builder
-	{
-		private Context mContext = null;
-		private String mBaseUrl = null;
-		private OkHttpClient mClient = null;
-		private List<Converter.Factory> mConverterFactories = new ArrayList<>();
-		private List<CallAdapter.Factory> mCallAdapterFactories = new ArrayList<>();
-		private Executor mResponsePoster = null;
-
-		public Builder(@NonNull Context context)
-		{
-			mContext = context;
-		}
-
-		public Builder baseUrl(@NonNull String baseUrl)
-		{
-			mBaseUrl = baseUrl;
-			return this;
-		}
-
-		public Builder client(@NonNull OkHttpClient client)
-		{
-			mClient = client;
-			return this;
-		}
-
-		public Builder addConverterFactory(@NonNull Converter.Factory factory)
-		{
-			mConverterFactories.add(factory);
-			return this;
-		}
-
-		public Builder addCallAdapterFactory(@NonNull CallAdapter.Factory factory)
-		{
-			mCallAdapterFactories.add(factory);
-			return this;
-		}
-
-		public RetrofitClient build()
-		{
-			checkURL(mBaseUrl);
-			if (!mBaseUrl.endsWith("/"))
-				mBaseUrl += "/";
-
-			if (mClient == null)
-			{
-				mClient = OkHttpProvider.okHttpClient(mContext);
-			}
-
-			if (mConverterFactories.isEmpty())
-			{
-				// 默认支持字符串数据
-				mConverterFactories.add(ScalarsConverterFactory.create());
-			}
-
-			if (mCallAdapterFactories.isEmpty())
-			{
-				// 默认支持RxJava
-				mCallAdapterFactories.add(RxJavaCallAdapterFactory.create());
-			}
-
-			if (mResponsePoster == null)
-			{
-				final Handler handler = new Handler(Looper.getMainLooper());
-				mResponsePoster = new Executor()
-				{
-					@Override
-					public void execute(@NonNull Runnable command)
-					{
-						handler.post(command);
-					}
-				};
-			}
-
-			Retrofit.Builder builder = new Retrofit.Builder();
-			builder.baseUrl(mBaseUrl);
-			builder.client(mClient);
-			for (Converter.Factory converterFactory : mConverterFactories)
-				builder.addConverterFactory(converterFactory);
-			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
-				builder.addCallAdapterFactory(callAdapterFactory);
-			Retrofit retrofit = builder.build();
-			RetrofitHttpService service = retrofit.create(RetrofitHttpService.class);
-			return new RetrofitClient(service, mBaseUrl, mClient, mResponsePoster);
-		}
 	}
 
 	/**
@@ -489,7 +419,7 @@ public class RetrofitClient
 	 */
 	private void onPreExecute(final DownloadListener listener, final long fileSize)
 	{
-		mResponseposter.execute(new Runnable()
+		mResponsePoster.execute(new Runnable()
 		{
 			@Override
 			public void run()
@@ -508,7 +438,7 @@ public class RetrofitClient
 	 */
 	private void onProgressChange(final DownloadListener listener, final long fileSize, final long downloadedSize)
 	{
-		mResponseposter.execute(new Runnable()
+		mResponsePoster.execute(new Runnable()
 		{
 			@Override
 			public void run()
@@ -525,7 +455,7 @@ public class RetrofitClient
 	 */
 	private void onSuccess(final DownloadListener listener)
 	{
-		mResponseposter.execute(new Runnable()
+		mResponsePoster.execute(new Runnable()
 		{
 			@Override
 			public void run()
@@ -543,7 +473,7 @@ public class RetrofitClient
 	 */
 	private void onError(final DownloadListener listener, final Exception e)
 	{
-		mResponseposter.execute(new Runnable()
+		mResponsePoster.execute(new Runnable()
 		{
 			@Override
 			public void run()
@@ -656,4 +586,82 @@ public class RetrofitClient
 		removeCall(key);
 	}
 
+	/**
+	 * 使用该方式创建{@link #RetrofitClient(RetrofitHttpService, String, OkHttpClient)}的单例
+	 */
+	public static class Builder
+	{
+		private Context mContext = null;
+		private String mBaseUrl = null;
+		private OkHttpClient mClient = null;
+		private List<Converter.Factory> mConverterFactories = new ArrayList<>();
+		private List<CallAdapter.Factory> mCallAdapterFactories = new ArrayList<>();
+
+		public Builder(@NonNull Context context)
+		{
+			mContext = context;
+		}
+
+		public Builder baseUrl(@NonNull String baseUrl)
+		{
+			mBaseUrl = baseUrl;
+			return this;
+		}
+
+		public Builder client(@NonNull OkHttpClient client)
+		{
+			mClient = client;
+			return this;
+		}
+
+		public Builder addConverterFactory(@NonNull Converter.Factory factory)
+		{
+			mConverterFactories.add(factory);
+			return this;
+		}
+
+		public Builder addCallAdapterFactory(@NonNull CallAdapter.Factory factory)
+		{
+			mCallAdapterFactories.add(factory);
+			return this;
+		}
+
+		public RetrofitClient build()
+		{
+			if (mInstance != null)
+				return mInstance;
+			checkURL(mBaseUrl);
+			if (!mBaseUrl.endsWith("/"))
+				mBaseUrl += "/";
+
+			if (mClient == null)
+			{
+				mClient = OkHttpProvider.okHttpClient(mContext);
+			}
+
+			if (mConverterFactories.isEmpty())
+			{
+				// 默认支持字符串数据
+				mConverterFactories.add(ScalarsConverterFactory.create());
+			}
+
+			if (mCallAdapterFactories.isEmpty())
+			{
+				// 默认支持RxJava
+				mCallAdapterFactories.add(RxJavaCallAdapterFactory.create());
+			}
+
+			Retrofit.Builder builder = new Retrofit.Builder();
+			builder.baseUrl(mBaseUrl);
+			builder.client(mClient);
+			for (Converter.Factory converterFactory : mConverterFactories)
+				builder.addConverterFactory(converterFactory);
+			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
+				builder.addCallAdapterFactory(callAdapterFactory);
+			Retrofit retrofit = builder.build();
+			RetrofitHttpService service = retrofit.create(RetrofitHttpService.class);
+			mInstance = new RetrofitClient(service, mBaseUrl, mClient);
+			return mInstance;
+		}
+	}
 }
