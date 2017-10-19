@@ -95,13 +95,13 @@ public class RetrofitClient
 		return mInstance;
 	}
 
-	private RetrofitClient(RetrofitHttpService service, String baseUrl, Map<String, String> headers, Map<String, String> params, OkHttpClient client)
+	public RetrofitClient(Builder builder)
 	{
-		mService = service;
-		mBaseUrl = baseUrl;
-		mClient = client;
-		mHeaders = headers;
-		mParams = params;
+		mService = builder.mService;
+		mBaseUrl = builder.mBaseUrl;
+		mClient = builder.mClient;
+		mHeaders = builder.mHeaders;
+		mParams = builder.mParams;
 
 		final Handler handler = new Handler(Looper.getMainLooper());
 		mResponsePoster = new Executor()
@@ -537,6 +537,7 @@ public class RetrofitClient
 		private Context mContext = null;
 		private String mBaseUrl = null;
 		private OkHttpClient mClient = null;
+		private RetrofitHttpService mService = null;
 		private List<Converter.Factory> mConverterFactories = new ArrayList<>();
 		private List<CallAdapter.Factory> mCallAdapterFactories = new ArrayList<>();
 		/**
@@ -628,6 +629,11 @@ public class RetrofitClient
 			return this;
 		}
 
+		/**
+		 * 只执行一次，单例
+		 *
+		 * @return
+		 */
 		public RetrofitClient build()
 		{
 			if (mInstance != null)
@@ -662,8 +668,8 @@ public class RetrofitClient
 			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
 				builder.addCallAdapterFactory(callAdapterFactory);
 			Retrofit retrofit = builder.build();
-			RetrofitHttpService service = retrofit.create(RetrofitHttpService.class);
-			mInstance = new RetrofitClient(service, mBaseUrl, mHeaders, mParams, mClient);
+			mService = retrofit.create(RetrofitHttpService.class);
+			mInstance = new RetrofitClient(this);
 			return mInstance;
 		}
 	}
