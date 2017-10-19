@@ -38,23 +38,31 @@ public class CacheInterceptor implements Interceptor
 	{
 		Request request = chain.request();
 		// 自定义缓存超时时间，在请求头信息里设置
-		String cache = request.header("Cache-Time");
-		if (!TextUtils.isEmpty(cache))
+		String cacheTime = request.header("Cache-Time");
+		if (!TextUtils.isEmpty(cacheTime))
 		{
 			if (Utils.isNetworkAvailable(mContext))
 			{
 				Log.e(TAG, "network is valid");
 				Response response = chain.proceed(request);
-				// 清除头信息，因为服务器如果不支持，会返回一些干扰信息，不清除无法生效
-				return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "max-age=" + cache).build();
+				/**
+				 * 清除头信息，因为服务器如果不支持，会返回一些干扰信息，不清除无法生效
+				 * max-age设置缓存超时时间，超过该时间则新请求数据，否则使用缓存数据
+				 *
+				 * 对于长期无变化的数据可以设置；对于实时更新的数据，则设置max-age 为 0
+				 */
+				return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "max-age=" + cacheTime).build();
 			}
 			else
 			{
 				Log.e(TAG, "network is invalid");
-				// 离线缓存，重新设置请求
+				/**
+				 * 离线缓存，重新设置请求
+				 * max-stale设置缓存策略，及超时策略
+				 */
 				request = request.newBuilder().cacheControl(CacheControl.FORCE_CACHE).build();
 				Response response = chain.proceed(request);
-				return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "public, only-if-cached, max-stale=" + cache).build();
+				return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "public, only-if-cached, max-stale=" + cacheTime).build();
 			}
 		}
 		else
