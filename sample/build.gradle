@@ -26,5 +26,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile project(':retrofit')
-    compile 'com.excellence:basetools:1.1.0'
+    compile 'com.excellence:basetools:1.2.4'
+    compile 'com.excellence:permission:1.0.0'
 }

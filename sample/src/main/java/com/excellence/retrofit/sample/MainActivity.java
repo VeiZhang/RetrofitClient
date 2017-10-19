@@ -1,5 +1,6 @@
 package com.excellence.retrofit.sample;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.widget.Toast;
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
 import com.excellence.basetoolslibrary.utils.ActivityUtils;
+import com.excellence.permission.IPermissionListener;
+import com.excellence.permission.PermissionRequest;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener
 {
@@ -30,6 +33,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 		mGridView = (GridView) findViewById(R.id.gridview);
 		mGridView.setAdapter(new ActivityAdapter(this, mActivityNames, android.R.layout.simple_list_item_1));
 		mGridView.setOnItemClickListener(this);
+
+		new PermissionRequest(this, new IPermissionListener()
+		{
+			@Override
+			public void onPermissionsGranted()
+			{
+
+			}
+
+			@Override
+			public void onPermissionsDenied()
+			{
+				Toast.makeText(MainActivity.this, "请授权，否则下载功能不能使用", Toast.LENGTH_SHORT).show();
+			}
+		}).request(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 	}
 
 	@Override
