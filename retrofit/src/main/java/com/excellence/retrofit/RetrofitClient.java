@@ -475,6 +475,8 @@ public class RetrofitClient
 
 	/**
 	 * 取消单个界面的所有请求，或取消某个tag的所有请求
+	 * 如果想取消单个请求，请传入 标识：tag.toString() + url
+	 *
 	 * 遍历删除，使用迭代
 	 *
 	 * @param tag 标签
