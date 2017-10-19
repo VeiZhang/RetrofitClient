@@ -58,7 +58,7 @@ public class CacheInterceptor implements Interceptor
 				Log.e(TAG, "network is invalid");
 				/**
 				 * 离线缓存，重新设置请求
-				 * max-stale设置缓存策略，及超时策略
+				 * max-stale设置缓存策略，及超时策略，貌似超时策略没用，无论设置时间长短，都可以读取缓存
 				 */
 				request = request.newBuilder().cacheControl(CacheControl.FORCE_CACHE).build();
 				Response response = chain.proceed(request);
