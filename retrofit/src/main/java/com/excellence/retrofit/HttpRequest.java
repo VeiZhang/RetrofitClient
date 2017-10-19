@@ -152,6 +152,7 @@ public class HttpRequest
 	 */
 	public void get()
 	{
+		addRequestInfo();
 		Call<String> call = mRetrofitClient.getService().get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		mRetrofitClient.addCall(mTag, mUrl, call);
 		call.enqueue(new Callback<String>()
@@ -194,6 +195,7 @@ public class HttpRequest
 	 */
 	public void obGet()
 	{
+		addRequestInfo();
 		Observable<String> observable = mRetrofitClient.getService().obGet(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
 		{
@@ -218,6 +220,19 @@ public class HttpRequest
 			}
 		});
 		mRetrofitClient.addCall(mTag, mUrl, subscription);
+	}
+
+	/**
+	 * 单个请求的头和参数覆盖全局请求的头和参数
+	 */
+	private void addRequestInfo()
+	{
+		Map<String, String> headers = new HashMap<>(mRetrofitClient.getHeaders());
+		Map<String, String> params = new HashMap<>(mRetrofitClient.getParams());
+		headers.putAll(mHeaders);
+		params.putAll(mParams);
+		mHeaders = headers;
+		mParams = params;
 	}
 
 	private void handleSuccess(IListener listener, String result)

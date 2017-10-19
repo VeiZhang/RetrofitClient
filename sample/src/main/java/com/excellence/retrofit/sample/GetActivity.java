@@ -70,7 +70,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 			}
 		});
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL).listener(new IListener()
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).header("Cache-Time", "60").listener(new IListener()
 		{
 			@Override
 			public void onSuccess(String result)

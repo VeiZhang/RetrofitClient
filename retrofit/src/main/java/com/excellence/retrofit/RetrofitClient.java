@@ -129,6 +129,16 @@ public class RetrofitClient
 		return mClient;
 	}
 
+	protected Map<String, String> getHeaders()
+	{
+		return mHeaders;
+	}
+
+	protected Map<String, String> getParams()
+	{
+		return mParams;
+	}
+
 	/**
 	 * Get请求字符串数据
 	 *
