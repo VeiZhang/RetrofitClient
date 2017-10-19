@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.excellence.retrofit.HttpRequest;
 import com.excellence.retrofit.interfaces.IListener;
 
 public class GetActivity extends BaseActivity implements View.OnClickListener
@@ -52,6 +53,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 	private void get()
 	{
+		/**
 		mRetrofitClient.get(this, REQUEST_URL, new IListener()
 		{
 			@Override
@@ -59,7 +61,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 			{
 				mResultTextView.setText(result);
 			}
-
+		
 			@Override
 			public void onError(Throwable t)
 			{
@@ -67,11 +69,8 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 				t.printStackTrace();
 			}
 		});
-	}
-
-	private void obGet()
-	{
-		mRetrofitClient.obGet(this, REQUEST_URL1, new IListener()
+		 */
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).listener(new IListener()
 		{
 			@Override
 			public void onSuccess(String result)
@@ -85,6 +84,42 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 				mResultTextView.setText(R.string.request_failed);
 				t.printStackTrace();
 			}
+		}).build().get();
+	}
+
+	private void obGet()
+	{
+		/**
+		mRetrofitClient.obGet(this, REQUEST_URL1, new IListener()
+		{
+			@Override
+			public void onSuccess(String result)
+			{
+				mResultTextView.setText(result);
+			}
+		
+			@Override
+			public void onError(Throwable t)
+			{
+				mResultTextView.setText(R.string.request_failed);
+				t.printStackTrace();
+			}
 		});
+		 */
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).listener(new IListener()
+		{
+			@Override
+			public void onSuccess(String result)
+			{
+				mResultTextView.setText(result);
+			}
+
+			@Override
+			public void onError(Throwable t)
+			{
+				mResultTextView.setText(R.string.request_failed);
+				t.printStackTrace();
+			}
+		}).build().obGet();
 	}
 }

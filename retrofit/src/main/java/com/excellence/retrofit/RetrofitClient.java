@@ -114,17 +114,17 @@ public class RetrofitClient
 		};
 	}
 
-	public RetrofitHttpService getService()
+	protected RetrofitHttpService getService()
 	{
 		return mService;
 	}
 
-	public String getBaseUrl()
+	protected String getBaseUrl()
 	{
 		return mBaseUrl;
 	}
 
-	public OkHttpClient getClient()
+	protected OkHttpClient getClient()
 	{
 		return mClient;
 	}
@@ -445,7 +445,7 @@ public class RetrofitClient
 	 * @param url 请求链接
 	 * @param request 网络请求
 	 */
-	private synchronized void addCall(Object tag, String url, Object request)
+	protected synchronized void addCall(Object tag, String url, Object request)
 	{
 		if (tag == null)
 			return;
@@ -461,7 +461,7 @@ public class RetrofitClient
 	 * @param tag 标签
 	 * @param url 请求链接
 	 */
-	private static synchronized void removeCall(Object tag, String url)
+	protected synchronized void removeCall(Object tag, String url)
 	{
 		if (tag == null)
 			return;
@@ -481,7 +481,7 @@ public class RetrofitClient
 	 *
 	 * @param tag 标签
 	 */
-	public static synchronized void cancel(Object tag)
+	public synchronized void cancel(Object tag)
 	{
 		if (tag == null)
 			return;
@@ -502,7 +502,7 @@ public class RetrofitClient
 	/**
 	 * 取消所有网络请求
 	 */
-	public static synchronized void cancelAll()
+	public synchronized void cancelAll()
 	{
 		for (String key : CALL_MAP.keySet())
 			cancel(key);
@@ -514,7 +514,7 @@ public class RetrofitClient
 	 *
 	 * @param key 请求标识：tag.toString() + url
 	 */
-	private static void cancel(String key)
+	private void cancel(String key)
 	{
 		Object request = CALL_MAP.get(key);
 		if (request instanceof Call)

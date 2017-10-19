@@ -36,6 +36,6 @@ public class BaseActivity extends Activity
 	protected void onStop()
 	{
 		super.onStop();
-		RetrofitClient.cancel(this);
+		RetrofitClient.getInstance().cancel(this);
 	}
 }
