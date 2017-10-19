@@ -499,16 +499,12 @@ public class RetrofitClient
 
 	/**
 	 * 取消所有网络请求
-	 * 遍历删除，使用迭代
 	 */
 	public static synchronized void cancelAll()
 	{
-		for (Iterator<String> iterator = CALL_MAP.keySet().iterator(); iterator.hasNext();)
-		{
-			String key = iterator.next();
+		for (String key : CALL_MAP.keySet())
 			cancel(key);
-			iterator.remove();
-		}
+		CALL_MAP.clear();
 	}
 
 	/**
