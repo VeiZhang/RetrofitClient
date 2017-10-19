@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -277,7 +277,7 @@ public class RetrofitClient
 
 	/**
 	 * RxJava结合下载
-	 * 
+	 *
 	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param path 文件保存地址
@@ -474,27 +474,8 @@ public class RetrofitClient
 	}
 
 	/**
-	 * 执行{@link #cancelAll}、{@link #cancel}时，删除队列里的某个网络请求
-	 * 注意{@link #cancelAll}，由于遍历删除，使用迭代
-	 *
-	 * @param request 网络请求{@link Call}、{@link Subscription}
-	 */
-	private static synchronized void removeCall(Object request)
-	{
-		if (request == null)
-			return;
-		synchronized (CALL_MAP)
-		{
-			if (CALL_MAP.containsValue(request))
-			{
-				Collection<Object> requests = CALL_MAP.values();
-				requests.remove(request);
-			}
-		}
-	}
-
-	/**
 	 * 取消单个界面的所有请求，或取消某个tag的所有请求
+	 * 遍历删除，使用迭代
 	 *
 	 * @param tag 标签
 	 */
@@ -504,11 +485,13 @@ public class RetrofitClient
 			return;
 		synchronized (CALL_MAP)
 		{
-			for (String key : CALL_MAP.keySet())
+			for (Iterator<String> iterator = CALL_MAP.keySet().iterator(); iterator.hasNext();)
 			{
+				String key = iterator.next();
 				if (key.startsWith(tag.toString()))
 				{
 					cancel(key);
+					iterator.remove();
 				}
 			}
 		}
@@ -516,12 +499,15 @@ public class RetrofitClient
 
 	/**
 	 * 取消所有网络请求
+	 * 遍历删除，使用迭代
 	 */
 	public static synchronized void cancelAll()
 	{
-		for (String key : CALL_MAP.keySet())
+		for (Iterator<String> iterator = CALL_MAP.keySet().iterator(); iterator.hasNext();)
 		{
+			String key = iterator.next();
 			cancel(key);
+			iterator.remove();
 		}
 	}
 
@@ -543,8 +529,6 @@ public class RetrofitClient
 			if (!((Subscription) request).isUnsubscribed())
 				((Subscription) request).unsubscribe();
 		}
-
-		removeCall(request);
 	}
 
 	/**
