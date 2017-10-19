@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,11 +86,6 @@ public class RetrofitClient
 	 */
 	private static final Map<String, Object> CALL_MAP = new HashMap<>();
 
-	/**
-	 * 网络请求标识
-	 */
-	private Object mTag = null;
-
 	private Executor mResponsePoster = null;
 
 	public static RetrofitClient getInstance()
@@ -136,13 +132,14 @@ public class RetrofitClient
 	/**
 	 * Get请求字符串数据
 	 *
+	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param listener 结果回调
 	 */
-	public void get(@NonNull final String url, final IListener listener)
+	public void get(final Object tag, @NonNull final String url, final IListener listener)
 	{
 		Call<String> call = mService.get(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		addCall(mTag, url, call);
+		addCall(tag, url, call);
 		call.enqueue(new Callback<String>()
 		{
 			@Override
@@ -163,17 +160,17 @@ public class RetrofitClient
 						handleError(listener, new Throwable("There may be no cache data!"));
 					}
 				}
-				if (mTag != null)
-					removeCall(url);
+				removeCall(tag, url);
 			}
 
 			@Override
 			public void onFailure(Call<String> call, Throwable t)
 			{
 				if (!call.isCanceled())
+				{
 					handleError(listener, t);
-				if (mTag != null)
-					removeCall(url);
+				}
+				removeCall(tag, url);
 			}
 		});
 	}
@@ -193,10 +190,11 @@ public class RetrofitClient
 	/**
 	 * RxJava结合Get请求字符串数据
 	 *
+	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param listener 结果回调
 	 */
-	public void obGet(@NonNull final String url, final IListener listener)
+	public void obGet(final Object tag, @NonNull final String url, final IListener listener)
 	{
 		Observable<String> observable = mService.obGet(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
@@ -205,8 +203,7 @@ public class RetrofitClient
 			public void onNext(String result)
 			{
 				handleSuccess(listener, result);
-				if (mTag != null)
-					removeCall(url);
+				removeCall(tag, url);
 			}
 
 			@Override
@@ -219,26 +216,26 @@ public class RetrofitClient
 			public void onError(Throwable e)
 			{
 				handleError(listener, e);
-				if (mTag != null)
-					removeCall(url);
+				removeCall(tag, url);
 			}
 		});
-		addCall(mTag, url, subscription);
+		addCall(tag, url, subscription);
 	}
 
 	/**
 	 * 下载
 	 *
+	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param path 文件保存地址
 	 * @param listener 下载监听
 	 */
-	public void download(@NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
+	public void download(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Call<ResponseBody> call = mService.download(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		addCall(mTag, url, call);
+		addCall(tag, url, call);
 		call.enqueue(new Callback<ResponseBody>()
 		{
 			@Override
@@ -252,8 +249,7 @@ public class RetrofitClient
 						protected Void doInBackground(Void... params)
 						{
 							writetoFile(listener, path, response.body());
-							if (mTag != null)
-								removeCall(url);
+							removeCall(tag, url);
 							return null;
 						}
 
@@ -263,8 +259,7 @@ public class RetrofitClient
 				{
 					String errorMsg = Utils.inputStream2String(response.errorBody().byteStream());
 					listener.onError(new Throwable(errorMsg));
-					if (mTag != null)
-						removeCall(url);
+					removeCall(tag, url);
 				}
 			}
 
@@ -272,21 +267,23 @@ public class RetrofitClient
 			public void onFailure(Call<ResponseBody> call, Throwable t)
 			{
 				if (!call.isCanceled())
+				{
 					listener.onError(t);
-				if (mTag != null)
-					removeCall(url);
+				}
+				removeCall(tag, url);
 			}
 		});
 	}
 
 	/**
 	 * RxJava结合下载
-	 *
+	 * 
+	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param path 文件保存地址
 	 * @param listener 下载监听
 	 */
-	public void obDownload(@NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
+	public void obDownload(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
@@ -294,11 +291,10 @@ public class RetrofitClient
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
 		{
 			@Override
-			public void onNext(final ResponseBody response)
+			public void onNext(ResponseBody response)
 			{
 				writetoFile(listener, path, response);
-				if (mTag != null)
-					removeCall(url);
+				removeCall(tag, url);
 			}
 
 			@Override
@@ -311,11 +307,10 @@ public class RetrofitClient
 			public void onError(Throwable e)
 			{
 				listener.onError(e);
-				if (mTag != null)
-					removeCall(url);
+				removeCall(tag, url);
 			}
 		});
-		addCall(mTag, url, subscription);
+		addCall(tag, url, subscription);
 	}
 
 	/**
@@ -444,52 +439,57 @@ public class RetrofitClient
 	}
 
 	/**
-	 * 设置网络请求标识
-	 *
-	 * @param tag 标识
-	 * @return
-	 */
-	public RetrofitClient setTag(Object tag)
-	{
-		mTag = tag;
-		return this;
-	}
-
-	/**
 	 * 添加网络请求队列，以 tag + url 作为标识
 	 *
 	 * @param tag 标签
 	 * @param url 请求链接
-	 * @param object 网络请求
+	 * @param request 网络请求
 	 */
-	private synchronized void addCall(Object tag, String url, Object object)
+	private synchronized void addCall(Object tag, String url, Object request)
 	{
 		if (tag == null)
 			return;
 		synchronized (CALL_MAP)
 		{
-			CALL_MAP.put(tag.toString() + url, object);
+			CALL_MAP.put(tag.toString() + url, request);
 		}
 	}
 
 	/**
-	 * 删除队列里的完成、错误的网络请求
+	 * 根据tag + url 标识删除队列里的完成、错误的某个网络请求
 	 *
+	 * @param tag 标签
 	 * @param url 请求链接
 	 */
-	private static synchronized void removeCall(String url)
+	private static synchronized void removeCall(Object tag, String url)
 	{
+		if (tag == null)
+			return;
 		synchronized (CALL_MAP)
 		{
-			for (String key : CALL_MAP.keySet())
+			String key = tag.toString() + url;
+			if (CALL_MAP.containsKey(key))
+				CALL_MAP.remove(key);
+		}
+	}
+
+	/**
+	 * 执行{@link #cancelAll}、{@link #cancel}时，删除队列里的某个网络请求
+	 * 注意{@link #cancelAll}，由于遍历删除，使用迭代
+	 *
+	 * @param request 网络请求{@link Call}、{@link Subscription}
+	 */
+	private static synchronized void removeCall(Object request)
+	{
+		if (request == null)
+			return;
+		synchronized (CALL_MAP)
+		{
+			if (CALL_MAP.containsValue(request))
 			{
-				if (key.contains(url))
-				{
-					url = key;
-					break;
-				}
+				Collection<Object> requests = CALL_MAP.values();
+				requests.remove(request);
 			}
-			CALL_MAP.remove(url);
 		}
 	}
 
@@ -532,18 +532,19 @@ public class RetrofitClient
 	 */
 	private static void cancel(String key)
 	{
-		Object object = CALL_MAP.get(key);
-		if (object instanceof Call)
+		Object request = CALL_MAP.get(key);
+		if (request instanceof Call)
 		{
-			if (!((Call) object).isCanceled())
-				((Call) object).cancel();
+			if (!((Call) request).isCanceled())
+				((Call) request).cancel();
 		}
-		else if (object instanceof Subscription)
+		else if (request instanceof Subscription)
 		{
-			if (!((Subscription) object).isUnsubscribed())
-				((Subscription) object).unsubscribe();
+			if (!((Subscription) request).isUnsubscribed())
+				((Subscription) request).unsubscribe();
 		}
-		removeCall(key);
+
+		removeCall(request);
 	}
 
 	/**

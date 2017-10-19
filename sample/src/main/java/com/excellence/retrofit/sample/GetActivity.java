@@ -52,7 +52,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 	private void get()
 	{
-		mRetrofitClient.setTag(this).get(REQUEST_URL, new IListener()
+		mRetrofitClient.get(this, REQUEST_URL, new IListener()
 		{
 			@Override
 			public void onSuccess(String result)
@@ -71,7 +71,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 	private void obGet()
 	{
-		mRetrofitClient.setTag(this).obGet(REQUEST_URL1, new IListener()
+		mRetrofitClient.obGet(this, REQUEST_URL1, new IListener()
 		{
 			@Override
 			public void onSuccess(String result)
