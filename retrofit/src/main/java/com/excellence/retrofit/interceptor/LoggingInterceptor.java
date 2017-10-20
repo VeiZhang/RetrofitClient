@@ -19,15 +19,16 @@ import okhttp3.Response;
 
 public class LoggingInterceptor implements Interceptor
 {
+	public static final String TAG = LoggingInterceptor.class.getSimpleName();
 
 	@Override
 	public okhttp3.Response intercept(Chain chain) throws IOException
 	{
 		Request request = chain.request();
 		Response response = chain.proceed(request);
-		Log.e("request", "发送请求 " + request.url());
-		Log.e("request", "发送请求头 " + request.headers());
-		Log.e("response", "接收响应 " + response.headers());
+		Log.i(TAG, "发送请求 " + request.url());
+		Log.i(TAG, "发送请求头 " + request.headers());
+		Log.i(TAG, "接收响应 " + response.headers());
 		return response;
 	}
 }

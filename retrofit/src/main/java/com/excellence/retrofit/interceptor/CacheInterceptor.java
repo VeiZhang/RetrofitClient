@@ -43,7 +43,7 @@ public class CacheInterceptor implements Interceptor
 		{
 			if (Utils.isNetworkAvailable(mContext))
 			{
-				Log.e(TAG, "network is valid");
+				Log.i(TAG, "network is valid");
 				Response response = chain.proceed(request);
 				/**
 				 * 清除头信息，因为服务器如果不支持，会返回一些干扰信息，不清除无法生效
@@ -55,7 +55,7 @@ public class CacheInterceptor implements Interceptor
 			}
 			else
 			{
-				Log.e(TAG, "network is invalid");
+				Log.i(TAG, "network is invalid");
 				/**
 				 * 离线缓存，重新设置请求
 				 * max-stale设置缓存策略，及超时策略，貌似超时策略没用，无论设置时间长短，都可以读取缓存
