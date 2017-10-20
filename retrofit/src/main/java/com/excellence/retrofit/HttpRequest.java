@@ -23,6 +23,7 @@ import rx.schedulers.Schedulers;
 
 import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofit.utils.Utils.checkHeaders;
+import static com.excellence.retrofit.utils.Utils.checkMainThread;
 import static com.excellence.retrofit.utils.Utils.checkParams;
 import static com.excellence.retrofit.utils.Utils.checkURL;
 import static com.excellence.retrofit.utils.Utils.inputStream2String;
@@ -198,6 +199,7 @@ public class HttpRequest
 	 */
 	public void get()
 	{
+		checkMainThread();
 		addRequestInfo();
 		Call<String> call = mHttpService.get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		mRetrofitClient.addCall(mTag, mUrl, call);
@@ -241,6 +243,7 @@ public class HttpRequest
 	 */
 	public void obGet()
 	{
+		checkMainThread();
 		addRequestInfo();
 		Observable<String> observable = mHttpService.obGet(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
@@ -273,6 +276,7 @@ public class HttpRequest
 	 */
 	public void download()
 	{
+		checkMainThread();
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		addRequestInfo();
@@ -323,6 +327,7 @@ public class HttpRequest
 	 */
 	public void obDownload()
 	{
+		checkMainThread();
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		addRequestInfo();

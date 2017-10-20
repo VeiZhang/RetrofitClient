@@ -3,6 +3,7 @@ package com.excellence.retrofit.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -113,5 +114,14 @@ public class Utils
 				headers.put(entry.getKey(), "");
 		}
 		return headers;
+	}
+
+	/**
+	 * 检测是否在主线程中
+	 */
+	public static void checkMainThread()
+	{
+		if (Looper.myLooper() != Looper.getMainLooper())
+			throw new RuntimeException("Client should be main thread!!!");
 	}
 }
