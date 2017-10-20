@@ -1,6 +1,6 @@
 package com.excellence.retrofit.interceptor;
 
-import android.util.Log;
+import com.excellence.retrofit.utils.Logger;
 
 import java.io.IOException;
 
@@ -34,7 +34,7 @@ public class DownloadInterceptor implements Interceptor
 		Request request = chain.request();
 		if (!isURLEmpty(request.header(DOWNLOAD)))
 		{
-			Log.i(TAG, "下载文件");
+            Logger.i(TAG, "下载文件");
 			/**
 			 * 文件下载，重新构造网络请求，强制使用网络请求，避免缓存
 			 * 服务器支持缓存时，还是可以下载到缓存目录中，如何不缓存，因为占用大多缓存空间

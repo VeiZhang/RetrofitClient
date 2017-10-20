@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.excellence.retrofit.interfaces.DownloadListener;
 import com.excellence.retrofit.interfaces.IListener;
+import com.excellence.retrofit.utils.Logger;
 import com.excellence.retrofit.utils.OkHttpProvider;
 
 import java.util.ArrayList;
@@ -327,7 +328,7 @@ public class RetrofitClient
 		 * @param value 键值
 		 * @return
 		 */
-		public Builder setHeader(String key, String value)
+		public Builder header(String key, String value)
 		{
 			mHeaders.put(key, value);
 			return this;
@@ -339,7 +340,7 @@ public class RetrofitClient
 		 * @param headers 集合
 		 * @return
 		 */
-		public Builder setHeaders(Map<String, String> headers)
+		public Builder headers(Map<String, String> headers)
 		{
 			mHeaders.putAll(headers);
 			return this;
@@ -352,7 +353,7 @@ public class RetrofitClient
 		 * @param value 键值
 		 * @return
 		 */
-		public Builder setParam(String key, String value)
+		public Builder param(String key, String value)
 		{
 			mParams.put(key, value);
 			return this;
@@ -364,9 +365,21 @@ public class RetrofitClient
 		 * @param params 参数集
 		 * @return
 		 */
-		public Builder setParams(Map<String, String> params)
+		public Builder params(Map<String, String> params)
 		{
 			mParams.putAll(params);
+			return this;
+		}
+
+		/**
+		 * 添加Log打印
+		 *
+		 * @param isEnable
+		 * @return
+		 */
+		public Builder addLog(boolean isEnable)
+		{
+			Logger.isEnabled(isEnable);
 			return this;
 		}
 

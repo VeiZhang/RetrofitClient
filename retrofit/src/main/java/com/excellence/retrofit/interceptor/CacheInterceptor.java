@@ -2,7 +2,8 @@ package com.excellence.retrofit.interceptor;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
+
+import com.excellence.retrofit.utils.Logger;
 
 import java.io.IOException;
 
@@ -44,7 +45,7 @@ public class CacheInterceptor implements Interceptor
 			Response.Builder builder = response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control");
 			if (isNetworkAvailable(mContext))
 			{
-				Log.i(TAG, "network is valid");
+				Logger.i(TAG, "network is valid");
 				/**
 				 * 清除头信息，因为服务器如果不支持，会返回一些干扰信息，不清除无法生效
 				 * max-age设置缓存超时时间，超过该时间则新请求数据，否则使用缓存数据
@@ -55,7 +56,7 @@ public class CacheInterceptor implements Interceptor
 			}
 			else
 			{
-				Log.i(TAG, "network is invalid");
+				Logger.i(TAG, "network is invalid");
 				/**
 				 * 离线缓存，重新设置请求
 				 * max-stale设置缓存策略，及超时策略

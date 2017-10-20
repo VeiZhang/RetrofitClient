@@ -1,6 +1,6 @@
 package com.excellence.retrofit.interceptor;
 
-import android.util.Log;
+import com.excellence.retrofit.utils.Logger;
 
 import java.io.IOException;
 
@@ -26,9 +26,9 @@ public class LoggingInterceptor implements Interceptor
 	{
 		Request request = chain.request();
 		Response response = chain.proceed(request);
-		Log.i(TAG, "发送请求 " + request.url());
-		Log.i(TAG, "发送请求头 " + request.headers());
-		Log.i(TAG, "接收响应 " + response.headers());
+		Logger.i(TAG, "发送请求 " + request.url());
+		Logger.i(TAG, "发送请求头 " + request.headers());
+		Logger.i(TAG, "接收响应 " + response.headers());
 		return response;
 	}
 }
