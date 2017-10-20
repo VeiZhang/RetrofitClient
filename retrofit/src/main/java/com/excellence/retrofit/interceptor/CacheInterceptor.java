@@ -4,14 +4,14 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.excellence.retrofit.utils.Utils;
-
 import java.io.IOException;
 
 import okhttp3.CacheControl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.excellence.retrofit.utils.Utils.isNetworkAvailable;
 
 /**
  * <pre>
@@ -41,7 +41,7 @@ public class CacheInterceptor implements Interceptor
 		String cacheTime = request.header("Cache-Time");
 		if (!TextUtils.isEmpty(cacheTime))
 		{
-			if (Utils.isNetworkAvailable(mContext))
+			if (isNetworkAvailable(mContext))
 			{
 				Log.i(TAG, "network is valid");
 				Response response = chain.proceed(request);

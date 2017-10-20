@@ -278,6 +278,7 @@ public class HttpRequest
 		addRequestInfo();
 		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		mRetrofitClient.addCall(mTag, mUrl, call);
+		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, mDownloadListener);
 		call.enqueue(new Callback<ResponseBody>()
 		{
 			@Override
@@ -290,7 +291,7 @@ public class HttpRequest
 						@Override
 						protected Void doInBackground(Void... params)
 						{
-							new HttpDownloadTask().writeFile(mPath, response.body(), mDownloadListener, mResponsePoster);
+							downloadTask.writeFile(mPath, response.body());
 							mRetrofitClient.removeCall(mTag, mUrl);
 							return null;
 						}
@@ -300,7 +301,7 @@ public class HttpRequest
 				else
 				{
 					String errorMsg = inputStream2String(response.errorBody().byteStream());
-					mDownloadListener.onError(new Throwable(errorMsg));
+					downloadTask.onError(new Throwable(errorMsg));
 					mRetrofitClient.removeCall(mTag, mUrl);
 				}
 			}
@@ -310,7 +311,7 @@ public class HttpRequest
 			{
 				if (!call.isCanceled())
 				{
-					mDownloadListener.onError(t);
+					downloadTask.onError(t);
 				}
 				mRetrofitClient.removeCall(mTag, mUrl);
 			}
@@ -326,12 +327,13 @@ public class HttpRequest
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		addRequestInfo();
 		Observable<ResponseBody> observable = mHttpService.obDownload(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<ResponseBody>()
+		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, mDownloadListener);
+		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
 		{
 			@Override
 			public void onNext(ResponseBody response)
 			{
-				new HttpDownloadTask().writeFile(mPath, response, mDownloadListener, mResponsePoster);
+				downloadTask.writeFile(mPath, response);
 				mRetrofitClient.removeCall(mTag, mUrl);
 			}
 
@@ -344,7 +346,7 @@ public class HttpRequest
 			@Override
 			public void onError(Throwable e)
 			{
-				mDownloadListener.onError(e);
+				downloadTask.onError(e);
 				mRetrofitClient.removeCall(mTag, mUrl);
 			}
 		});

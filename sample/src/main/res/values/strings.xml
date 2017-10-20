@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RetrofitUtils</string>
+    <string name="app_name">RetrofitClient</string>
     <string name="get">Get请求</string>
     <string name="download">Download下载</string>
     <string name="get_request">Get</string>

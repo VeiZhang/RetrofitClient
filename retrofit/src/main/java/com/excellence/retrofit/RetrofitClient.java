@@ -263,7 +263,7 @@ public class RetrofitClient
 						@Override
 						protected Void doInBackground(Void... params)
 						{
-							writetoFile(listener, path, response.body());
+							writeFile(listener, path, response.body());
 							removeCall(tag, url);
 							return null;
 						}
@@ -303,12 +303,12 @@ public class RetrofitClient
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Observable<ResponseBody> observable = mService.obDownload(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<ResponseBody>()
+		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
 		{
 			@Override
 			public void onNext(ResponseBody response)
 			{
-				writetoFile(listener, path, response);
+				writeFile(listener, path, response);
 				removeCall(tag, url);
 			}
 
@@ -321,7 +321,7 @@ public class RetrofitClient
 			@Override
 			public void onError(Throwable e)
 			{
-				listener.onError(e);
+				RetrofitClient.this.onError(listener, e);
 				removeCall(tag, url);
 			}
 		});
@@ -335,7 +335,7 @@ public class RetrofitClient
 	 * @param path 文件保存路径
 	 * @param response 文件流信息
 	 */
-	private void writetoFile(DownloadListener listener, String path, ResponseBody response)
+	private void writeFile(DownloadListener listener, String path, ResponseBody response)
 	{
 		File file = new File(path);
 		InputStream in = null;
@@ -441,7 +441,7 @@ public class RetrofitClient
 	 * @param listener 下载监听
 	 * @param e 异常信息
 	 */
-	private void onError(final DownloadListener listener, final Exception e)
+	private void onError(final DownloadListener listener, final Throwable e)
 	{
 		mResponsePoster.execute(new Runnable()
 		{

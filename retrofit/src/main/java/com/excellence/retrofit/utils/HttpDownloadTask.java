@@ -20,21 +20,19 @@ import okhttp3.ResponseBody;
  * </pre>
  */
 
-public class HttpDownloadTask
+public class HttpDownloadTask implements IDownloadListener
 {
-	private HandleListener mHandleListener = null;
 	private Executor mResponsePoster = null;
+	private IDownloadListener mListener = null;
 
-	public HttpDownloadTask()
+	public HttpDownloadTask(Executor responsePoster, IDownloadListener listener)
 	{
-		mHandleListener = new HandleListener();
+		mResponsePoster = responsePoster;
+		mListener = listener;
 	}
 
-	public void writeFile(String path, ResponseBody response, IDownloadListener listener, Executor responsePoster)
+	public void writeFile(String path, ResponseBody response)
 	{
-		mHandleListener.setListener(listener);
-		mResponsePoster = responsePoster;
-
 		File file = new File(path);
 		InputStream in = null;
 		OutputStream out = null;
@@ -44,7 +42,7 @@ public class HttpDownloadTask
 			long downloadedSize = 0;
 			int read = 0;
 			byte[] fileReader = new byte[1024 * 4];
-			mHandleListener.onPreExecute(fileSize);
+			onPreExecute(fileSize);
 			in = response.byteStream();
 			out = new FileOutputStream(file);
 			while (true)
@@ -54,14 +52,14 @@ public class HttpDownloadTask
 					break;
 				out.write(fileReader, 0, read);
 				downloadedSize += read;
-				mHandleListener.onProgressChange(fileSize, downloadedSize);
+				onProgressChange(fileSize, downloadedSize);
 			}
 			out.flush();
-			mHandleListener.onSuccess();
+			onSuccess();
 		}
 		catch (Exception e)
 		{
-			mHandleListener.onError(e);
+			onError(e);
 		}
 		finally
 		{
@@ -79,94 +77,84 @@ public class HttpDownloadTask
 		}
 	}
 
-	private class HandleListener implements IDownloadListener
+	@Override
+	public void onPreExecute(final long fileSize)
 	{
-		private IDownloadListener mListener = null;
-
-		public void setListener(IDownloadListener listener)
+		if (mListener != null)
 		{
-			mListener = listener;
-		}
-
-		@Override
-		public void onPreExecute(final long fileSize)
-		{
-			if (mListener != null)
+			mResponsePoster.execute(new Runnable()
 			{
-				mResponsePoster.execute(new Runnable()
+				@Override
+				public void run()
 				{
-					@Override
-					public void run()
-					{
-						mListener.onPreExecute(fileSize);
-					}
-				});
-			}
+					mListener.onPreExecute(fileSize);
+				}
+			});
 		}
-
-		@Override
-		public void onProgressChange(final long fileSize, final long downloadedSize)
-		{
-			if (mListener != null)
-			{
-				mResponsePoster.execute(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						mListener.onProgressChange(fileSize, downloadedSize);
-					}
-				});
-			}
-		}
-
-		@Override
-		public void onCancel()
-		{
-			if (mListener != null)
-			{
-				mResponsePoster.execute(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						mListener.onCancel();
-					}
-				});
-			}
-		}
-
-		@Override
-		public void onError(final Throwable t)
-		{
-			if (mListener != null)
-			{
-				mResponsePoster.execute(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						mListener.onError(t);
-					}
-				});
-			}
-		}
-
-		@Override
-		public void onSuccess()
-		{
-			if (mListener != null)
-			{
-				mResponsePoster.execute(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						mListener.onSuccess();
-					}
-				});
-			}
-		}
-
 	}
+
+	@Override
+	public void onProgressChange(final long fileSize, final long downloadedSize)
+	{
+		if (mListener != null)
+		{
+			mResponsePoster.execute(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					mListener.onProgressChange(fileSize, downloadedSize);
+				}
+			});
+		}
+	}
+
+	@Override
+	public void onCancel()
+	{
+		if (mListener != null)
+		{
+			mResponsePoster.execute(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					mListener.onCancel();
+				}
+			});
+		}
+	}
+
+	@Override
+	public void onError(final Throwable t)
+	{
+		if (mListener != null)
+		{
+			mResponsePoster.execute(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					mListener.onError(t);
+				}
+			});
+		}
+	}
+
+	@Override
+	public void onSuccess()
+	{
+		if (mListener != null)
+		{
+			mResponsePoster.execute(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					mListener.onSuccess();
+				}
+			});
+		}
+	}
+
 }
