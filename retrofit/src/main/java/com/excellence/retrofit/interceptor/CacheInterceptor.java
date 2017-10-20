@@ -6,7 +6,6 @@ import android.util.Log;
 
 import java.io.IOException;
 
-import okhttp3.CacheControl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -41,28 +40,27 @@ public class CacheInterceptor implements Interceptor
 		String cacheTime = request.header("Cache-Time");
 		if (!TextUtils.isEmpty(cacheTime))
 		{
+			Response response = chain.proceed(request);
+			Response.Builder builder = response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control");
 			if (isNetworkAvailable(mContext))
 			{
 				Log.i(TAG, "network is valid");
-				Response response = chain.proceed(request);
 				/**
 				 * 清除头信息，因为服务器如果不支持，会返回一些干扰信息，不清除无法生效
 				 * max-age设置缓存超时时间，超过该时间则新请求数据，否则使用缓存数据
 				 *
 				 * 对于长期无变化的数据可以设置；对于实时更新的数据，则设置max-age 为 0
 				 */
-				return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "max-age=" + cacheTime).build();
+				return builder.header("Cache-Control", "max-age=" + cacheTime).build();
 			}
 			else
 			{
 				Log.i(TAG, "network is invalid");
 				/**
 				 * 离线缓存，重新设置请求
-				 * max-stale设置缓存策略，及超时策略，貌似超时策略没用，无论设置时间长短，都可以读取缓存
+				 * max-stale设置缓存策略，及超时策略
 				 */
-				request = request.newBuilder().cacheControl(CacheControl.FORCE_CACHE).build();
-				Response response = chain.proceed(request);
-				return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "public, only-if-cached, max-stale=" + cacheTime).build();
+				return builder.header("Cache-Control", "public, only-if-cached, max-stale=" + cacheTime).build();
 			}
 		}
 		else
