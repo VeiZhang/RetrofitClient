@@ -139,6 +139,11 @@ public class RetrofitClient
 		return mParams;
 	}
 
+	protected Executor getResponsePoster()
+	{
+		return mResponsePoster;
+	}
+
 	/**
 	 * Get请求字符串数据
 	 *
@@ -298,7 +303,7 @@ public class RetrofitClient
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Observable<ResponseBody> observable = mService.obDownload(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
+		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<ResponseBody>()
 		{
 			@Override
 			public void onNext(ResponseBody response)

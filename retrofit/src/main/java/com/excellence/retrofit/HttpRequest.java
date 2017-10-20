@@ -1,13 +1,17 @@
 package com.excellence.retrofit;
 
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
+import com.excellence.retrofit.interfaces.IDownloadListener;
 import com.excellence.retrofit.interfaces.IListener;
-import com.excellence.retrofit.utils.Utils;
+import com.excellence.retrofit.utils.HttpDownloadTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -17,9 +21,11 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofit.utils.Utils.checkHeaders;
 import static com.excellence.retrofit.utils.Utils.checkParams;
 import static com.excellence.retrofit.utils.Utils.checkURL;
+import static com.excellence.retrofit.utils.Utils.inputStream2String;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
@@ -36,30 +42,40 @@ public class HttpRequest
 	public static final String TAG = HttpRequest.class.getSimpleName();
 
 	private RetrofitClient mRetrofitClient = null;
+	private RetrofitHttpService mHttpService = null;
+	private Executor mResponsePoster = null;
 	private Object mTag = null;
 	private String mUrl = null;
+	private String mPath = null;
 	private Map<String, String> mHeaders = null;
 	private Map<String, String> mParams = null;
 	private IListener mListener = null;
+	private IDownloadListener mDownloadListener = null;
 
 	protected HttpRequest(Builder builder)
 	{
 		mTag = builder.mTag;
 		mUrl = builder.mUrl;
+		mPath = builder.mPath;
 		mHeaders = builder.mHeaders;
 		mParams = builder.mParams;
 		mListener = builder.mListener;
+		mDownloadListener = builder.mDownloadListener;
 
 		mRetrofitClient = RetrofitClient.getInstance();
+		mHttpService = mRetrofitClient.getService();
+		mResponsePoster = mRetrofitClient.getResponsePoster();
 	}
 
 	public static class Builder
 	{
 		private Object mTag = null;
 		private String mUrl = null;
+		private String mPath = null;
 		private Map<String, String> mHeaders = new HashMap<>();
 		private Map<String, String> mParams = new HashMap<>();
 		private IListener mListener = null;
+		private IDownloadListener mDownloadListener = null;
 
 		/**
 		 * 设置网络请求标识，用于取消请求
@@ -82,6 +98,18 @@ public class HttpRequest
 		public Builder url(String url)
 		{
 			mUrl = url;
+			return this;
+		}
+
+		/**
+		 * 文件下载时的保存路径
+		 *
+		 * @param path
+		 * @return
+		 */
+		public Builder path(String path)
+		{
+			mPath = path;
 			return this;
 		}
 
@@ -135,9 +163,27 @@ public class HttpRequest
 			return this;
 		}
 
+		/**
+		 * 设置数据请求监听
+		 *
+		 * @param listener
+		 * @return
+		 */
 		public Builder listener(IListener listener)
 		{
 			mListener = listener;
+			return this;
+		}
+
+		/**
+		 * 设置下载监听
+		 *
+		 * @param listener
+		 * @return
+		 */
+		public Builder downloadListener(IDownloadListener listener)
+		{
+			mDownloadListener = listener;
 			return this;
 		}
 
@@ -153,7 +199,7 @@ public class HttpRequest
 	public void get()
 	{
 		addRequestInfo();
-		Call<String> call = mRetrofitClient.getService().get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
+		Call<String> call = mHttpService.get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		mRetrofitClient.addCall(mTag, mUrl, call);
 		call.enqueue(new Callback<String>()
 		{
@@ -166,7 +212,7 @@ public class HttpRequest
 				}
 				else
 				{
-					String errorMsg = Utils.inputStream2String(response.errorBody().byteStream());
+					String errorMsg = inputStream2String(response.errorBody().byteStream());
 					if (!TextUtils.isEmpty(errorMsg))
 						handleError(mListener, new Throwable(errorMsg));
 					else
@@ -196,7 +242,7 @@ public class HttpRequest
 	public void obGet()
 	{
 		addRequestInfo();
-		Observable<String> observable = mRetrofitClient.getService().obGet(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
+		Observable<String> observable = mHttpService.obGet(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
 		{
 			@Override
@@ -216,6 +262,89 @@ public class HttpRequest
 			public void onError(Throwable e)
 			{
 				handleError(mListener, e);
+				mRetrofitClient.removeCall(mTag, mUrl);
+			}
+		});
+		mRetrofitClient.addCall(mTag, mUrl, subscription);
+	}
+
+	/**
+	 * 下载
+	 */
+	public void download()
+	{
+		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
+		mHeaders.put(DOWNLOAD, DOWNLOAD);
+		addRequestInfo();
+		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
+		mRetrofitClient.addCall(mTag, mUrl, call);
+		call.enqueue(new Callback<ResponseBody>()
+		{
+			@Override
+			public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response)
+			{
+				if (response.code() == HTTP_OK)
+				{
+					new AsyncTask<Void, Long, Void>()
+					{
+						@Override
+						protected Void doInBackground(Void... params)
+						{
+							new HttpDownloadTask().writeFile(mPath, response.body(), mDownloadListener, mResponsePoster);
+							mRetrofitClient.removeCall(mTag, mUrl);
+							return null;
+						}
+
+					}.execute();
+				}
+				else
+				{
+					String errorMsg = inputStream2String(response.errorBody().byteStream());
+					mDownloadListener.onError(new Throwable(errorMsg));
+					mRetrofitClient.removeCall(mTag, mUrl);
+				}
+			}
+
+			@Override
+			public void onFailure(Call<ResponseBody> call, Throwable t)
+			{
+				if (!call.isCanceled())
+				{
+					mDownloadListener.onError(t);
+				}
+				mRetrofitClient.removeCall(mTag, mUrl);
+			}
+		});
+	}
+
+	/**
+	 * RxJava结合下载
+	 */
+	public void obDownload()
+	{
+		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
+		mHeaders.put(DOWNLOAD, DOWNLOAD);
+		addRequestInfo();
+		Observable<ResponseBody> observable = mHttpService.obDownload(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
+		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<ResponseBody>()
+		{
+			@Override
+			public void onNext(ResponseBody response)
+			{
+				new HttpDownloadTask().writeFile(mPath, response, mDownloadListener, mResponsePoster);
+				mRetrofitClient.removeCall(mTag, mUrl);
+			}
+
+			@Override
+			public void onCompleted()
+			{
+
+			}
+
+			@Override
+			public void onError(Throwable e)
+			{
+				mDownloadListener.onError(e);
 				mRetrofitClient.removeCall(mTag, mUrl);
 			}
 		});
