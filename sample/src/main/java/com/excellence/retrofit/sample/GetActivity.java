@@ -6,7 +6,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.excellence.retrofit.HttpRequest;
-import com.excellence.retrofit.interfaces.IListener;
+import com.excellence.retrofit.interfaces.Listener;
 
 public class GetActivity extends BaseActivity implements View.OnClickListener
 {
@@ -51,75 +51,51 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		}
 	}
 
+	private Listener mListener = new Listener()
+	{
+		@Override
+		public void onSuccess(String result)
+		{
+			mResultTextView.setText(result);
+		}
+
+		@Override
+		public void onError(Throwable t)
+		{
+			mResultTextView.setText(R.string.request_failed);
+			t.printStackTrace();
+		}
+	};
+
 	private void get()
 	{
 		/**
-		mRetrofitClient.get(this, REQUEST_URL, new IListener()
-		{
-			@Override
-			public void onSuccess(String result)
-			{
-				mResultTextView.setText(result);
-			}
-		
-			@Override
-			public void onError(Throwable t)
-			{
-				mResultTextView.setText(R.string.request_failed);
-				t.printStackTrace();
-			}
-		});
+		 * mRetrofitClient.get(this, REQUEST_URL, mListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL).header("Cache-Time", "60").listener(new IListener()
-		{
-			@Override
-			public void onSuccess(String result)
-			{
-				mResultTextView.setText(result);
-			}
-
-			@Override
-			public void onError(Throwable t)
-			{
-				mResultTextView.setText(R.string.request_failed);
-				t.printStackTrace();
-			}
-		}).build().get();
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).header("Cache-Time", "60").listener(mListener).build().get();
 	}
+
+	private Listener mObListener = new Listener()
+	{
+		@Override
+		public void onSuccess(String result)
+		{
+			mResultTextView.setText(result);
+		}
+
+		@Override
+		public void onError(Throwable t)
+		{
+			mResultTextView.setText(R.string.request_failed);
+			t.printStackTrace();
+		}
+	};
 
 	private void obGet()
 	{
 		/**
-		mRetrofitClient.obGet(this, REQUEST_URL1, new IListener()
-		{
-			@Override
-			public void onSuccess(String result)
-			{
-				mResultTextView.setText(result);
-			}
-		
-			@Override
-			public void onError(Throwable t)
-			{
-				mResultTextView.setText(R.string.request_failed);
-				t.printStackTrace();
-			}
-		});
+		 * mRetrofitClient.obGet(this, REQUEST_URL1, mObListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).listener(new IListener()
-		{
-			@Override
-			public void onSuccess(String result)
-			{
-				mResultTextView.setText(result);
-			}
-
-			@Override
-			public void onError(Throwable t)
-			{
-				mResultTextView.setText(R.string.request_failed);
-				t.printStackTrace();
-			}
-		}).build().obGet();
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).listener(mObListener).build().obGet();
 	}
 }

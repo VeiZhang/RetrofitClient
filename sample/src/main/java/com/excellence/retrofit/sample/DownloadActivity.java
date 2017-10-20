@@ -49,93 +49,91 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 		}
 	}
 
+	private DownloadListener mDownloadListener = new DownloadListener()
+	{
+		@Override
+		public void onPreExecute(long fileSize)
+		{
+			super.onPreExecute(fileSize);
+			mDownloadBtn.setVisibility(View.INVISIBLE);
+			mDownloadBtn.setText(R.string.start);
+			mDownloadProgress.setMax((int) fileSize);
+		}
+
+		@Override
+		public void onProgressChange(long fileSize, long downloadedSize)
+		{
+			super.onProgressChange(fileSize, downloadedSize);
+			mDownloadProgress.setProgress((int) downloadedSize);
+		}
+
+		@Override
+		public void onCancel()
+		{
+			super.onCancel();
+		}
+
+		@Override
+		public void onError(Throwable t)
+		{
+			super.onError(t);
+			mDownloadBtn.setVisibility(View.VISIBLE);
+			mDownloadBtn.setText(R.string.failed);
+			t.printStackTrace();
+		}
+
+		@Override
+		public void onSuccess()
+		{
+			super.onSuccess();
+			mDownloadBtn.setVisibility(View.VISIBLE);
+			mDownloadBtn.setText(R.string.success);
+		}
+	};
+
 	private void download()
 	{
 		/**
-		mRetrofitClient.download(this, DOWNLOAD_URL, Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk", new DownloadListener()
-		{
-			@Override
-			public void onPreExecute(long fileSize)
-			{
-				super.onPreExecute(fileSize);
-				mDownloadBtn.setVisibility(View.INVISIBLE);
-				mDownloadBtn.setText(R.string.start);
-				mDownloadProgress.setMax((int) fileSize);
-			}
-		
-			@Override
-			public void onProgressChange(long fileSize, long downloadedSize)
-			{
-				super.onProgressChange(fileSize, downloadedSize);
-				mDownloadProgress.setProgress((int) downloadedSize);
-			}
-		
-			@Override
-			public void onCancel()
-			{
-				super.onCancel();
-			}
-		
-			@Override
-			public void onError(Throwable t)
-			{
-				super.onError(t);
-				mDownloadBtn.setVisibility(View.VISIBLE);
-				mDownloadBtn.setText(R.string.failed);
-				t.printStackTrace();
-			}
-		
-			@Override
-			public void onSuccess()
-			{
-				super.onSuccess();
-				mDownloadBtn.setVisibility(View.VISIBLE);
-				mDownloadBtn.setText(R.string.success);
-			}
-		});
+		 * mRetrofitClient.download(this, DOWNLOAD_URL, Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk", mDownloadListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL).path(Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk").downloadListener(new DownloadListener()
-		{
-			@Override
-			public void onPreExecute(long fileSize)
-			{
-				super.onPreExecute(fileSize);
-				mDownloadBtn.setVisibility(View.INVISIBLE);
-				mDownloadBtn.setText(R.string.start);
-				mDownloadProgress.setMax((int) fileSize);
-			}
-
-			@Override
-			public void onProgressChange(long fileSize, long downloadedSize)
-			{
-				super.onProgressChange(fileSize, downloadedSize);
-				mDownloadProgress.setProgress((int) downloadedSize);
-			}
-
-			@Override
-			public void onCancel()
-			{
-				super.onCancel();
-			}
-
-			@Override
-			public void onError(Throwable t)
-			{
-				super.onError(t);
-				mDownloadBtn.setVisibility(View.VISIBLE);
-				mDownloadBtn.setText(R.string.failed);
-				t.printStackTrace();
-			}
-
-			@Override
-			public void onSuccess()
-			{
-				super.onSuccess();
-				mDownloadBtn.setVisibility(View.VISIBLE);
-				mDownloadBtn.setText(R.string.success);
-			}
-		}).build().download();
+		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL).path(Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk").downloadListener(mDownloadListener).build().download();
 	}
+
+	private DownloadListener mObDownloadListener = new DownloadListener()
+	{
+		@Override
+		public void onPreExecute(long fileSize)
+		{
+			super.onPreExecute(fileSize);
+			mObDownloadBtn.setVisibility(View.INVISIBLE);
+			mObDownloadBtn.setText(R.string.start);
+			mObDownloadProgress.setMax((int) fileSize);
+		}
+
+		@Override
+		public void onProgressChange(long fileSize, long downloadedSize)
+		{
+			super.onProgressChange(fileSize, downloadedSize);
+			mObDownloadProgress.setProgress((int) downloadedSize);
+		}
+
+		@Override
+		public void onError(Throwable t)
+		{
+			super.onError(t);
+			mObDownloadBtn.setVisibility(View.VISIBLE);
+			mObDownloadBtn.setText(R.string.failed);
+			t.printStackTrace();
+		}
+
+		@Override
+		public void onSuccess()
+		{
+			super.onSuccess();
+			mObDownloadBtn.setVisibility(View.VISIBLE);
+			mObDownloadBtn.setText(R.string.success);
+		}
+	};
 
 	/**
 	 * 下载监听接口可选
@@ -143,76 +141,8 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 	private void obDownload()
 	{
 		/**
-		mRetrofitClient.obDownload(this, DOWNLOAD_URL1, Environment.getExternalStorageDirectory() + File.separator + "Game.apk", new DownloadListener()
-		{
-			@Override
-			public void onPreExecute(long fileSize)
-			{
-				super.onPreExecute(fileSize);
-				mObDownloadBtn.setVisibility(View.INVISIBLE);
-				mObDownloadBtn.setText(R.string.start);
-				mObDownloadProgress.setMax((int) fileSize);
-			}
-		
-			@Override
-			public void onProgressChange(long fileSize, long downloadedSize)
-			{
-				super.onProgressChange(fileSize, downloadedSize);
-				mObDownloadProgress.setProgress((int) downloadedSize);
-			}
-		
-			@Override
-			public void onError(Throwable t)
-			{
-				super.onError(t);
-				mObDownloadBtn.setVisibility(View.VISIBLE);
-				mObDownloadBtn.setText(R.string.failed);
-				t.printStackTrace();
-			}
-		
-			@Override
-			public void onSuccess()
-			{
-				super.onSuccess();
-				mObDownloadBtn.setVisibility(View.VISIBLE);
-				mObDownloadBtn.setText(R.string.success);
-			}
-		});
-		*/
-		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL1).path(Environment.getExternalStorageDirectory() + File.separator + "Game.apk").downloadListener(new DownloadListener()
-		{
-			@Override
-			public void onPreExecute(long fileSize)
-			{
-				super.onPreExecute(fileSize);
-				mObDownloadBtn.setVisibility(View.INVISIBLE);
-				mObDownloadBtn.setText(R.string.start);
-				mObDownloadProgress.setMax((int) fileSize);
-			}
-
-			@Override
-			public void onProgressChange(long fileSize, long downloadedSize)
-			{
-				super.onProgressChange(fileSize, downloadedSize);
-				mObDownloadProgress.setProgress((int) downloadedSize);
-			}
-
-			@Override
-			public void onError(Throwable t)
-			{
-				super.onError(t);
-				mObDownloadBtn.setVisibility(View.VISIBLE);
-				mObDownloadBtn.setText(R.string.failed);
-				t.printStackTrace();
-			}
-
-			@Override
-			public void onSuccess()
-			{
-				super.onSuccess();
-				mObDownloadBtn.setVisibility(View.VISIBLE);
-				mObDownloadBtn.setText(R.string.success);
-			}
-		}).build().obDownload();
+		 * mRetrofitClient.obDownload(this, DOWNLOAD_URL1, Environment.getExternalStorageDirectory() + File.separator + "Game.apk", mObDownloadListener);
+		 */
+		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL1).path(Environment.getExternalStorageDirectory() + File.separator + "Game.apk").downloadListener(mObDownloadListener).build().obDownload();
 	}
 }

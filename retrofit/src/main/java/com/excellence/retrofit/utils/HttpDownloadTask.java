@@ -77,6 +77,11 @@ public class HttpDownloadTask implements IDownloadListener
 		}
 	}
 
+	/**
+	 * 下载准备，可直接在UI线程更新界面
+	 * 
+	 * @param fileSize 下载文件长度
+	 */
 	@Override
 	public void onPreExecute(final long fileSize)
 	{
@@ -93,6 +98,12 @@ public class HttpDownloadTask implements IDownloadListener
 		}
 	}
 
+	/**
+	 * 下载进度刷新，可直接在UI线程更新界面
+	 *
+	 * @param fileSize 文件长度
+	 * @param downloadedSize 下载长度
+	 */
 	@Override
 	public void onProgressChange(final long fileSize, final long downloadedSize)
 	{
@@ -109,6 +120,9 @@ public class HttpDownloadTask implements IDownloadListener
 		}
 	}
 
+	/**
+	 * 取消
+	 */
 	@Override
 	public void onCancel()
 	{
@@ -125,6 +139,11 @@ public class HttpDownloadTask implements IDownloadListener
 		}
 	}
 
+	/**
+	 * 下载失败，可直接在UI线程更新界面
+	 *
+	 * @param t
+	 */
 	@Override
 	public void onError(final Throwable t)
 	{
@@ -141,6 +160,9 @@ public class HttpDownloadTask implements IDownloadListener
 		}
 	}
 
+	/**
+	 * 下载成功，可直接在UI线程更新界面
+	 */
 	@Override
 	public void onSuccess()
 	{

@@ -1,22 +1,14 @@
 package com.excellence.retrofit;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.excellence.retrofit.interfaces.DownloadListener;
 import com.excellence.retrofit.interfaces.IListener;
 import com.excellence.retrofit.utils.OkHttpProvider;
-import com.excellence.retrofit.utils.Utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,26 +17,15 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
-import retrofit2.Callback;
 import retrofit2.Converter;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
-import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
-import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
-import static com.excellence.retrofit.utils.Utils.checkHeaders;
-import static com.excellence.retrofit.utils.Utils.checkParams;
 import static com.excellence.retrofit.utils.Utils.checkURL;
-import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * <pre>
@@ -145,312 +126,57 @@ public class RetrofitClient
 	}
 
 	/**
-	 * Get请求字符串数据
+	 * Get请求字符串数据，推荐链式请求{@link HttpRequest#get}
 	 *
 	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param listener 结果回调
 	 */
+	@Deprecated
 	public void get(final Object tag, @NonNull final String url, final IListener listener)
 	{
-		Call<String> call = mService.get(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		addCall(tag, url, call);
-		call.enqueue(new Callback<String>()
-		{
-			@Override
-			public void onResponse(Call<String> call, Response<String> response)
-			{
-				if (response.code() == HTTP_OK)
-				{
-					handleSuccess(listener, response.body());
-				}
-				else
-				{
-					String errorMsg = Utils.inputStream2String(response.errorBody().byteStream());
-					if (!TextUtils.isEmpty(errorMsg))
-						handleError(listener, new Throwable(errorMsg));
-					else
-					{
-						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-						handleError(listener, new Throwable("There may be no cache data!"));
-					}
-				}
-				removeCall(tag, url);
-			}
-
-			@Override
-			public void onFailure(Call<String> call, Throwable t)
-			{
-				if (!call.isCanceled())
-				{
-					handleError(listener, t);
-				}
-				removeCall(tag, url);
-			}
-		});
-	}
-
-	private void handleSuccess(IListener listener, String result)
-	{
-		if (listener != null)
-			listener.onSuccess(result);
-	}
-
-	private void handleError(IListener listener, Throwable t)
-	{
-		if (listener != null)
-			listener.onError(t);
+		new HttpRequest.Builder().tag(tag).url(url).listener(listener).build().get();
 	}
 
 	/**
-	 * RxJava结合Get请求字符串数据
+	 * RxJava结合Get请求字符串数据，推荐链式请求{@link HttpRequest#obGet}
 	 *
 	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param listener 结果回调
 	 */
+	@Deprecated
 	public void obGet(final Object tag, @NonNull final String url, final IListener listener)
 	{
-		Observable<String> observable = mService.obGet(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
-		{
-			@Override
-			public void onNext(String result)
-			{
-				handleSuccess(listener, result);
-				removeCall(tag, url);
-			}
-
-			@Override
-			public void onCompleted()
-			{
-
-			}
-
-			@Override
-			public void onError(Throwable e)
-			{
-				handleError(listener, e);
-				removeCall(tag, url);
-			}
-		});
-		addCall(tag, url, subscription);
+		new HttpRequest.Builder().tag(tag).url(url).listener(listener).build().obGet();
 	}
 
 	/**
-	 * 下载
+	 * 下载，推荐链式请求{@link HttpRequest#download}
 	 *
 	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param path 文件保存地址
 	 * @param listener 下载监听
 	 */
+	@Deprecated
 	public void download(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
-		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
-		mHeaders.put(DOWNLOAD, DOWNLOAD);
-		Call<ResponseBody> call = mService.download(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		addCall(tag, url, call);
-		call.enqueue(new Callback<ResponseBody>()
-		{
-			@Override
-			public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response)
-			{
-				if (response.code() == HTTP_OK)
-				{
-					new AsyncTask<Void, Long, Void>()
-					{
-						@Override
-						protected Void doInBackground(Void... params)
-						{
-							writeFile(listener, path, response.body());
-							removeCall(tag, url);
-							return null;
-						}
-
-					}.execute();
-				}
-				else
-				{
-					String errorMsg = Utils.inputStream2String(response.errorBody().byteStream());
-					listener.onError(new Throwable(errorMsg));
-					removeCall(tag, url);
-				}
-			}
-
-			@Override
-			public void onFailure(Call<ResponseBody> call, Throwable t)
-			{
-				if (!call.isCanceled())
-				{
-					listener.onError(t);
-				}
-				removeCall(tag, url);
-			}
-		});
+		new HttpRequest.Builder().tag(tag).url(url).path(path).downloadListener(listener).build().download();
 	}
 
 	/**
-	 * RxJava结合下载
+	 * RxJava结合下载，推荐链式请求{@link HttpRequest#obDownload}
 	 *
 	 * @param tag 网络请求标识
 	 * @param url 请求链接
 	 * @param path 文件保存地址
 	 * @param listener 下载监听
 	 */
+	@Deprecated
 	public void obDownload(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
-		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
-		mHeaders.put(DOWNLOAD, DOWNLOAD);
-		Observable<ResponseBody> observable = mService.obDownload(checkURL(url), checkParams(mParams), checkHeaders(mHeaders));
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
-		{
-			@Override
-			public void onNext(ResponseBody response)
-			{
-				writeFile(listener, path, response);
-				removeCall(tag, url);
-			}
-
-			@Override
-			public void onCompleted()
-			{
-
-			}
-
-			@Override
-			public void onError(Throwable e)
-			{
-				RetrofitClient.this.onError(listener, e);
-				removeCall(tag, url);
-			}
-		});
-		addCall(tag, url, subscription);
-	}
-
-	/**
-	 * 写入流文件
-	 *
-	 * @param listener 下载监听
-	 * @param path 文件保存路径
-	 * @param response 文件流信息
-	 */
-	private void writeFile(DownloadListener listener, String path, ResponseBody response)
-	{
-		File file = new File(path);
-		InputStream in = null;
-		OutputStream out = null;
-		try
-		{
-			long fileSize = response.contentLength();
-			long downloadedSize = 0;
-			int read = 0;
-			byte[] fileReader = new byte[1024 * 4];
-			onPreExecute(listener, fileSize);
-			in = response.byteStream();
-			out = new FileOutputStream(file);
-			while (true)
-			{
-				read = in.read(fileReader);
-				if (read == -1)
-					break;
-				out.write(fileReader, 0, read);
-				downloadedSize += read;
-				onProgressChange(listener, fileSize, downloadedSize);
-			}
-			out.flush();
-			onSuccess(listener);
-		}
-		catch (Exception e)
-		{
-			onError(listener, e);
-		}
-		finally
-		{
-			try
-			{
-				if (in != null)
-					in.close();
-				if (out != null)
-					out.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
-	 * 下载准备，可直接在UI线程更新界面
-	 *
-	 * @param listener 下载监听
-	 * @param fileSize 文件总长度
-	 */
-	private void onPreExecute(final DownloadListener listener, final long fileSize)
-	{
-		mResponsePoster.execute(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				listener.onPreExecute(fileSize);
-			}
-		});
-	}
-
-	/**
-	 * 下载进度刷新，可直接在UI线程更新界面
-	 *
-	 * @param listener 下载监听
-	 * @param fileSize 文件总长度
-	 * @param downloadedSize 下载长度
-	 */
-	private void onProgressChange(final DownloadListener listener, final long fileSize, final long downloadedSize)
-	{
-		mResponsePoster.execute(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				listener.onProgressChange(fileSize, downloadedSize);
-			}
-		});
-	}
-
-	/**
-	 * 下载成功，可直接在UI线程更新界面
-	 *
-	 * @param listener 下载监听
-	 */
-	private void onSuccess(final DownloadListener listener)
-	{
-		mResponsePoster.execute(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				listener.onSuccess();
-			}
-		});
-	}
-
-	/**
-	 * 下载失败，可直接在UI线程更新界面
-	 *
-	 * @param listener 下载监听
-	 * @param e 异常信息
-	 */
-	private void onError(final DownloadListener listener, final Throwable e)
-	{
-		mResponsePoster.execute(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				listener.onError(e);
-			}
-		});
+		new HttpRequest.Builder().tag(tag).url(url).path(path).downloadListener(listener).build().obDownload();
 	}
 
 	/**
