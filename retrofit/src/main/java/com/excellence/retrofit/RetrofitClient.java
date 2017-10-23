@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.excellence.retrofit.interceptor.CacheInterceptor;
+import com.excellence.retrofit.interceptor.CacheOnlineInterceptor;
 import com.excellence.retrofit.interceptor.DownloadInterceptor;
 import com.excellence.retrofit.interceptor.LoggingInterceptor;
 import com.excellence.retrofit.interfaces.DownloadListener;
@@ -576,10 +577,12 @@ public class RetrofitClient
 				 */
 				if (mCache == null)
 					cache(new Cache(mContext.getExternalCacheDir(), DEFAULT_CACHE_SIZE));
-				CacheInterceptor cacheInterceptor = new CacheInterceptor(mContext, mCacheTime, mCacheOnlineTime);
 				mHttpClientBuilder.cache(mCache);
+				CacheInterceptor cacheInterceptor = new CacheInterceptor(mContext, mCacheTime);
+				CacheOnlineInterceptor cacheOnlineInterceptor = new CacheOnlineInterceptor(mCacheOnlineTime);
 				mHttpClientBuilder.addInterceptor(cacheInterceptor);
 				mHttpClientBuilder.addNetworkInterceptor(cacheInterceptor);
+				mHttpClientBuilder.addNetworkInterceptor(cacheOnlineInterceptor);
 			}
 
 			if (mConverterFactories.isEmpty())
