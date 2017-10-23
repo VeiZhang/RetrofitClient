@@ -27,6 +27,9 @@ import static com.excellence.retrofit.utils.Utils.isNetworkAvailable;
 public class CacheInterceptor implements Interceptor
 {
 	public static final String TAG = CacheInterceptor.class.getSimpleName();
+
+	public static final String HEADER_PRAGMA = "Pragma";
+	public static final String HEADER_CACHE_CONTROL = "Cache-Control";
 	public static final long DEFAULT_CACHE_TIME = 4 * 7 * 24 * 60 * 60;
 
 	private Context mContext = null;
@@ -58,7 +61,7 @@ public class CacheInterceptor implements Interceptor
 			/**
 			 * 在线缓存，如果服务器支持缓存，则使用服务器的配置；否则使用自定义的在线缓存有效期限
 			 */
-			String cacheControl = request.header("Cache-Control");
+			String cacheControl = request.header(HEADER_CACHE_CONTROL);
 			if (TextUtils.isEmpty(cacheControl))
 			{
 				/**
@@ -67,7 +70,7 @@ public class CacheInterceptor implements Interceptor
 				 *
 				 * 对于长期无变化的数据可以设置；对于实时更新的数据，则设置max-age 为 0
 				 */
-				return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "max-age=" + mCacheOnlineTime).build();
+				return response.newBuilder().removeHeader(HEADER_PRAGMA).removeHeader(HEADER_CACHE_CONTROL).header(HEADER_CACHE_CONTROL, "max-age=" + mCacheOnlineTime).build();
 			}
 			else
 				return response;
@@ -87,7 +90,7 @@ public class CacheInterceptor implements Interceptor
 			 * 离线缓存，重新设置请求
 			 * max-stale设置缓存策略，及超时策略
 			 */
-			return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "public, only-if-cached, max-stale=" + mCacheTime).build();
+			return response.newBuilder().removeHeader(HEADER_PRAGMA).removeHeader(HEADER_CACHE_CONTROL).header(HEADER_CACHE_CONTROL, "public, only-if-cached, max-stale=" + mCacheTime).build();
 		}
 	}
 }
