@@ -44,8 +44,8 @@ import static com.excellence.retrofit.utils.Utils.checkURL;
  *     			   <li>get请求封装</li>
  *     			   <li>请求头和参数统一配置，分开配置</li>
  *     			   <li>异步统一回调接口</li>
- *     			   <li>单个界面所有请求取消</li>
- *     			   <li>缓存策略</li>
+ *     			   <li>单个请求、单个界面请求、所有请求取消</li>
+ *     			   <li>缓存策略：在线缓存、离线缓存</li>
  *     			   <li>下载</li>
  *     			</ul>
  * </pre>
