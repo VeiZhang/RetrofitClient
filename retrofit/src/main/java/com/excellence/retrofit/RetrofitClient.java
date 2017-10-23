@@ -567,9 +567,7 @@ public class RetrofitClient
 			/**
 			 * 防止下载文件缓存
 			 */
-			DownloadInterceptor downloadInterceptor = new DownloadInterceptor();
-			mHttpClientBuilder.addInterceptor(downloadInterceptor);
-            mHttpClientBuilder.addNetworkInterceptor(downloadInterceptor);
+			mHttpClientBuilder.addNetworkInterceptor(new DownloadInterceptor());
 
 			if (cacheEnable)
 			{
