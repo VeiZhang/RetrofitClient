@@ -20,7 +20,7 @@ allprojects {
 
     /**避免中文注释:编码GBK的不可映射字符**/
     tasks.withType(Javadoc) {
-        options{
+        options {
             encoding "UTF-8"
             charSet 'UTF-8'
             links "http://docs.oracle.com/javase/7/docs/api"
@@ -71,11 +71,48 @@ tasks.withType(Javadoc) {
 }
 
 /**发布到我的Bintray仓库**/
+def user = getBintrayUser()
+def key = getBintrayKey()
+def userOrganization = getUserOrg()
+
 publish {
-    userOrg = 'veizhang'
+    bintrayUser = user
+    bintrayKey = key
+    dryRun = false
+    userOrg = userOrganization
     groupId = 'com.excellence'
     artifactId = 'retrofit'
     publishVersion = '1.0.0'
     desc = 'Retrofit封装'
     website = 'https://github.com/VeiZhang/RetrofitClient'
+    licences = ['Apache-2.0']
+}
+
+/**读取bintray.key文件的user**/
+def getBintrayUser() {
+    return getBintrayProperty('bintrayUser');
+}
+
+/**读取bintray.key文件的key**/
+def getBintrayKey() {
+    return getBintrayProperty('bintrayKey');
+}
+
+/**读取bintray.key文件的userOrg**/
+def getUserOrg() {
+    return getBintrayProperty('userOrg');
+}
+
+/**读取文件里字段值**/
+def getBintrayProperty(String key) {
+    File file = project.rootProject.file('../../bintray.key')
+    if (!file.exists())
+        return null
+
+    InputStream inputStream = file.newDataInputStream();
+    Properties properties = new Properties()
+    properties.load(inputStream)
+
+    //读取Key
+    return properties.getProperty(key)
 }
