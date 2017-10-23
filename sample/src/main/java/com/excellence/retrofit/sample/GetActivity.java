@@ -72,7 +72,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		/**
 		 * mRetrofitClient.get(this, REQUEST_URL, mListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL).header("Cache-Time", "60").listener(mListener).build().get();
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).listener(mListener).build().get();
 	}
 
 	private Listener mObListener = new Listener()

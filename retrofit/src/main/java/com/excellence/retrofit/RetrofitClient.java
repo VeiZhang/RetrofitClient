@@ -5,10 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
+import com.excellence.retrofit.interceptor.CacheInterceptor;
+import com.excellence.retrofit.interceptor.DownloadInterceptor;
+import com.excellence.retrofit.interceptor.LoggingInterceptor;
 import com.excellence.retrofit.interfaces.DownloadListener;
 import com.excellence.retrofit.interfaces.IListener;
 import com.excellence.retrofit.utils.Logger;
-import com.excellence.retrofit.utils.OkHttpProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
@@ -26,6 +30,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 import rx.Subscription;
 
+import static com.excellence.retrofit.interceptor.CacheInterceptor.DEFAULT_CACHE_TIME;
 import static com.excellence.retrofit.utils.Utils.checkURL;
 
 /**
@@ -51,8 +56,6 @@ public class RetrofitClient
 
 	private static RetrofitClient mInstance = null;
 	private RetrofitHttpService mService = null;
-	private String mBaseUrl = null;
-	private OkHttpClient mClient = null;
 	/**
 	 * 全局请求头
 	 */
@@ -80,8 +83,6 @@ public class RetrofitClient
 	public RetrofitClient(Builder builder)
 	{
 		mService = builder.mService;
-		mBaseUrl = builder.mBaseUrl;
-		mClient = builder.mClient;
 		mHeaders = builder.mHeaders;
 		mParams = builder.mParams;
 
@@ -99,16 +100,6 @@ public class RetrofitClient
 	protected RetrofitHttpService getService()
 	{
 		return mService;
-	}
-
-	protected String getBaseUrl()
-	{
-		return mBaseUrl;
-	}
-
-	protected OkHttpClient getClient()
-	{
-		return mClient;
 	}
 
 	protected Map<String, String> getHeaders()
@@ -276,10 +267,17 @@ public class RetrofitClient
 	 */
 	public static class Builder
 	{
+		private static final long DEFAULT_CACHE_SIZE = 10 * 1024 * 1024;
+		private static final long DEFAULT_TIMEOUT = 5;
+
 		private Context mContext = null;
-		private String mBaseUrl = null;
-		private OkHttpClient mClient = null;
+		private Retrofit.Builder mRetrofitBuilder = null;
+		private OkHttpClient.Builder mHttpClientBuilder = null;
 		private RetrofitHttpService mService = null;
+		private boolean cacheEnable = false;
+		private Cache mCache = null;
+		private long mCacheTime = DEFAULT_CACHE_TIME;
+		private long mCacheOnlineTime = 0;
 		private List<Converter.Factory> mConverterFactories = new ArrayList<>();
 		private List<CallAdapter.Factory> mCallAdapterFactories = new ArrayList<>();
 		/**
@@ -294,31 +292,200 @@ public class RetrofitClient
 
 		public Builder(@NonNull Context context)
 		{
-			mContext = context;
+			mContext = context.getApplicationContext();
+			mRetrofitBuilder = new Retrofit.Builder();
+			mHttpClientBuilder = new OkHttpClient.Builder();
 		}
 
+		/**
+		 * 设置baseUrl
+		 *
+		 * @param baseUrl
+		 * @return
+		 */
 		public Builder baseUrl(@NonNull String baseUrl)
 		{
-			mBaseUrl = baseUrl;
+			checkURL(baseUrl);
+			if (!baseUrl.endsWith("/"))
+				baseUrl += "/";
+			mRetrofitBuilder.baseUrl(baseUrl);
 			return this;
 		}
 
-		public Builder client(@NonNull OkHttpClient client)
+		/**
+		 * 是否开启缓存
+		 *
+		 * 默认缓存
+		 * 位置: /sdcard/Android/data/YourPackageName/cache/
+		 * 大小: {@link #DEFAULT_CACHE_SIZE}
+		 *
+		 * @param cacheEnable
+		 * @return
+		 */
+		public Builder cacheEnable(boolean cacheEnable)
 		{
-			mClient = client;
+			this.cacheEnable = cacheEnable;
 			return this;
 		}
 
+		/**
+		 * 自定义缓存
+		 * @see CacheInterceptor
+		 *
+		 * @param cache
+		 * @return
+		 */
+		public Builder cache(Cache cache)
+		{
+			mCache = cache;
+			if (mCache != null)
+				cacheEnable(true);
+			return this;
+		}
+
+		/**
+		 * 设置离线缓存有效期限，默认4周{@link CacheInterceptor#DEFAULT_CACHE_TIME}
+		 * @see CacheInterceptor
+		 *
+		 * @param cacheTime 单位：s
+		 * @return
+		 */
+		public Builder cacheTime(long cacheTime)
+		{
+			mCacheTime = cacheTime;
+			cacheEnable(true);
+			return this;
+		}
+
+		/**
+		 * 设置在线缓存有效期限，默认0s：每次都重新请求
+		 * @see CacheInterceptor
+		 *
+		 * @param cacheOnlineTime  单位：s
+		 * @return
+		 */
+		public Builder cacheOnlineTime(long cacheOnlineTime)
+		{
+			mCacheOnlineTime = cacheOnlineTime;
+			cacheEnable(true);
+			return this;
+		}
+
+		/**
+		 * 是否自动重连
+		 *
+		 * @param retryOnConnectionFailure
+		 * @return
+		 */
+		public Builder retryOnConnectionFailure(boolean retryOnConnectionFailure)
+		{
+			mHttpClientBuilder.retryOnConnectionFailure(retryOnConnectionFailure);
+			return this;
+		}
+
+		/**
+		 * 设置转换工厂
+		 *
+		 * @param factory
+		 * @return
+		 */
 		public Builder addConverterFactory(@NonNull Converter.Factory factory)
 		{
 			mConverterFactories.add(factory);
 			return this;
 		}
 
+		/**
+		 * 设置回调工厂
+		 *
+		 * @param factory
+		 * @return
+		 */
 		public Builder addCallAdapterFactory(@NonNull CallAdapter.Factory factory)
 		{
 			mCallAdapterFactories.add(factory);
 			return this;
+		}
+
+		/**
+		 * 设置连接超时，<0时，默认为{@link #DEFAULT_TIMEOUT}s
+		 *
+		 * @param timeout
+		 * @param timeUnit
+		 * @return
+		 */
+		public Builder connectTimeout(long timeout, TimeUnit timeUnit)
+		{
+			if (timeout < 0)
+				mHttpClientBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			else
+				mHttpClientBuilder.connectTimeout(timeout, timeUnit);
+			return this;
+		}
+
+		/**
+		 * 设置连接超时，单位为s；<0时，默认为{@link #DEFAULT_TIMEOUT}s
+		 *
+		 * @param timeout
+		 * @return
+		 */
+		public Builder connectTimeout(long timeout)
+		{
+			return connectTimeout(timeout, TimeUnit.SECONDS);
+		}
+
+		/**
+		 * 设置读超时，<0时，默认为{@link #DEFAULT_TIMEOUT}s
+		 *
+		 * @param timeout
+		 * @param timeUnit
+		 * @return
+		 */
+		public Builder readTimeout(long timeout, TimeUnit timeUnit)
+		{
+			if (timeout < 0)
+				mHttpClientBuilder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			else
+				mHttpClientBuilder.readTimeout(timeout, timeUnit);
+			return this;
+		}
+
+		/**
+		 * 设置读超时，单位为s；<0时，默认为{@link #DEFAULT_TIMEOUT}s
+		 *
+		 * @param timeout
+		 * @return
+		 */
+		public Builder readTimeout(long timeout)
+		{
+			return readTimeout(timeout, TimeUnit.SECONDS);
+		}
+
+		/**
+		 * 设置写超时，<0时，默认{@link #DEFAULT_TIMEOUT}s
+		 *
+		 * @param timeout
+		 * @param timeUnit
+		 * @return
+		 */
+		public Builder writeTimeout(long timeout, TimeUnit timeUnit)
+		{
+			if (timeout < 0)
+				mHttpClientBuilder.writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			else
+				mHttpClientBuilder.writeTimeout(timeout, timeUnit);
+			return this;
+		}
+
+		/**
+		 * 设置写超时，单位为s；<0时，默认{@link #DEFAULT_TIMEOUT}s
+		 *
+		 * @param timeout
+		 * @return
+		 */
+		public Builder writeTimeout(long timeout)
+		{
+			return writeTimeout(timeout, TimeUnit.SECONDS);
 		}
 
 		/**
@@ -380,6 +547,10 @@ public class RetrofitClient
 		public Builder addLog(boolean isEnable)
 		{
 			Logger.isEnabled(isEnable);
+			if (isEnable)
+			{
+				mHttpClientBuilder.addInterceptor(new LoggingInterceptor());
+			}
 			return this;
 		}
 
@@ -393,13 +564,22 @@ public class RetrofitClient
 			if (mInstance != null)
 				return mInstance;
 
-			checkURL(mBaseUrl);
-			if (!mBaseUrl.endsWith("/"))
-				mBaseUrl += "/";
+			/**
+			 * 防止下载文件缓存
+			 */
+			mHttpClientBuilder.addInterceptor(new DownloadInterceptor());
 
-			if (mClient == null)
+			if (cacheEnable)
 			{
-				mClient = OkHttpProvider.okHttpClient(mContext);
+				/**
+				 * 默认开启的缓存{@link #cacheEnable}
+				 */
+				if (mCache == null)
+					cache(new Cache(mContext.getExternalCacheDir(), DEFAULT_CACHE_SIZE));
+				CacheInterceptor cacheInterceptor = new CacheInterceptor(mContext, mCacheTime, mCacheOnlineTime);
+				mHttpClientBuilder.cache(mCache);
+				mHttpClientBuilder.addInterceptor(cacheInterceptor);
+				mHttpClientBuilder.addNetworkInterceptor(cacheInterceptor);
 			}
 
 			if (mConverterFactories.isEmpty())
@@ -414,14 +594,15 @@ public class RetrofitClient
 				mCallAdapterFactories.add(RxJavaCallAdapterFactory.create());
 			}
 
-			Retrofit.Builder builder = new Retrofit.Builder();
-			builder.baseUrl(mBaseUrl);
-			builder.client(mClient);
+			OkHttpClient okHttpClient = mHttpClientBuilder.build();
+			mRetrofitBuilder.client(okHttpClient);
+
 			for (Converter.Factory converterFactory : mConverterFactories)
-				builder.addConverterFactory(converterFactory);
+				mRetrofitBuilder.addConverterFactory(converterFactory);
 			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
-				builder.addCallAdapterFactory(callAdapterFactory);
-			Retrofit retrofit = builder.build();
+				mRetrofitBuilder.addCallAdapterFactory(callAdapterFactory);
+
+			Retrofit retrofit = mRetrofitBuilder.build();
 			mService = retrofit.create(RetrofitHttpService.class);
 			mInstance = new RetrofitClient(this);
 			return mInstance;

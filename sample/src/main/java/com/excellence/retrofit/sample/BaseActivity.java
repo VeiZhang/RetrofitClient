@@ -29,7 +29,7 @@ public class BaseActivity extends Activity
 	protected void onCreate(@Nullable Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		mRetrofitClient = new RetrofitClient.Builder(this).baseUrl(BASE_URL).addLog(true).header("Cache-Time", "0").build();
+		mRetrofitClient = new RetrofitClient.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true).build();
 	}
 
 	@Override
