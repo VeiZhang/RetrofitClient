@@ -180,7 +180,7 @@ public class RetrofitClient
 	 * @param url 请求链接
 	 * @param request 网络请求
 	 */
-	protected synchronized void addCall(Object tag, String url, Object request)
+	protected synchronized void addRequest(Object tag, String url, Object request)
 	{
 		if (tag == null)
 			return;
@@ -196,7 +196,7 @@ public class RetrofitClient
 	 * @param tag 标签
 	 * @param url 请求链接
 	 */
-	protected synchronized void removeCall(Object tag, String url)
+	protected synchronized void removeRequest(Object tag, String url)
 	{
 		if (tag == null)
 			return;

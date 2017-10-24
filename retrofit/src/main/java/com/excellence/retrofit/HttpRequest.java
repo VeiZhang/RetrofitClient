@@ -159,7 +159,7 @@ public class HttpRequest
 		checkMainThread();
 		addRequestInfo();
 		Call<String> call = mHttpService.get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		mRetrofitClient.addCall(mTag, mUrl, call);
+		addRequest(call);
 		call.enqueue(new Callback<String>()
 		{
 			@Override
@@ -180,7 +180,7 @@ public class HttpRequest
 						handleError(mListener, new Throwable("There may be no cache data!"));
 					}
 				}
-				mRetrofitClient.removeCall(mTag, mUrl);
+				removeRequest();
 			}
 
 			@Override
@@ -190,7 +190,7 @@ public class HttpRequest
 				{
 					handleError(mListener, t);
 				}
-				mRetrofitClient.removeCall(mTag, mUrl);
+				removeRequest();
 			}
 		});
 	}
@@ -211,7 +211,7 @@ public class HttpRequest
 			public void onNext(String result)
 			{
 				handleSuccess(listener, result);
-				mRetrofitClient.removeCall(mTag, mUrl);
+				removeRequest();
 			}
 
 			@Override
@@ -224,10 +224,10 @@ public class HttpRequest
 			public void onError(Throwable e)
 			{
 				handleError(listener, e);
-				mRetrofitClient.removeCall(mTag, mUrl);
+				removeRequest();
 			}
 		});
-		mRetrofitClient.addCall(mTag, mUrl, subscription);
+		addRequest(subscription);
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class HttpRequest
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		mRetrofitClient.addCall(mTag, mUrl, call);
+		addRequest(call);
 		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
 		call.enqueue(new Callback<ResponseBody>()
 		{
@@ -258,7 +258,7 @@ public class HttpRequest
 						protected Void doInBackground(Void... params)
 						{
 							downloadTask.writeFile(path, response.body());
-							mRetrofitClient.removeCall(mTag, mUrl);
+							removeRequest();
 							return null;
 						}
 
@@ -268,7 +268,7 @@ public class HttpRequest
 				{
 					String errorMsg = inputStream2String(response.errorBody().byteStream());
 					downloadTask.onError(new Throwable(errorMsg));
-					mRetrofitClient.removeCall(mTag, mUrl);
+					removeRequest();
 				}
 			}
 
@@ -279,7 +279,7 @@ public class HttpRequest
 				{
 					downloadTask.onError(t);
 				}
-				mRetrofitClient.removeCall(mTag, mUrl);
+				removeRequest();
 			}
 		});
 	}
@@ -304,7 +304,7 @@ public class HttpRequest
 			public void onNext(ResponseBody response)
 			{
 				downloadTask.writeFile(path, response);
-				mRetrofitClient.removeCall(mTag, mUrl);
+				removeRequest();
 			}
 
 			@Override
@@ -317,10 +317,10 @@ public class HttpRequest
 			public void onError(Throwable e)
 			{
 				downloadTask.onError(e);
-				mRetrofitClient.removeCall(mTag, mUrl);
+				removeRequest();
 			}
 		});
-		mRetrofitClient.addCall(mTag, mUrl, subscription);
+		addRequest(subscription);
 	}
 
 	/**
@@ -346,5 +346,15 @@ public class HttpRequest
 	{
 		if (listener != null)
 			listener.onError(t);
+	}
+
+	private void addRequest(Object request)
+	{
+		mRetrofitClient.addRequest(mTag, mUrl, request);
+	}
+
+	private void removeRequest()
+	{
+		mRetrofitClient.removeRequest(mTag, mUrl);
 	}
 }
