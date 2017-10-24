@@ -129,7 +129,7 @@ public class RetrofitClient
 	@Deprecated
 	public void get(final Object tag, @NonNull final String url, final IListener listener)
 	{
-		new HttpRequest.Builder().tag(tag).url(url).listener(listener).build().get();
+		new HttpRequest.Builder().tag(tag).url(url).build().get(listener);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class RetrofitClient
 	@Deprecated
 	public void obGet(final Object tag, @NonNull final String url, final IListener listener)
 	{
-		new HttpRequest.Builder().tag(tag).url(url).listener(listener).build().obGet();
+		new HttpRequest.Builder().tag(tag).url(url).build().obGet(listener);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class RetrofitClient
 	@Deprecated
 	public void download(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
-		new HttpRequest.Builder().tag(tag).url(url).path(path).downloadListener(listener).build().download();
+		new HttpRequest.Builder().tag(tag).url(url).build().download(path, listener);
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class RetrofitClient
 	@Deprecated
 	public void obDownload(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
 	{
-		new HttpRequest.Builder().tag(tag).url(url).path(path).downloadListener(listener).build().obDownload();
+		new HttpRequest.Builder().tag(tag).url(url).build().obDownload(path, listener);
 	}
 
 	/**

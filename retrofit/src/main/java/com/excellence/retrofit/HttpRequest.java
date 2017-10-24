@@ -47,21 +47,15 @@ public class HttpRequest
 	private Executor mResponsePoster = null;
 	private Object mTag = null;
 	private String mUrl = null;
-	private String mPath = null;
 	private Map<String, String> mHeaders = null;
 	private Map<String, String> mParams = null;
-	private IListener mListener = null;
-	private IDownloadListener mDownloadListener = null;
 
 	protected HttpRequest(Builder builder)
 	{
 		mTag = builder.mTag;
 		mUrl = builder.mUrl;
-		mPath = builder.mPath;
 		mHeaders = builder.mHeaders;
 		mParams = builder.mParams;
-		mListener = builder.mListener;
-		mDownloadListener = builder.mDownloadListener;
 
 		mRetrofitClient = RetrofitClient.getInstance();
 		mHttpService = mRetrofitClient.getService();
@@ -72,11 +66,8 @@ public class HttpRequest
 	{
 		private Object mTag = null;
 		private String mUrl = null;
-		private String mPath = null;
 		private Map<String, String> mHeaders = new HashMap<>();
 		private Map<String, String> mParams = new HashMap<>();
-		private IListener mListener = null;
-		private IDownloadListener mDownloadListener = null;
 
 		/**
 		 * 设置网络请求标识，用于取消请求
@@ -99,18 +90,6 @@ public class HttpRequest
 		public Builder url(String url)
 		{
 			mUrl = url;
-			return this;
-		}
-
-		/**
-		 * 文件下载时的保存路径
-		 *
-		 * @param path
-		 * @return
-		 */
-		public Builder path(String path)
-		{
-			mPath = path;
 			return this;
 		}
 
@@ -164,30 +143,6 @@ public class HttpRequest
 			return this;
 		}
 
-		/**
-		 * 设置数据请求监听
-		 *
-		 * @param listener
-		 * @return
-		 */
-		public Builder listener(IListener listener)
-		{
-			mListener = listener;
-			return this;
-		}
-
-		/**
-		 * 设置下载监听
-		 *
-		 * @param listener
-		 * @return
-		 */
-		public Builder downloadListener(IDownloadListener listener)
-		{
-			mDownloadListener = listener;
-			return this;
-		}
-
 		public HttpRequest build()
 		{
 			return new HttpRequest(this);
@@ -196,8 +151,10 @@ public class HttpRequest
 
 	/**
 	 * Get请求字符串数据
+	 *
+	 * @param mListener 结果回调
 	 */
-	public void get()
+	public void get(final IListener mListener)
 	{
 		checkMainThread();
 		addRequestInfo();
@@ -240,8 +197,10 @@ public class HttpRequest
 
 	/**
 	 * RxJava结合Get请求字符串数据
+	 *
+	 * @param listener 结果回调
 	 */
-	public void obGet()
+	public void obGet(final IListener listener)
 	{
 		checkMainThread();
 		addRequestInfo();
@@ -251,7 +210,7 @@ public class HttpRequest
 			@Override
 			public void onNext(String result)
 			{
-				handleSuccess(mListener, result);
+				handleSuccess(listener, result);
 				mRetrofitClient.removeCall(mTag, mUrl);
 			}
 
@@ -264,7 +223,7 @@ public class HttpRequest
 			@Override
 			public void onError(Throwable e)
 			{
-				handleError(mListener, e);
+				handleError(listener, e);
 				mRetrofitClient.removeCall(mTag, mUrl);
 			}
 		});
@@ -273,8 +232,11 @@ public class HttpRequest
 
 	/**
 	 * 下载
+	 *
+	 * @param path 文件保存路径
+	 * @param listener 下载监听
 	 */
-	public void download()
+	public void download(final String path, IDownloadListener listener)
 	{
 		checkMainThread();
 		addRequestInfo();
@@ -282,7 +244,7 @@ public class HttpRequest
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		mRetrofitClient.addCall(mTag, mUrl, call);
-		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, mDownloadListener);
+		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
 		call.enqueue(new Callback<ResponseBody>()
 		{
 			@Override
@@ -295,7 +257,7 @@ public class HttpRequest
 						@Override
 						protected Void doInBackground(Void... params)
 						{
-							downloadTask.writeFile(mPath, response.body());
+							downloadTask.writeFile(path, response.body());
 							mRetrofitClient.removeCall(mTag, mUrl);
 							return null;
 						}
@@ -324,21 +286,24 @@ public class HttpRequest
 
 	/**
 	 * RxJava结合下载
+	 *
+	 * @param path 文件保存路径
+	 * @param listener 下载监听
 	 */
-	public void obDownload()
+	public void obDownload(final String path, IDownloadListener listener)
 	{
 		checkMainThread();
 		addRequestInfo();
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Observable<ResponseBody> observable = mHttpService.obDownload(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, mDownloadListener);
+		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
 		{
 			@Override
 			public void onNext(ResponseBody response)
 			{
-				downloadTask.writeFile(mPath, response);
+				downloadTask.writeFile(path, response);
 				mRetrofitClient.removeCall(mTag, mUrl);
 			}
 

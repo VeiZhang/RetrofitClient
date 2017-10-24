@@ -72,7 +72,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		/**
 		 * mRetrofitClient.get(this, REQUEST_URL, mListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL).listener(mListener).build().get();
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(mListener);
 	}
 
 	private Listener mObListener = new Listener()
@@ -96,6 +96,6 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		/**
 		 * mRetrofitClient.obGet(this, REQUEST_URL1, mObListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).listener(mObListener).build().obGet();
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(mObListener);
 	}
 }
