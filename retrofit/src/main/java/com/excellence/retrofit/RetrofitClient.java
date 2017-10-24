@@ -22,6 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
@@ -381,6 +382,30 @@ public class RetrofitClient
 		public Builder retryOnConnectionFailure(boolean retryOnConnectionFailure)
 		{
 			mHttpClientBuilder.retryOnConnectionFailure(retryOnConnectionFailure);
+			return this;
+		}
+
+		/**
+		 * 添加拦截器
+		 *
+		 * @param interceptor
+		 * @return
+		 */
+		public Builder addInterceptor(@NonNull Interceptor interceptor)
+		{
+			mHttpClientBuilder.addInterceptor(interceptor);
+			return this;
+		}
+
+		/**
+		 * 添加网络拦截器
+		 *
+		 * @param interceptor
+		 * @return
+		 */
+		public Builder addNetworkInterceptor(@NonNull Interceptor interceptor)
+		{
+			mHttpClientBuilder.addNetworkInterceptor(interceptor);
 			return this;
 		}
 
