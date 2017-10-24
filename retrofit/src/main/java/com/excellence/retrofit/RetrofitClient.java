@@ -268,7 +268,7 @@ public class RetrofitClient
 	 */
 	public static class Builder
 	{
-		private static final long DEFAULT_CACHE_SIZE = 10 * 1024 * 1024;
+		private static final long DEFAULT_CACHE_SIZE = 20 * 1024 * 1024;
 		private static final long DEFAULT_TIMEOUT = 5;
 
 		private Context mContext = null;
