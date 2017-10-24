@@ -277,9 +277,9 @@ public class HttpRequest
 	public void download()
 	{
 		checkMainThread();
+		addRequestInfo();
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
-		addRequestInfo();
 		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		mRetrofitClient.addCall(mTag, mUrl, call);
 		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, mDownloadListener);
@@ -328,9 +328,9 @@ public class HttpRequest
 	public void obDownload()
 	{
 		checkMainThread();
+		addRequestInfo();
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		mHeaders.put(DOWNLOAD, DOWNLOAD);
-		addRequestInfo();
 		Observable<ResponseBody> observable = mHttpService.obDownload(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, mDownloadListener);
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
