@@ -152,9 +152,9 @@ public class HttpRequest
 	/**
 	 * Get请求字符串数据
 	 *
-	 * @param mListener 结果回调
+	 * @param listener 结果回调
 	 */
-	public void get(final IListener mListener)
+	public void get(final IListener listener)
 	{
 		checkMainThread();
 		addRequestInfo();
@@ -167,17 +167,17 @@ public class HttpRequest
 			{
 				if (response.code() == HTTP_OK)
 				{
-					handleSuccess(mListener, response.body());
+					handleSuccess(listener, response.body());
 				}
 				else
 				{
 					String errorMsg = inputStream2String(response.errorBody().byteStream());
 					if (!TextUtils.isEmpty(errorMsg))
-						handleError(mListener, new Throwable(errorMsg));
+						handleError(listener, new Throwable(errorMsg));
 					else
 					{
 						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-						handleError(mListener, new Throwable("There may be no cache data!"));
+						handleError(listener, new Throwable("There may be no cache data!"));
 					}
 				}
 				removeRequest();
@@ -188,7 +188,7 @@ public class HttpRequest
 			{
 				if (!call.isCanceled())
 				{
-					handleError(mListener, t);
+					handleError(listener, t);
 				}
 				removeRequest();
 			}
