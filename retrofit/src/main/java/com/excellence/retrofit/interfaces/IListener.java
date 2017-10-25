@@ -9,13 +9,13 @@ package com.excellence.retrofit.interfaces;
  * </pre>
  */
 
-public interface IListener
+public interface IListener<T>
 {
 	/**
 	 * 
 	 * @param result 服务器字符串数据
 	 */
-	void onSuccess(String result);
+	void onSuccess(T result);
 
 	/**
 	 *

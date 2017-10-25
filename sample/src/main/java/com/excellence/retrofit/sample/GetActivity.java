@@ -51,12 +51,12 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		}
 	}
 
-	private Listener mListener = new Listener()
+	private Listener<Gank> mListener = new Listener<Gank>()
 	{
 		@Override
-		public void onSuccess(String result)
+		public void onSuccess(Gank result)
 		{
-			mResultTextView.setText(result);
+			mResultTextView.setText(result.toString());
 		}
 
 		@Override
@@ -72,10 +72,13 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		/**
 		 * mRetrofitClient.get(this, REQUEST_URL, mListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(mListener);
+		/**
+		 * new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(mListener);
+		 */
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(Gank.class, mListener);
 	}
 
-	private Listener mObListener = new Listener()
+	private Listener<String> mObListener = new Listener<String>()
 	{
 		@Override
 		public void onSuccess(String result)

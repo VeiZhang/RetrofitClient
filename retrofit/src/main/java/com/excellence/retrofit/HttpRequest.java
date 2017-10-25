@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.excellence.retrofit.interfaces.IDownloadListener;
 import com.excellence.retrofit.interfaces.IListener;
 import com.excellence.retrofit.utils.HttpDownloadTask;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -150,11 +151,11 @@ public class HttpRequest
 	}
 
 	/**
-	 * Get请求字符串数据
+	 * Get请求json字符串、json对象
 	 *
 	 * @param listener 结果回调
 	 */
-	public void get(final IListener listener)
+	public <T> void get(final Class<T> type, final IListener<T> listener)
 	{
 		checkMainThread();
 		addRequestInfo();
@@ -167,7 +168,16 @@ public class HttpRequest
 			{
 				if (response.code() == HTTP_OK)
 				{
-					handleSuccess(listener, response.body());
+					if (type != String.class)
+					{
+						/**
+						 * json对象
+						 */
+						T result = new Gson().fromJson(response.body(), type);
+						handleSuccess(listener, result);
+					}
+					else
+						handleSuccess(listener, (T) response.body());
 				}
 				else
 				{
@@ -193,6 +203,16 @@ public class HttpRequest
 				removeRequest();
 			}
 		});
+	}
+
+	/**
+	 * GET请求，默认返回json字符串
+	 *
+	 * @param listener
+	 */
+	public void get(IListener<String> listener)
+	{
+		get(String.class, listener);
 	}
 
 	/**
@@ -336,13 +356,13 @@ public class HttpRequest
 		mParams = params;
 	}
 
-	private void handleSuccess(IListener listener, String result)
+	private <T> void handleSuccess(IListener<T> listener, T result)
 	{
 		if (listener != null)
 			listener.onSuccess(result);
 	}
 
-	private void handleError(IListener listener, Throwable t)
+	private <T> void handleError(IListener<T> listener, Throwable t)
 	{
 		if (listener != null)
 			listener.onError(t);

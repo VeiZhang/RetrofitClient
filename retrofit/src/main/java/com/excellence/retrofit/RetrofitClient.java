@@ -127,7 +127,7 @@ public class RetrofitClient
 	 * @param listener 结果回调
 	 */
 	@Deprecated
-	public void get(final Object tag, @NonNull final String url, final IListener listener)
+	public void get(final Object tag, @NonNull final String url, final IListener<String> listener)
 	{
 		new HttpRequest.Builder().tag(tag).url(url).build().get(listener);
 	}

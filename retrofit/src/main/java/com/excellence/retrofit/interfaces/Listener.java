@@ -9,10 +9,10 @@ package com.excellence.retrofit.interfaces;
  * </pre>
  */
 
-public class Listener implements IListener
+public class Listener<T> implements IListener<T>
 {
 	@Override
-	public void onSuccess(String result)
+	public void onSuccess(T result)
 	{
 
 	}
