@@ -216,11 +216,11 @@ public class HttpRequest
 	}
 
 	/**
-	 * RxJava结合Get请求字符串数据
+	 * RxJava结合Get，请求json字符串、json对象
 	 *
 	 * @param listener 结果回调
 	 */
-	public void obGet(final IListener listener)
+	public <T> void obGet(final Class<T> type, final IListener<T> listener)
 	{
 		checkMainThread();
 		addRequestInfo();
@@ -228,9 +228,18 @@ public class HttpRequest
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
 		{
 			@Override
-			public void onNext(String result)
+			public void onNext(String response)
 			{
-				handleSuccess(listener, result);
+				if (type != String.class)
+				{
+					/**
+					 * json对象
+					 */
+					T result = new Gson().fromJson(response, type);
+					handleSuccess(listener, result);
+				}
+				else
+					handleSuccess(listener, (T) response);
 				removeRequest();
 			}
 
@@ -248,6 +257,16 @@ public class HttpRequest
 			}
 		});
 		addRequest(subscription);
+	}
+
+	/**
+	 * RxJava结合Get，默认返回json字符串
+	 *
+	 * @param listener
+	 */
+	public void obGet(IListener<String> listener)
+	{
+		obGet(String.class, listener);
 	}
 
 	/**

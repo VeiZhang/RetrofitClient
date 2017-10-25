@@ -51,7 +51,39 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		}
 	}
 
-	private Listener<Gank> mListener = new Listener<Gank>()
+	private void get()
+	{
+		/**
+		 * 字符串请求
+		 * mRetrofitClient.get(this, REQUEST_URL, mStringListener);
+		 */
+		/**
+		 * 字符串请求
+		 * new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(mStringListener);
+		 */
+		/**
+		 * JSONObject请求
+		 */
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(Gank.class, mJSONObjectListener);
+	}
+
+	private void obGet()
+	{
+		/**
+		 * 字符串请求
+		 * mRetrofitClient.obGet(this, REQUEST_URL1, mStringListener);
+		 */
+		/**
+		 * 字符串请求
+		 * new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(mStringListener);
+		 */
+		/**
+		 * JSONObject请求
+		 */
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(Gank.class, mJSONObjectListener);
+	}
+
+	private Listener<Gank> mJSONObjectListener = new Listener<Gank>()
 	{
 		@Override
 		public void onSuccess(Gank result)
@@ -67,18 +99,7 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		}
 	};
 
-	private void get()
-	{
-		/**
-		 * mRetrofitClient.get(this, REQUEST_URL, mListener);
-		 */
-		/**
-		 * new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(mListener);
-		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(Gank.class, mListener);
-	}
-
-	private Listener<String> mObListener = new Listener<String>()
+	private Listener<String> mStringListener = new Listener<String>()
 	{
 		@Override
 		public void onSuccess(String result)
@@ -93,12 +114,4 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 			t.printStackTrace();
 		}
 	};
-
-	private void obGet()
-	{
-		/**
-		 * mRetrofitClient.obGet(this, REQUEST_URL1, mObListener);
-		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(mObListener);
-	}
 }

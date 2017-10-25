@@ -140,7 +140,7 @@ public class RetrofitClient
 	 * @param listener 结果回调
 	 */
 	@Deprecated
-	public void obGet(final Object tag, @NonNull final String url, final IListener listener)
+	public void obGet(final Object tag, @NonNull final String url, final IListener<String> listener)
 	{
 		new HttpRequest.Builder().tag(tag).url(url).build().obGet(listener);
 	}
