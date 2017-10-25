@@ -22,16 +22,48 @@ import rx.Observable;
 
 public interface RetrofitHttpService
 {
+	/**
+	 * GET请求
+	 *
+	 * @param url
+	 * @param params
+	 * @param headers
+	 * @return
+	 */
 	@GET
 	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
+	/**
+	 * RxJava + GET请求
+	 *
+	 * @param url
+	 * @param params
+	 * @param headers
+	 * @return
+	 */
 	@GET
 	Observable<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
+	/**
+	 * GET下载
+	 *
+	 * @param url
+	 * @param params
+	 * @param headers
+	 * @return
+	 */
 	@Streaming
 	@GET
 	Call<ResponseBody> download(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
+	/**
+	 * RxJava + GET下载
+	 *
+	 * @param url
+	 * @param params
+	 * @param headers
+	 * @return
+	 */
 	@Streaming
 	@GET
 	Observable<ResponseBody> obDownload(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
