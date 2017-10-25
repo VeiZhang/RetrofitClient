@@ -2,8 +2,10 @@ package com.excellence.retrofit;
 
 import java.util.Map;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -57,6 +59,26 @@ public interface RetrofitHttpService
 	@FormUrlEncoded
 	@POST
 	Call<String> post(@Url String url, @FieldMap Map<String, String> params);
+
+	/**
+	 * POST发送json/xml
+	 *
+	 * @param url
+	 * @param object
+	 * @return
+	 */
+	@POST
+	Call<String> post(@Url String url, @Body Object object);
+
+	/**
+	 * POST发送json/xml
+	 *
+	 * @param url
+	 * @param requestBody
+	 * @return
+	 */
+	@POST
+	Call<String> post(@Url String url, @Body RequestBody requestBody);
 
 	/**
 	 * GET下载
