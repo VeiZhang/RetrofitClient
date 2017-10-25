@@ -3,10 +3,12 @@
     <string-array name="activity_names">
         <item>@string/get</item>
         <item>@string/download</item>
+        <item>@string/post</item>
     </string-array>
 
     <string-array name="activities">
         <item>com.excellence.retrofit.sample.GetActivity</item>
         <item>com.excellence.retrofit.sample.DownloadActivity</item>
+        <item>com.excellence.retrofit.sample.PostActivity</item>
     </string-array>
 </resources>

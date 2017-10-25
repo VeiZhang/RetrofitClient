@@ -270,6 +270,73 @@ public class HttpRequest
 	}
 
 	/**
+	 * POST表单的方式发送键值对：发送{@link #mParams}
+	 *
+	 * @param type
+	 * @param listener
+	 * @param <T>
+	 */
+	public <T> void postForm(final Class<T> type, final IListener<T> listener)
+	{
+		checkMainThread();
+		addRequestInfo();
+		Call<String> call = mHttpService.post(checkURL(mUrl), checkParams(mParams));
+		addRequest(call);
+		call.enqueue(new Callback<String>()
+		{
+			@Override
+			public void onResponse(Call<String> call, Response<String> response)
+			{
+				if (response.code() == HTTP_OK)
+				{
+					if (type != String.class)
+					{
+						/**
+						 * json对象
+						 */
+						T result = new Gson().fromJson(response.body(), type);
+						handleSuccess(listener, result);
+					}
+					else
+						handleSuccess(listener, (T) response.body());
+				}
+				else
+				{
+					String errorMsg = inputStream2String(response.errorBody().byteStream());
+					if (!TextUtils.isEmpty(errorMsg))
+						handleError(listener, new Throwable(errorMsg));
+					else
+					{
+						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
+						handleError(listener, new Throwable("There may be no cache data!"));
+					}
+				}
+				removeRequest();
+			}
+
+			@Override
+			public void onFailure(Call<String> call, Throwable t)
+			{
+				if (!call.isCanceled())
+				{
+					handleError(listener, t);
+				}
+				removeRequest();
+			}
+		});
+	}
+
+	/**
+	 * POST表单的方式发送键值对：发送{@link #mParams}
+	 *
+	 * @param listener
+	 */
+	public void postForm(IListener<String> listener)
+	{
+		postForm(String.class, listener);
+	}
+
+	/**
 	 * 下载
 	 *
 	 * @param path 文件保存路径

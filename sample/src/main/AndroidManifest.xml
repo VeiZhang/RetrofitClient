@@ -23,6 +23,7 @@
         </activity>
         <activity android:name=".DownloadActivity">
         </activity>
+        <activity android:name=".PostActivity"/>
     </application>
 
 </manifest>
