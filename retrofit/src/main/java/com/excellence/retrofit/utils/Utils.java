@@ -8,10 +8,14 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 /**
  * <pre>
@@ -123,5 +127,17 @@ public class Utils
 	{
 		if (Looper.myLooper() != Looper.getMainLooper())
 			throw new RuntimeException("Client should be main thread!!!");
+	}
+
+	public static RequestBody createImage(File file)
+	{
+		checkNotNULL(file, "file not null");
+		return RequestBody.create(MediaType.parse("image/*"), file);
+	}
+
+	private static void checkNotNULL(Object object, String message)
+	{
+		if (object == null)
+			throw new NullPointerException(message);
 	}
 }

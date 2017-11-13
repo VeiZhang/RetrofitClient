@@ -8,10 +8,13 @@ import com.excellence.retrofit.interfaces.IListener;
 import com.excellence.retrofit.utils.HttpDownloadTask;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,6 +30,7 @@ import static com.excellence.retrofit.utils.Utils.checkHeaders;
 import static com.excellence.retrofit.utils.Utils.checkMainThread;
 import static com.excellence.retrofit.utils.Utils.checkParams;
 import static com.excellence.retrofit.utils.Utils.checkURL;
+import static com.excellence.retrofit.utils.Utils.createImage;
 import static com.excellence.retrofit.utils.Utils.inputStream2String;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -427,6 +431,79 @@ public class HttpRequest
 			}
 		});
 		addRequest(subscription);
+	}
+
+	/**
+	 * 上传文件
+	 * 
+	 * @param fileKey 服务器上传文件对应的参数key
+	 * @param file 上传文件
+	 * @param type
+	 * @param listener
+	 * @param <T>
+	 */
+	public <T> void uploadFile(String fileKey, File file, final Class<T> type, final IListener<T> listener)
+	{
+		checkMainThread();
+		addRequestInfo();
+		RequestBody requestImg = createImage(file);
+		MultipartBody.Part body = MultipartBody.Part.createFormData(fileKey, file.getName(), requestImg);
+		Call<String> call = mHttpService.uploadFile(checkURL(mUrl), checkParams(mParams), body);
+		addRequest(call);
+		call.enqueue(new Callback<String>()
+		{
+			@Override
+			public void onResponse(Call<String> call, Response<String> response)
+			{
+				if (response.code() == HTTP_OK)
+				{
+					if (type != String.class)
+					{
+						/**
+						 * json对象
+						 */
+						T result = new Gson().fromJson(response.body(), type);
+						handleSuccess(listener, result);
+					}
+					else
+						handleSuccess(listener, (T) response.body());
+				}
+				else
+				{
+					String errorMsg = inputStream2String(response.errorBody().byteStream());
+					if (!TextUtils.isEmpty(errorMsg))
+						handleError(listener, new Throwable(errorMsg));
+					else
+					{
+						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
+						handleError(listener, new Throwable("There may be no cache data!"));
+					}
+				}
+				removeRequest();
+			}
+
+			@Override
+			public void onFailure(Call<String> call, Throwable t)
+			{
+				if (!call.isCanceled())
+				{
+					handleError(listener, t);
+				}
+				removeRequest();
+			}
+		});
+	}
+
+	/**
+	 * 上传文件
+	 *
+	 * @param fileKey 服务器上传文件对应的参数key
+	 * @param file 上传文件
+	 * @param listener
+	 */
+	public void uploadFile(String fileKey, File file, final IListener<String> listener)
+	{
+		uploadFile(fileKey, file, String.class, listener);
 	}
 
 	/**
