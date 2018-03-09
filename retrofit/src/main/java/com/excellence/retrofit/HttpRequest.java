@@ -54,6 +54,7 @@ public class HttpRequest
 	private String mUrl = null;
 	private Map<String, String> mHeaders = null;
 	private Map<String, String> mParams = null;
+	private boolean isCacheEnable = true;
 
 	protected HttpRequest(Builder builder)
 	{
@@ -61,6 +62,7 @@ public class HttpRequest
 		mUrl = builder.mUrl;
 		mHeaders = builder.mHeaders;
 		mParams = builder.mParams;
+		isCacheEnable = builder.isCacheEnable;
 
 		mRetrofitClient = RetrofitClient.getInstance();
 		mHttpService = mRetrofitClient.getService();
@@ -73,6 +75,7 @@ public class HttpRequest
 		private String mUrl = null;
 		private Map<String, String> mHeaders = new HashMap<>();
 		private Map<String, String> mParams = new HashMap<>();
+		private boolean isCacheEnable = true;
 
 		/**
 		 * 设置网络请求标识，用于取消请求
@@ -145,6 +148,18 @@ public class HttpRequest
 		public Builder params(Map<String, String> params)
 		{
 			mParams.putAll(params);
+			return this;
+		}
+
+		/**
+		 * 单个请求是否使用缓存：文件下载默认不使用缓存，其他请求默认使用缓存
+		 *
+		 * @param isCacheEnable
+		 * @return
+		 */
+		public Builder cacheEnable(boolean isCacheEnable)
+		{
+			this.isCacheEnable = isCacheEnable;
 			return this;
 		}
 
@@ -348,10 +363,9 @@ public class HttpRequest
 	 */
 	public void download(final String path, IDownloadListener listener)
 	{
+		isCacheEnable = false;
 		checkMainThread();
 		addRequestInfo();
-		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
-		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		addRequest(call);
 		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
@@ -402,10 +416,9 @@ public class HttpRequest
 	 */
 	public void obDownload(final String path, IDownloadListener listener)
 	{
+		isCacheEnable = false;
 		checkMainThread();
 		addRequestInfo();
-		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
-		mHeaders.put(DOWNLOAD, DOWNLOAD);
 		Observable<ResponseBody> observable = mHttpService.obDownload(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
@@ -517,6 +530,9 @@ public class HttpRequest
 		params.putAll(mParams);
 		mHeaders = headers;
 		mParams = params;
+		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
+		if (!isCacheEnable)
+			mHeaders.put(DOWNLOAD, DOWNLOAD);
 	}
 
 	private <T> void handleSuccess(IListener<T> listener, T result)
