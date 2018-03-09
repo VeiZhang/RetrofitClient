@@ -185,29 +185,36 @@ public class HttpRequest
 			@Override
 			public void onResponse(Call<String> call, Response<String> response)
 			{
-				if (response.code() == HTTP_OK)
+				try
 				{
-					if (type != String.class)
+					if (response.code() == HTTP_OK)
 					{
-						/**
-						 * json对象
-						 */
-						T result = new Gson().fromJson(response.body(), type);
-						handleSuccess(listener, result);
+						if (type != String.class)
+						{
+							/**
+							 * json对象
+							 */
+							T result = new Gson().fromJson(response.body(), type);
+							handleSuccess(listener, result);
+						}
+						else
+							handleSuccess(listener, (T) response.body());
 					}
 					else
-						handleSuccess(listener, (T) response.body());
+					{
+						String errorMsg = inputStream2String(response.errorBody().byteStream());
+						if (!TextUtils.isEmpty(errorMsg))
+							handleError(listener, new Throwable(errorMsg));
+						else
+						{
+							// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
+							handleError(listener, new Throwable("There may be no cache data!"));
+						}
+					}
 				}
-				else
+				catch (Exception e)
 				{
-					String errorMsg = inputStream2String(response.errorBody().byteStream());
-					if (!TextUtils.isEmpty(errorMsg))
-						handleError(listener, new Throwable(errorMsg));
-					else
-					{
-						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-						handleError(listener, new Throwable("There may be no cache data!"));
-					}
+					handleError(listener, e);
 				}
 				removeRequest();
 			}
@@ -249,16 +256,23 @@ public class HttpRequest
 			@Override
 			public void onNext(String response)
 			{
-				if (type != String.class)
+				try
 				{
-					/**
-					 * json对象
-					 */
-					T result = new Gson().fromJson(response, type);
-					handleSuccess(listener, result);
+					if (type != String.class)
+					{
+						/**
+						 * json对象
+						 */
+						T result = new Gson().fromJson(response, type);
+						handleSuccess(listener, result);
+					}
+					else
+						handleSuccess(listener, (T) response);
 				}
-				else
-					handleSuccess(listener, (T) response);
+				catch (Exception e)
+				{
+					handleError(listener, e);
+				}
 				removeRequest();
 			}
 
@@ -306,29 +320,36 @@ public class HttpRequest
 			@Override
 			public void onResponse(Call<String> call, Response<String> response)
 			{
-				if (response.code() == HTTP_OK)
+				try
 				{
-					if (type != String.class)
+					if (response.code() == HTTP_OK)
 					{
-						/**
-						 * json对象
-						 */
-						T result = new Gson().fromJson(response.body(), type);
-						handleSuccess(listener, result);
+						if (type != String.class)
+						{
+							/**
+							 * json对象
+							 */
+							T result = new Gson().fromJson(response.body(), type);
+							handleSuccess(listener, result);
+						}
+						else
+							handleSuccess(listener, (T) response.body());
 					}
 					else
-						handleSuccess(listener, (T) response.body());
+					{
+						String errorMsg = inputStream2String(response.errorBody().byteStream());
+						if (!TextUtils.isEmpty(errorMsg))
+							handleError(listener, new Throwable(errorMsg));
+						else
+						{
+							// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
+							handleError(listener, new Throwable("There may be no cache data!"));
+						}
+					}
 				}
-				else
+				catch (Exception e)
 				{
-					String errorMsg = inputStream2String(response.errorBody().byteStream());
-					if (!TextUtils.isEmpty(errorMsg))
-						handleError(listener, new Throwable(errorMsg));
-					else
-					{
-						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-						handleError(listener, new Throwable("There may be no cache data!"));
-					}
+					handleError(listener, e);
 				}
 				removeRequest();
 			}
@@ -468,29 +489,36 @@ public class HttpRequest
 			@Override
 			public void onResponse(Call<String> call, Response<String> response)
 			{
-				if (response.code() == HTTP_OK)
+				try
 				{
-					if (type != String.class)
+					if (response.code() == HTTP_OK)
 					{
-						/**
-						 * json对象
-						 */
-						T result = new Gson().fromJson(response.body(), type);
-						handleSuccess(listener, result);
+						if (type != String.class)
+						{
+							/**
+							 * json对象
+							 */
+							T result = new Gson().fromJson(response.body(), type);
+							handleSuccess(listener, result);
+						}
+						else
+							handleSuccess(listener, (T) response.body());
 					}
 					else
-						handleSuccess(listener, (T) response.body());
+					{
+						String errorMsg = inputStream2String(response.errorBody().byteStream());
+						if (!TextUtils.isEmpty(errorMsg))
+							handleError(listener, new Throwable(errorMsg));
+						else
+						{
+							// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
+							handleError(listener, new Throwable("There may be no cache data!"));
+						}
+					}
 				}
-				else
+				catch (Exception e)
 				{
-					String errorMsg = inputStream2String(response.errorBody().byteStream());
-					if (!TextUtils.isEmpty(errorMsg))
-						handleError(listener, new Throwable(errorMsg));
-					else
-					{
-						// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-						handleError(listener, new Throwable("There may be no cache data!"));
-					}
+					handleError(listener, e);
 				}
 				removeRequest();
 			}
