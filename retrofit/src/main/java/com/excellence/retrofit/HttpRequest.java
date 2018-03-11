@@ -54,6 +54,7 @@ public class HttpRequest
 	private Map<String, String> mHeaders = null;
 	private Map<String, String> mParams = null;
 	private boolean isCacheEnable = true;
+	private ResponseType mResponseType = ResponseType.ASYNC;
 
 	protected HttpRequest(Builder builder)
 	{
@@ -62,10 +63,16 @@ public class HttpRequest
 		mHeaders = builder.mHeaders;
 		mParams = builder.mParams;
 		isCacheEnable = builder.isCacheEnable;
+		mResponseType = builder.mResponseType;
 
 		mRetrofitClient = RetrofitClient.getInstance();
 		mHttpService = mRetrofitClient.getService();
 		mResponsePoster = mRetrofitClient.getResponsePoster();
+	}
+
+	public enum ResponseType
+	{
+		ASYNC, SYNC
 	}
 
 	public static class Builder
@@ -75,6 +82,7 @@ public class HttpRequest
 		private Map<String, String> mHeaders = new HashMap<>();
 		private Map<String, String> mParams = new HashMap<>();
 		private boolean isCacheEnable = true;
+		private ResponseType mResponseType = ResponseType.ASYNC;
 
 		/**
 		 * 设置网络请求标识，用于取消请求
@@ -162,6 +170,20 @@ public class HttpRequest
 			return this;
 		}
 
+		/**
+		 * 异步请求：{@link ResponseType#ASYNC}
+		 * 同步请求：{@link ResponseType#SYNC}
+		 * 默认异步请求
+		 *
+		 * @param responseType
+		 * @return
+		 */
+		public Builder responseType(ResponseType responseType)
+		{
+			mResponseType = responseType;
+			return this;
+		}
+
 		public HttpRequest build()
 		{
 			return new HttpRequest(this);
@@ -177,7 +199,62 @@ public class HttpRequest
 	{
 		addRequestInfo();
 		Call<String> call = mHttpService.get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		handleAsyncTask(type, listener, call);
+		switch (mResponseType)
+		{
+		case ASYNC:
+			handleAsyncTask(type, listener, call);
+			break;
+
+		case SYNC:
+			handleSyncTask(type, listener, call);
+			break;
+		}
+	}
+
+	/**
+	 * 同步请求处理
+	 *
+	 * @param type
+	 * @param listener
+	 * @param call
+	 * @param <T>
+	 */
+	private <T> void handleSyncTask(Class<T> type, IListener<T> listener, Call<String> call)
+	{
+		addRequest(call);
+		try
+		{
+			Response<String> response = call.execute();
+			if (response.code() == HTTP_OK)
+			{
+				if (type != String.class)
+				{
+					/**
+					 * json对象
+					 */
+					T result = new Gson().fromJson(response.body(), type);
+					handleSuccess(listener, result);
+				}
+				else
+					handleSuccess(listener, (T) response.body());
+			}
+			else
+			{
+				String errorMsg = inputStream2String(response.errorBody().byteStream());
+				if (!TextUtils.isEmpty(errorMsg))
+					handleError(listener, new Throwable(errorMsg));
+				else
+				{
+					// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
+					handleError(listener, new Throwable("There may be no cache data!"));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			handleError(listener, e);
+		}
+		removeRequest();
 	}
 
 	/**
@@ -261,7 +338,17 @@ public class HttpRequest
 	{
 		addRequestInfo();
 		Observable<String> observable = mHttpService.obGet(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
+		switch (mResponseType)
+		{
+		case ASYNC:
+			observable = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+			break;
+
+		case SYNC:
+			break;
+		}
+
+		Subscription subscription = observable.subscribe(new Subscriber<String>()
 		{
 			@Override
 			public void onNext(String response)
@@ -323,7 +410,16 @@ public class HttpRequest
 	{
 		addRequestInfo();
 		Call<String> call = mHttpService.post(checkURL(mUrl), checkParams(mParams));
-		handleAsyncTask(type, listener, call);
+		switch (mResponseType)
+		{
+		case ASYNC:
+			handleAsyncTask(type, listener, call);
+			break;
+
+		case SYNC:
+			handleSyncTask(type, listener, call);
+			break;
+		}
 	}
 
 	/**
@@ -440,7 +536,16 @@ public class HttpRequest
 		RequestBody requestImg = createImage(file);
 		MultipartBody.Part body = MultipartBody.Part.createFormData(fileKey, file.getName(), requestImg);
 		Call<String> call = mHttpService.uploadFile(checkURL(mUrl), checkParams(mParams), body);
-		handleAsyncTask(type, listener, call);
+		switch (mResponseType)
+		{
+		case ASYNC:
+			handleAsyncTask(type, listener, call);
+			break;
+
+		case SYNC:
+			handleSyncTask(type, listener, call);
+			break;
+		}
 	}
 
 	/**
