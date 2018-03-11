@@ -174,11 +174,24 @@ public class HttpRequest
 	 *
 	 * @param listener 结果回调
 	 */
-	public <T> void get(final Class<T> type, final IListener<T> listener)
+	public <T> void get(Class<T> type, IListener<T> listener)
 	{
 		checkMainThread();
 		addRequestInfo();
 		Call<String> call = mHttpService.get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
+		handleAsyncTask(type, listener, call);
+	}
+
+	/**
+	 * 异步请求处理
+	 *
+	 * @param type
+	 * @param listener
+	 * @param call
+	 * @param <T>
+	 */
+	private <T> void handleAsyncTask(final Class<T> type, final IListener<T> listener, Call<String> call)
+	{
 		addRequest(call);
 		call.enqueue(new Callback<String>()
 		{
@@ -314,56 +327,7 @@ public class HttpRequest
 		checkMainThread();
 		addRequestInfo();
 		Call<String> call = mHttpService.post(checkURL(mUrl), checkParams(mParams));
-		addRequest(call);
-		call.enqueue(new Callback<String>()
-		{
-			@Override
-			public void onResponse(Call<String> call, Response<String> response)
-			{
-				try
-				{
-					if (response.code() == HTTP_OK)
-					{
-						if (type != String.class)
-						{
-							/**
-							 * json对象
-							 */
-							T result = new Gson().fromJson(response.body(), type);
-							handleSuccess(listener, result);
-						}
-						else
-							handleSuccess(listener, (T) response.body());
-					}
-					else
-					{
-						String errorMsg = inputStream2String(response.errorBody().byteStream());
-						if (!TextUtils.isEmpty(errorMsg))
-							handleError(listener, new Throwable(errorMsg));
-						else
-						{
-							// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-							handleError(listener, new Throwable("There may be no cache data!"));
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					handleError(listener, e);
-				}
-				removeRequest();
-			}
-
-			@Override
-			public void onFailure(Call<String> call, Throwable t)
-			{
-				if (!call.isCanceled())
-				{
-					handleError(listener, t);
-				}
-				removeRequest();
-			}
-		});
+		handleAsyncTask(type, listener, call);
 	}
 
 	/**
@@ -483,56 +447,7 @@ public class HttpRequest
 		RequestBody requestImg = createImage(file);
 		MultipartBody.Part body = MultipartBody.Part.createFormData(fileKey, file.getName(), requestImg);
 		Call<String> call = mHttpService.uploadFile(checkURL(mUrl), checkParams(mParams), body);
-		addRequest(call);
-		call.enqueue(new Callback<String>()
-		{
-			@Override
-			public void onResponse(Call<String> call, Response<String> response)
-			{
-				try
-				{
-					if (response.code() == HTTP_OK)
-					{
-						if (type != String.class)
-						{
-							/**
-							 * json对象
-							 */
-							T result = new Gson().fromJson(response.body(), type);
-							handleSuccess(listener, result);
-						}
-						else
-							handleSuccess(listener, (T) response.body());
-					}
-					else
-					{
-						String errorMsg = inputStream2String(response.errorBody().byteStream());
-						if (!TextUtils.isEmpty(errorMsg))
-							handleError(listener, new Throwable(errorMsg));
-						else
-						{
-							// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
-							handleError(listener, new Throwable("There may be no cache data!"));
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					handleError(listener, e);
-				}
-				removeRequest();
-			}
-
-			@Override
-			public void onFailure(Call<String> call, Throwable t)
-			{
-				if (!call.isCanceled())
-				{
-					handleError(listener, t);
-				}
-				removeRequest();
-			}
-		});
+		handleAsyncTask(type, listener, call);
 	}
 
 	/**
