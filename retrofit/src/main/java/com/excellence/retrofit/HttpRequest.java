@@ -27,7 +27,6 @@ import rx.schedulers.Schedulers;
 
 import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofit.utils.Utils.checkHeaders;
-import static com.excellence.retrofit.utils.Utils.checkMainThread;
 import static com.excellence.retrofit.utils.Utils.checkParams;
 import static com.excellence.retrofit.utils.Utils.checkURL;
 import static com.excellence.retrofit.utils.Utils.createImage;
@@ -176,7 +175,6 @@ public class HttpRequest
 	 */
 	public <T> void get(Class<T> type, IListener<T> listener)
 	{
-		checkMainThread();
 		addRequestInfo();
 		Call<String> call = mHttpService.get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		handleAsyncTask(type, listener, call);
@@ -261,7 +259,6 @@ public class HttpRequest
 	 */
 	public <T> void obGet(final Class<T> type, final IListener<T> listener)
 	{
-		checkMainThread();
 		addRequestInfo();
 		Observable<String> observable = mHttpService.obGet(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>()
@@ -324,7 +321,6 @@ public class HttpRequest
 	 */
 	public <T> void postForm(final Class<T> type, final IListener<T> listener)
 	{
-		checkMainThread();
 		addRequestInfo();
 		Call<String> call = mHttpService.post(checkURL(mUrl), checkParams(mParams));
 		handleAsyncTask(type, listener, call);
@@ -349,7 +345,6 @@ public class HttpRequest
 	public void download(final String path, IDownloadListener listener)
 	{
 		isCacheEnable = false;
-		checkMainThread();
 		addRequestInfo();
 		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		addRequest(call);
@@ -402,7 +397,6 @@ public class HttpRequest
 	public void obDownload(final String path, IDownloadListener listener)
 	{
 		isCacheEnable = false;
-		checkMainThread();
 		addRequestInfo();
 		Observable<ResponseBody> observable = mHttpService.obDownload(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
 		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
@@ -442,7 +436,6 @@ public class HttpRequest
 	 */
 	public <T> void uploadFile(String fileKey, File file, final Class<T> type, final IListener<T> listener)
 	{
-		checkMainThread();
 		addRequestInfo();
 		RequestBody requestImg = createImage(file);
 		MultipartBody.Part body = MultipartBody.Part.createFormData(fileKey, file.getName(), requestImg);
