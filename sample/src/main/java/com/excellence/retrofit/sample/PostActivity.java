@@ -9,6 +9,8 @@ import android.widget.TextView;
 import com.excellence.retrofit.HttpRequest;
 import com.excellence.retrofit.interfaces.IListener;
 
+import java.io.File;
+
 public class PostActivity extends BaseActivity implements View.OnClickListener
 {
 	TextView mResultText = null;
@@ -39,6 +41,24 @@ public class PostActivity extends BaseActivity implements View.OnClickListener
 
 	private void postForm()
 	{
+		/**
+		 * new HttpRequest.Builder().tag(this).url("http://192.168.7.53:8306/bloodSugar/glucometer/register").param("data", "{\"accountName\":\"test3\",\"accountPwd\":\"123\",\"accountMail\":\"XXXX@qq.com\",\"type\":1}").build().postForm(mStringIListener);
+		 */
+		new HttpRequest.Builder().tag(this).url("http://192.168.7.53:8306/bloodSugar/glucometer/uploadPicture").param("accountId", "1510543592133").param("pid", "0").build().uploadFile("file", new File("/sdcard/123.jpg"),
+				String.class, new IListener<String>()
+				{
+					@Override
+					public void onSuccess(String result)
+					{
+						System.out.println(result);
+					}
+
+					@Override
+					public void onError(Throwable t)
+					{
+						t.printStackTrace();
+					}
+				});
 	}
 
 	private IListener<String> mStringIListener = new IListener<String>()
