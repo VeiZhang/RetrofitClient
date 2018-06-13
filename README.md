@@ -79,8 +79,22 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 -dontwarn okio.**
 ```
 
+## 版本更新
+
+| 版本 | 描述 |
+| --- | ---- |
+| [1.0.1][RetrofitClient1.0.1] | 优化请求和新增异常处理 **2018-3-13** |
+| [1.0.0][RetrofitClient1.0.0] | 创建网络请求：GET、POST、下载、上传 **2017-11-14** |
+
+<!-- 网站链接 -->
 
 [download]:https://bintray.com/veizhang/maven/retrofit/_latestVersion "Latest version"
 
+<!-- 图片链接 -->
+
 [icon_download]:https://api.bintray.com/packages/veizhang/maven/retrofit/images/download.svg
 
+<!-- 版本 -->
+
+[RetrofitClient1.0.1]:https://bintray.com/veizhang/maven/retrofit/1.0.1
+[RetrofitClient1.0.0]:https://bintray.com/veizhang/maven/retrofit/1.0.0
