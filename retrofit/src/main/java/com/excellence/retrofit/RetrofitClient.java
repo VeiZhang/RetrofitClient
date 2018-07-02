@@ -78,7 +78,9 @@ public class RetrofitClient
 	public static RetrofitClient getInstance()
 	{
 		if (mInstance == null)
+		{
 			throw new RuntimeException("Pls init " + Builder.class.getName());
+		}
 		return mInstance;
 	}
 
@@ -183,7 +185,9 @@ public class RetrofitClient
 	protected synchronized void addRequest(Object tag, String url, Object request)
 	{
 		if (tag == null)
+		{
 			return;
+		}
 		synchronized (CALL_MAP)
 		{
 			CALL_MAP.put(tag.toString() + url, request);
@@ -199,12 +203,16 @@ public class RetrofitClient
 	protected synchronized void removeRequest(Object tag, String url)
 	{
 		if (tag == null)
+		{
 			return;
+		}
 		synchronized (CALL_MAP)
 		{
 			String key = tag.toString() + url;
 			if (CALL_MAP.containsKey(key))
+			{
 				CALL_MAP.remove(key);
+			}
 		}
 	}
 
@@ -219,7 +227,9 @@ public class RetrofitClient
 	public synchronized void cancel(Object tag)
 	{
 		if (tag == null)
+		{
 			return;
+		}
 		synchronized (CALL_MAP)
 		{
 			for (Iterator<String> iterator = CALL_MAP.keySet().iterator(); iterator.hasNext();)
@@ -240,7 +250,9 @@ public class RetrofitClient
 	public synchronized void cancelAll()
 	{
 		for (String key : CALL_MAP.keySet())
+		{
 			cancel(key);
+		}
 		CALL_MAP.clear();
 	}
 
@@ -255,12 +267,16 @@ public class RetrofitClient
 		if (request instanceof Call)
 		{
 			if (!((Call) request).isCanceled())
+			{
 				((Call) request).cancel();
+			}
 		}
 		else if (request instanceof Subscription)
 		{
 			if (!((Subscription) request).isUnsubscribed())
+			{
 				((Subscription) request).unsubscribe();
+			}
 		}
 	}
 
@@ -309,7 +325,9 @@ public class RetrofitClient
 		{
 			checkURL(baseUrl);
 			if (!baseUrl.endsWith("/"))
+			{
 				baseUrl += "/";
+			}
 			mRetrofitBuilder.baseUrl(baseUrl);
 			return this;
 		}
@@ -341,7 +359,9 @@ public class RetrofitClient
 		{
 			mCache = cache;
 			if (mCache != null)
+			{
 				cacheEnable(true);
+			}
 			return this;
 		}
 
@@ -443,9 +463,13 @@ public class RetrofitClient
 		public Builder connectTimeout(long timeout, TimeUnit timeUnit)
 		{
 			if (timeout < 0)
+			{
 				mHttpClientBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			}
 			else
+			{
 				mHttpClientBuilder.connectTimeout(timeout, timeUnit);
+			}
 			return this;
 		}
 
@@ -470,9 +494,13 @@ public class RetrofitClient
 		public Builder readTimeout(long timeout, TimeUnit timeUnit)
 		{
 			if (timeout < 0)
+			{
 				mHttpClientBuilder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			}
 			else
+			{
 				mHttpClientBuilder.readTimeout(timeout, timeUnit);
+			}
 			return this;
 		}
 
@@ -497,9 +525,13 @@ public class RetrofitClient
 		public Builder writeTimeout(long timeout, TimeUnit timeUnit)
 		{
 			if (timeout < 0)
+			{
 				mHttpClientBuilder.writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			}
 			else
+			{
 				mHttpClientBuilder.writeTimeout(timeout, timeUnit);
+			}
 			return this;
 		}
 
@@ -588,7 +620,9 @@ public class RetrofitClient
 		public RetrofitClient build()
 		{
 			if (mInstance != null)
+			{
 				return mInstance;
+			}
 
 			/**
 			 * 防止下载文件缓存
@@ -601,7 +635,9 @@ public class RetrofitClient
 				 * 默认开启的缓存{@link #cacheEnable}
 				 */
 				if (mCache == null)
+				{
 					cache(new Cache(mContext.getExternalCacheDir(), DEFAULT_CACHE_SIZE));
+				}
 				mHttpClientBuilder.cache(mCache);
 				CacheInterceptor cacheInterceptor = new CacheInterceptor(mContext, mCacheTime);
 				CacheOnlineInterceptor cacheOnlineInterceptor = new CacheOnlineInterceptor(mCacheOnlineTime);
@@ -626,9 +662,13 @@ public class RetrofitClient
 			mRetrofitBuilder.client(okHttpClient);
 
 			for (Converter.Factory converterFactory : mConverterFactories)
+			{
 				mRetrofitBuilder.addConverterFactory(converterFactory);
+			}
 			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
+			{
 				mRetrofitBuilder.addCallAdapterFactory(callAdapterFactory);
+			}
 
 			Retrofit retrofit = mRetrofitBuilder.build();
 			mService = retrofit.create(RetrofitHttpService.class);
