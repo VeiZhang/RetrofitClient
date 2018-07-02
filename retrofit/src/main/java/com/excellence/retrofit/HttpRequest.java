@@ -236,13 +236,17 @@ public class HttpRequest
 					handleSuccess(listener, result);
 				}
 				else
+				{
 					handleSuccess(listener, (T) response.body());
+				}
 			}
 			else
 			{
 				String errorMsg = inputStream2String(response.errorBody().byteStream());
 				if (!TextUtils.isEmpty(errorMsg))
+				{
 					handleError(listener, new Throwable(errorMsg));
+				}
 				else
 				{
 					// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
@@ -286,13 +290,17 @@ public class HttpRequest
 							handleSuccess(listener, result);
 						}
 						else
+						{
 							handleSuccess(listener, (T) response.body());
+						}
 					}
 					else
 					{
 						String errorMsg = inputStream2String(response.errorBody().byteStream());
 						if (!TextUtils.isEmpty(errorMsg))
+						{
 							handleError(listener, new Throwable(errorMsg));
+						}
 						else
 						{
 							// 离线时使用缓存出现异常，如果没有上次缓存，出现异常时是没有打印信息的，添加自定义异常信息方便识别
@@ -364,7 +372,9 @@ public class HttpRequest
 						handleSuccess(listener, result);
 					}
 					else
+					{
 						handleSuccess(listener, (T) response);
+					}
 				}
 				catch (Exception e)
 				{
@@ -573,19 +583,25 @@ public class HttpRequest
 		mParams = params;
 		// 辨别文件下载、非文件下载的标识，避免下载时使用缓存
 		if (!isCacheEnable)
+		{
 			mHeaders.put(DOWNLOAD, DOWNLOAD);
+		}
 	}
 
 	private <T> void handleSuccess(IListener<T> listener, T result)
 	{
 		if (listener != null)
+		{
 			listener.onSuccess(result);
+		}
 	}
 
 	private <T> void handleError(IListener<T> listener, Throwable t)
 	{
 		if (listener != null)
+		{
 			listener.onError(t);
+		}
 	}
 
 	private void addRequest(Object request)

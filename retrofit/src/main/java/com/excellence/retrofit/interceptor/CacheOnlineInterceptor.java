@@ -60,6 +60,8 @@ public class CacheOnlineInterceptor implements Interceptor
 			return response.newBuilder().removeHeader(HEADER_PRAGMA).removeHeader(HEADER_CACHE_CONTROL).header(HEADER_CACHE_CONTROL, "max-age=" + mCacheOnlineTime).build();
 		}
 		else
+		{
 			return response;
+		}
 	}
 }

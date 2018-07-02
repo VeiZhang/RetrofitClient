@@ -49,7 +49,9 @@ public class HttpDownloadTask implements IDownloadListener
 			{
 				read = in.read(fileReader);
 				if (read == -1)
+				{
 					break;
+				}
 				out.write(fileReader, 0, read);
 				downloadedSize += read;
 				onProgressChange(fileSize, downloadedSize);
@@ -66,9 +68,13 @@ public class HttpDownloadTask implements IDownloadListener
 			try
 			{
 				if (in != null)
+				{
 					in.close();
+				}
 				if (out != null)
+				{
 					out.close();
+				}
 			}
 			catch (IOException e)
 			{
