@@ -646,28 +646,37 @@ public class RetrofitClient
 				mHttpClientBuilder.addNetworkInterceptor(cacheOnlineInterceptor);
 			}
 
-			if (mConverterFactories.isEmpty())
-			{
-				// 默认支持字符串数据
-				mConverterFactories.add(ScalarsConverterFactory.create());
-			}
-
-			if (mCallAdapterFactories.isEmpty())
-			{
-				// 默认支持RxJava
-				mCallAdapterFactories.add(RxJavaCallAdapterFactory.create());
-			}
-
 			OkHttpClient okHttpClient = mHttpClientBuilder.build();
 			mRetrofitBuilder.client(okHttpClient);
 
+			boolean isDefaultFactory = true;
 			for (Converter.Factory converterFactory : mConverterFactories)
 			{
+				if (converterFactory instanceof ScalarsConverterFactory)
+				{
+					isDefaultFactory = false;
+				}
 				mRetrofitBuilder.addConverterFactory(converterFactory);
 			}
+			if (isDefaultFactory)
+			{
+				// 默认支持字符串数据转换
+				mRetrofitBuilder.addConverterFactory(ScalarsConverterFactory.create());
+			}
+
+			isDefaultFactory = true;
 			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
 			{
+				if (callAdapterFactory instanceof RxJavaCallAdapterFactory)
+				{
+					isDefaultFactory = false;
+				}
 				mRetrofitBuilder.addCallAdapterFactory(callAdapterFactory);
+			}
+			if (isDefaultFactory)
+			{
+				// 默认支持RxJava回调
+				mRetrofitBuilder.addCallAdapterFactory(RxJavaCallAdapterFactory.create());
 			}
 
 			Retrofit retrofit = mRetrofitBuilder.build();
