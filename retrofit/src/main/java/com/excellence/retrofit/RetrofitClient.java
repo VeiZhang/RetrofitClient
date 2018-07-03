@@ -31,6 +31,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 import rx.Subscription;
 
 import static com.excellence.retrofit.interceptor.CacheInterceptor.DEFAULT_CACHE_TIME;
+import static com.excellence.retrofit.utils.Utils.checkNULL;
 import static com.excellence.retrofit.utils.Utils.checkURL;
 
 /**
@@ -75,16 +76,8 @@ public class RetrofitClient
 
 	public static RetrofitClient getInstance()
 	{
-		checkRetrofit();
+		checkNULL(mInstance, "please init " + Builder.class.getName());
 		return mInstance;
-	}
-
-	private static void checkRetrofit()
-	{
-		if (mInstance == null)
-		{
-			throw new RuntimeException("please init " + Builder.class.getName());
-		}
 	}
 
 	private RetrofitClient(Builder builder)
@@ -175,7 +168,7 @@ public class RetrofitClient
 	 */
 	public static synchronized void cancel(Object tag)
 	{
-		checkRetrofit();
+		checkNULL(mInstance, "please init " + Builder.class.getName());
 		if (tag == null)
 		{
 			return;
@@ -199,7 +192,7 @@ public class RetrofitClient
 	 */
 	public static synchronized void cancelAll()
 	{
-		checkRetrofit();
+		checkNULL(mInstance, "please init " + Builder.class.getName());
 		for (String key : CALL_MAP.keySet())
 		{
 			mInstance.cancel(key);

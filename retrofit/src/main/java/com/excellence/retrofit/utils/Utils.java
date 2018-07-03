@@ -1,5 +1,6 @@
 package com.excellence.retrofit.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -60,6 +61,7 @@ public class Utils
 	 * @param context 上下文
 	 * @return {@code true}：可用<br>{@code false}：不可用
 	 */
+	@SuppressLint("MissingPermission")
 	public static boolean isNetworkAvailable(Context context)
 	{
 		NetworkInfo networkInfo = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
@@ -69,7 +71,9 @@ public class Utils
 	public static String checkURL(String url)
 	{
 		if (isURLEmpty(url))
+		{
 			throw new NullPointerException("url can not be null");
+		}
 		return url;
 	}
 
@@ -93,11 +97,15 @@ public class Utils
 	public static Map<String, String> checkParams(Map<String, String> params)
 	{
 		if (params == null)
+		{
 			params = new HashMap<>();
+		}
 		for (Map.Entry<String, String> entry : params.entrySet())
 		{
 			if (entry.getValue() == null)
+			{
 				params.put(entry.getKey(), "");
+			}
 		}
 		return params;
 	}
@@ -111,11 +119,15 @@ public class Utils
 	public static Map<String, String> checkHeaders(Map<String, String> headers)
 	{
 		if (headers == null)
+		{
 			headers = new HashMap<>();
+		}
 		for (Map.Entry<String, String> entry : headers.entrySet())
 		{
 			if (entry.getValue() == null)
+			{
 				headers.put(entry.getKey(), "");
+			}
 		}
 		return headers;
 	}
@@ -126,18 +138,22 @@ public class Utils
 	public static void checkMainThread()
 	{
 		if (Looper.myLooper() != Looper.getMainLooper())
+		{
 			throw new RuntimeException("Client should be main thread!!!");
+		}
 	}
 
 	public static RequestBody createImage(File file)
 	{
-		checkNotNULL(file, "file not null");
+		checkNULL(file, "file not null");
 		return RequestBody.create(MediaType.parse("image/*"), file);
 	}
 
-	private static void checkNotNULL(Object object, String message)
+	public static void checkNULL(Object object, String message)
 	{
 		if (object == null)
+		{
 			throw new NullPointerException(message);
+		}
 	}
 }
