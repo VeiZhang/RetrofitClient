@@ -6,6 +6,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -106,7 +107,7 @@ public interface RetrofitHttpService
 	 */
 	@Streaming
 	@GET
-	Observable<ResponseBody> obDownload(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+	Observable<Response<ResponseBody>> obDownload(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
 	/**
 	 * 上传文件

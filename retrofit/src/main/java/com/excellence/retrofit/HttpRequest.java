@@ -1,21 +1,16 @@
 package com.excellence.retrofit;
 
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
-import com.excellence.retrofit.interfaces.IDownloadListener;
 import com.excellence.retrofit.interfaces.IListener;
-import com.excellence.retrofit.utils.HttpDownloadTask;
 import com.google.gson.Gson;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,6 +19,7 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import com.excellence.retrofit.utils.HttpUtils.ResponseType;
 
 import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofit.utils.Utils.checkHeaders;
@@ -48,7 +44,6 @@ public class HttpRequest
 
 	private RetrofitClient mRetrofitClient = null;
 	private RetrofitHttpService mHttpService = null;
-	private Executor mResponsePoster = null;
 	private Object mTag = null;
 	private String mUrl = null;
 	private Map<String, String> mHeaders = null;
@@ -56,7 +51,7 @@ public class HttpRequest
 	private boolean isCacheEnable = true;
 	private ResponseType mResponseType = ResponseType.ASYNC;
 
-	protected HttpRequest(Builder builder)
+	private HttpRequest(Builder builder)
 	{
 		mTag = builder.mTag;
 		mUrl = builder.mUrl;
@@ -67,12 +62,6 @@ public class HttpRequest
 
 		mRetrofitClient = RetrofitClient.getInstance();
 		mHttpService = mRetrofitClient.getService();
-		mResponsePoster = mRetrofitClient.getResponsePoster();
-	}
-
-	public enum ResponseType
-	{
-		ASYNC, SYNC
 	}
 
 	public static class Builder
@@ -440,95 +429,6 @@ public class HttpRequest
 	public void postForm(IListener<String> listener)
 	{
 		postForm(String.class, listener);
-	}
-
-	/**
-	 * 下载
-	 *
-	 * @param path 文件保存路径
-	 * @param listener 下载监听
-	 */
-	public void download(final String path, IDownloadListener listener)
-	{
-		isCacheEnable = false;
-		addRequestInfo();
-		Call<ResponseBody> call = mHttpService.download(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		addRequest(call);
-		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
-		call.enqueue(new Callback<ResponseBody>()
-		{
-			@Override
-			public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response)
-			{
-				if (response.code() == HTTP_OK)
-				{
-					new AsyncTask<Void, Long, Void>()
-					{
-						@Override
-						protected Void doInBackground(Void... params)
-						{
-							downloadTask.writeFile(path, response.body());
-							removeRequest();
-							return null;
-						}
-
-					}.execute();
-				}
-				else
-				{
-					String errorMsg = inputStream2String(response.errorBody().byteStream());
-					downloadTask.onError(new Throwable(errorMsg));
-					removeRequest();
-				}
-			}
-
-			@Override
-			public void onFailure(Call<ResponseBody> call, Throwable t)
-			{
-				if (!call.isCanceled())
-				{
-					downloadTask.onError(t);
-				}
-				removeRequest();
-			}
-		});
-	}
-
-	/**
-	 * RxJava结合下载
-	 *
-	 * @param path 文件保存路径
-	 * @param listener 下载监听
-	 */
-	public void obDownload(final String path, IDownloadListener listener)
-	{
-		isCacheEnable = false;
-		addRequestInfo();
-		Observable<ResponseBody> observable = mHttpService.obDownload(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
-		final HttpDownloadTask downloadTask = new HttpDownloadTask(mResponsePoster, listener);
-		Subscription subscription = observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Subscriber<ResponseBody>()
-		{
-			@Override
-			public void onNext(ResponseBody response)
-			{
-				downloadTask.writeFile(path, response);
-				removeRequest();
-			}
-
-			@Override
-			public void onCompleted()
-			{
-
-			}
-
-			@Override
-			public void onError(Throwable e)
-			{
-				downloadTask.onError(e);
-				removeRequest();
-			}
-		});
-		addRequest(subscription);
 	}
 
 	/**

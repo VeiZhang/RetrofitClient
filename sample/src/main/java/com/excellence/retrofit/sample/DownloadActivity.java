@@ -6,8 +6,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.excellence.retrofit.HttpRequest;
 import com.excellence.retrofit.interfaces.DownloadListener;
+import com.excellence.retrofit.HttpDownloadRequest;
 
 import java.io.File;
 
@@ -93,7 +93,7 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 
 	private void download()
 	{
-		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL).build().download(Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk", mDownloadListener);
+		new HttpDownloadRequest.Builder().url(DOWNLOAD_URL).path(Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk").build().download(mDownloadListener);
 	}
 
 	private DownloadListener mObDownloadListener = new DownloadListener()
@@ -137,6 +137,6 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 	 */
 	private void obDownload()
 	{
-		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL1).build().obDownload(Environment.getExternalStorageDirectory() + File.separator + "Game.apk", mObDownloadListener);
+		new HttpDownloadRequest.Builder().url(DOWNLOAD_URL1).path(Environment.getExternalStorageDirectory() + File.separator + "Game.apk").build().obDownload(mObDownloadListener);
 	}
 }
