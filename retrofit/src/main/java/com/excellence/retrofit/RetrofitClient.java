@@ -87,7 +87,7 @@ public class RetrofitClient
 		}
 	}
 
-	public RetrofitClient(Builder builder)
+	private RetrofitClient(Builder builder)
 	{
 		mService = builder.mService;
 		mHeaders = builder.mHeaders;
