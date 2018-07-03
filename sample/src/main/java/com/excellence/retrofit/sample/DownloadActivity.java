@@ -93,9 +93,6 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 
 	private void download()
 	{
-		/**
-		 * mRetrofitClient.download(this, DOWNLOAD_URL, Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk", mDownloadListener);
-		 */
 		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL).build().download(Environment.getExternalStorageDirectory() + File.separator + "Duowan.apk", mDownloadListener);
 	}
 
@@ -140,9 +137,6 @@ public class DownloadActivity extends BaseActivity implements View.OnClickListen
 	 */
 	private void obDownload()
 	{
-		/**
-		 * mRetrofitClient.obDownload(this, DOWNLOAD_URL1, Environment.getExternalStorageDirectory() + File.separator + "Game.apk", mObDownloadListener);
-		 */
 		new HttpRequest.Builder().tag(this).url(DOWNLOAD_URL1).build().obDownload(Environment.getExternalStorageDirectory() + File.separator + "Game.apk", mObDownloadListener);
 	}
 }

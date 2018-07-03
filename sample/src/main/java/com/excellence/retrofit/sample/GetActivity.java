@@ -55,10 +55,6 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 	{
 		/**
 		 * 字符串请求
-		 * mRetrofitClient.get(this, REQUEST_URL, mStringListener);
-		 */
-		/**
-		 * 字符串请求
 		 * new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(mStringListener);
 		 */
 		/**
@@ -71,12 +67,8 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 	{
 		/**
 		 * 字符串请求
-		 * mRetrofitClient.obGet(this, REQUEST_URL1, mStringListener);
 		 */
-		/**
-		 * 字符串请求
-		 * new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(mStringListener);
-		 */
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(mStringListener);
 		/**
 		 * JSONObject请求
 		 */
