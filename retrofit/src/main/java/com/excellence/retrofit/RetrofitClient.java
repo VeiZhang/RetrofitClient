@@ -9,8 +9,6 @@ import com.excellence.retrofit.interceptor.CacheInterceptor;
 import com.excellence.retrofit.interceptor.CacheOnlineInterceptor;
 import com.excellence.retrofit.interceptor.DownloadInterceptor;
 import com.excellence.retrofit.interceptor.LoggingInterceptor;
-import com.excellence.retrofit.interfaces.DownloadListener;
-import com.excellence.retrofit.interfaces.IListener;
 import com.excellence.retrofit.utils.Logger;
 
 import java.util.ArrayList;
@@ -77,11 +75,16 @@ public class RetrofitClient
 
 	public static RetrofitClient getInstance()
 	{
+		checkRetrofit();
+		return mInstance;
+	}
+
+	private static void checkRetrofit()
+	{
 		if (mInstance == null)
 		{
-			throw new RuntimeException("Pls init " + Builder.class.getName());
+			throw new RuntimeException("please init " + Builder.class.getName());
 		}
-		return mInstance;
 	}
 
 	public RetrofitClient(Builder builder)
@@ -119,60 +122,6 @@ public class RetrofitClient
 	protected Executor getResponsePoster()
 	{
 		return mResponsePoster;
-	}
-
-	/**
-	 * Get请求字符串数据，推荐链式请求{@link HttpRequest#get}
-	 *
-	 * @param tag 网络请求标识
-	 * @param url 请求链接
-	 * @param listener 结果回调
-	 */
-	@Deprecated
-	public void get(final Object tag, @NonNull final String url, final IListener<String> listener)
-	{
-		new HttpRequest.Builder().tag(tag).url(url).build().get(listener);
-	}
-
-	/**
-	 * RxJava结合Get请求字符串数据，推荐链式请求{@link HttpRequest#obGet}
-	 *
-	 * @param tag 网络请求标识
-	 * @param url 请求链接
-	 * @param listener 结果回调
-	 */
-	@Deprecated
-	public void obGet(final Object tag, @NonNull final String url, final IListener<String> listener)
-	{
-		new HttpRequest.Builder().tag(tag).url(url).build().obGet(listener);
-	}
-
-	/**
-	 * 下载，推荐链式请求{@link HttpRequest#download}
-	 *
-	 * @param tag 网络请求标识
-	 * @param url 请求链接
-	 * @param path 文件保存地址
-	 * @param listener 下载监听
-	 */
-	@Deprecated
-	public void download(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
-	{
-		new HttpRequest.Builder().tag(tag).url(url).build().download(path, listener);
-	}
-
-	/**
-	 * RxJava结合下载，推荐链式请求{@link HttpRequest#obDownload}
-	 *
-	 * @param tag 网络请求标识
-	 * @param url 请求链接
-	 * @param path 文件保存地址
-	 * @param listener 下载监听
-	 */
-	@Deprecated
-	public void obDownload(final Object tag, @NonNull final String url, @NonNull final String path, @NonNull final DownloadListener listener)
-	{
-		new HttpRequest.Builder().tag(tag).url(url).build().obDownload(path, listener);
 	}
 
 	/**
@@ -224,8 +173,9 @@ public class RetrofitClient
 	 *
 	 * @param tag 标签
 	 */
-	public synchronized void cancel(Object tag)
+	public static synchronized void cancel(Object tag)
 	{
+		checkRetrofit();
 		if (tag == null)
 		{
 			return;
@@ -237,7 +187,7 @@ public class RetrofitClient
 				String key = iterator.next();
 				if (key.startsWith(tag.toString()))
 				{
-					cancel(key);
+					mInstance.cancel(key);
 					iterator.remove();
 				}
 			}
@@ -247,11 +197,12 @@ public class RetrofitClient
 	/**
 	 * 取消所有网络请求
 	 */
-	public synchronized void cancelAll()
+	public static synchronized void cancelAll()
 	{
+		checkRetrofit();
 		for (String key : CALL_MAP.keySet())
 		{
-			cancel(key);
+			mInstance.cancel(key);
 		}
 		CALL_MAP.clear();
 	}

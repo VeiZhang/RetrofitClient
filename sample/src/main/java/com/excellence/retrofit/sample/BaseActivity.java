@@ -23,19 +23,17 @@ public class BaseActivity extends Activity
 	protected static final String DOWNLOAD_URL = "http://download.game.yy.com/duowanapp/m/Duowan20140427.apk";
 	protected static final String DOWNLOAD_URL1 = "http://andl.guopan.cn/101919-3889-1467370568.apk";
 
-	protected RetrofitClient mRetrofitClient = null;
-
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		mRetrofitClient = new RetrofitClient.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true).build();
+		new RetrofitClient.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true).build();
 	}
 
 	@Override
 	protected void onStop()
 	{
 		super.onStop();
-		RetrofitClient.getInstance().cancel(this);
+		RetrofitClient.cancel(this);
 	}
 }
