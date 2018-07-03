@@ -21,10 +21,10 @@ import rx.schedulers.Schedulers;
 import com.excellence.retrofit.utils.HttpUtils.ResponseType;
 
 import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
+import static com.excellence.retrofit.utils.HttpUtils.checkHeaders;
+import static com.excellence.retrofit.utils.HttpUtils.checkParams;
+import static com.excellence.retrofit.utils.HttpUtils.checkURL;
 import static com.excellence.retrofit.utils.HttpUtils.printHeader;
-import static com.excellence.retrofit.utils.Utils.checkHeaders;
-import static com.excellence.retrofit.utils.Utils.checkParams;
-import static com.excellence.retrofit.utils.Utils.checkURL;
 import static com.excellence.retrofit.utils.Utils.inputStream2String;
 import static java.net.HttpURLConnection.HTTP_OK;
 

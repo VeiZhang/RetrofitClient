@@ -31,8 +31,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 import rx.Subscription;
 
 import static com.excellence.retrofit.interceptor.CacheInterceptor.DEFAULT_CACHE_TIME;
+import static com.excellence.retrofit.utils.HttpUtils.checkURL;
 import static com.excellence.retrofit.utils.Utils.checkNULL;
-import static com.excellence.retrofit.utils.Utils.checkURL;
 
 /**
  * <pre>

@@ -9,7 +9,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.excellence.retrofit.utils.Utils.isURLEmpty;
+import static com.excellence.retrofit.utils.HttpUtils.isURLEmpty;
 
 /**
  * <pre>
