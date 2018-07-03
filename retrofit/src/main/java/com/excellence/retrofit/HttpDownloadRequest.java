@@ -4,9 +4,11 @@ import com.excellence.retrofit.interfaces.IDownloadListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -39,6 +41,9 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public class HttpDownloadRequest
 {
+	private static final String SUFFIX_TMP = ".tmp";
+	private static final int STREAM_LEN = 8 * 1024;
+
 	private RetrofitClient mRetrofitClient = null;
 	private RetrofitHttpService mHttpService = null;
 	private Executor mResponsePoster = null;
@@ -306,9 +311,6 @@ public class HttpDownloadRequest
 
 	private void dynamicTransmission(IDownloadListener listener, Response<ResponseBody> response)
 	{
-		File file = new File(mPath);
-		InputStream in = null;
-		OutputStream out = null;
 		try
 		{
 			if (isLog)
@@ -318,46 +320,50 @@ public class HttpDownloadRequest
 			long fileSize = response.body().contentLength();
 			listener.onPreExecute(fileSize);
 
+			InputStream inputStream = response.body().byteStream();
+			File saveFile = new File(mPath);
+			File tempFile = new File(saveFile + SUFFIX_TMP);
+			FileOutputStream outputStream = new FileOutputStream(tempFile);
+			FileChannel channel = outputStream.getChannel();
+			ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream);
+			ByteBuffer buffer = ByteBuffer.allocate(STREAM_LEN);
+
 			long downloadedSize = 0;
-			int read = 0;
-			byte[] fileReader = new byte[1024 * 4];
-			in = response.body().byteStream();
-			out = new FileOutputStream(file);
-			while (true)
+			int read;
+			while ((read = readableByteChannel.read(buffer)) != -1)
 			{
-				read = in.read(fileReader);
-				if (read == -1)
-				{
-					break;
-				}
-				out.write(fileReader, 0, read);
+				buffer.flip();
+				channel.write(buffer);
+				buffer.compact();
+
 				downloadedSize += read;
 				listener.onProgressChange(fileSize, downloadedSize);
 			}
-			out.flush();
-			listener.onSuccess();
+			outputStream.close();
+			channel.close();
+			readableByteChannel.close();
+			inputStream.close();
+
+			if (tempFile.length() == fileSize || tempFile.length() + 1 == fileSize)
+			{
+				if (!tempFile.canRead())
+				{
+					throw new Exception("Download temp file is invalid");
+				}
+				if (!tempFile.renameTo(saveFile))
+				{
+					throw new Exception("Can't rename download temp file");
+				}
+				listener.onSuccess();
+			}
+			else
+			{
+				throw new Exception("Download file size is error");
+			}
 		}
 		catch (Exception e)
 		{
 			listener.onError(e);
-		}
-		finally
-		{
-			try
-			{
-				if (in != null)
-				{
-					in.close();
-				}
-				if (out != null)
-				{
-					out.close();
-				}
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
 		}
 	}
 
