@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.excellence.retrofit.HttpRequest;
 import com.excellence.retrofit.interfaces.Listener;
+import com.google.gson.reflect.TypeToken;
 
 public class GetActivity extends BaseActivity implements View.OnClickListener
 {
@@ -60,15 +61,18 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 		/**
 		 * JSONObject请求
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(Gank.class, mJSONObjectListener);
+		new HttpRequest.Builder().tag(this).url(REQUEST_URL).build().get(new TypeToken<Gank>()
+		{
+		}.getType(), mJSONObjectListener);
 	}
 
 	private void obGet()
 	{
 		/**
 		 * 字符串请求
+		 *
+		 * new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(mStringListener);
 		 */
-		new HttpRequest.Builder().tag(this).url(REQUEST_URL1).build().obGet(mStringListener);
 		/**
 		 * JSONObject请求
 		 */

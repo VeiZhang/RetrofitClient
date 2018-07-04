@@ -6,6 +6,7 @@ import com.excellence.retrofit.interfaces.IListener;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -184,7 +185,7 @@ public class HttpRequest
 	 *
 	 * @param listener 结果回调
 	 */
-	public <T> void get(Class<T> type, IListener<T> listener)
+	public <T> void get(Type type, IListener<T> listener)
 	{
 		addRequestInfo();
 		Call<String> call = mHttpService.get(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
@@ -208,7 +209,7 @@ public class HttpRequest
 	 * @param call
 	 * @param <T>
 	 */
-	private <T> void handleSyncTask(Class<T> type, IListener<T> listener, Call<String> call)
+	private <T> void handleSyncTask(Type type, IListener<T> listener, Call<String> call)
 	{
 		addRequest(call);
 		try
@@ -258,7 +259,7 @@ public class HttpRequest
 	 * @param call
 	 * @param <T>
 	 */
-	private <T> void handleAsyncTask(final Class<T> type, final IListener<T> listener, Call<String> call)
+	private <T> void handleAsyncTask(final Type type, final IListener<T> listener, Call<String> call)
 	{
 		addRequest(call);
 		call.enqueue(new Callback<String>()
@@ -331,7 +332,7 @@ public class HttpRequest
 	 *
 	 * @param listener 结果回调
 	 */
-	public <T> void obGet(final Class<T> type, final IListener<T> listener)
+	public <T> void obGet(final Type type, final IListener<T> listener)
 	{
 		addRequestInfo();
 		Observable<String> observable = mHttpService.obGet(checkURL(mUrl), checkParams(mParams), checkHeaders(mHeaders));
@@ -405,7 +406,7 @@ public class HttpRequest
 	 * @param listener
 	 * @param <T>
 	 */
-	public <T> void postForm(final Class<T> type, final IListener<T> listener)
+	public <T> void postForm(final Type type, final IListener<T> listener)
 	{
 		addRequestInfo();
 		Call<String> call = mHttpService.post(checkURL(mUrl), checkParams(mParams));
@@ -440,7 +441,7 @@ public class HttpRequest
 	 * @param listener
 	 * @param <T>
 	 */
-	public <T> void uploadFile(String fileKey, File file, final Class<T> type, final IListener<T> listener)
+	public <T> void uploadFile(String fileKey, File file, final Type type, final IListener<T> listener)
 	{
 		addRequestInfo();
 		RequestBody requestImg = createImage(file);
