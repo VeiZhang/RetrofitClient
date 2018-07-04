@@ -561,11 +561,11 @@ public class RetrofitClient
 		 *
 		 * @return
 		 */
-		public RetrofitClient build()
+		public void build()
 		{
 			if (mInstance != null)
 			{
-				return mInstance;
+				return;
 			}
 
 			/**
@@ -626,7 +626,6 @@ public class RetrofitClient
 			Retrofit retrofit = mRetrofitBuilder.build();
 			mService = retrofit.create(RetrofitHttpService.class);
 			mInstance = new RetrofitClient(this);
-			return mInstance;
 		}
 	}
 }
