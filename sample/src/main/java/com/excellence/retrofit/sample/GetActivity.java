@@ -6,8 +6,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.excellence.retrofit.HttpRequest;
+import com.excellence.retrofit.RetrofitClient;
 import com.excellence.retrofit.interfaces.Listener;
 import com.google.gson.reflect.TypeToken;
+
+import java.util.HashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class GetActivity extends BaseActivity implements View.OnClickListener
 {
@@ -29,6 +37,33 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 
 		mGetBtn.setOnClickListener(this);
 		mObGetBtn.setOnClickListener(this);
+
+		userRequest();
+	}
+
+	/**
+	 * 自定义retrofit service
+	 */
+	private void userRequest()
+	{
+		Retrofit retrofit = RetrofitClient.getInstance().getRetrofit();
+		UserService service = retrofit.create(UserService.class);
+		Call<String> call = service.get("http://www.baidu.com", new HashMap<String, String>(), new HashMap<String, String>());
+		call.enqueue(new Callback<String>()
+		{
+			@Override
+			public void onResponse(Call<String> call, Response<String> response)
+			{
+				System.out.println(response.body());
+			}
+
+			@Override
+			public void onFailure(Call<String> call, Throwable t)
+			{
+				t.printStackTrace();
+			}
+		});
+
 	}
 
 	@Override

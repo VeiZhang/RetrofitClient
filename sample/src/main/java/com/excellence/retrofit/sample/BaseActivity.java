@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 
 import com.excellence.retrofit.RetrofitClient;
 
+import okhttp3.logging.HttpLoggingInterceptor;
+
 /**
  * <pre>
  *     author : VeiZhang
@@ -27,7 +29,7 @@ public class BaseActivity extends Activity
 	protected void onCreate(@Nullable Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		new RetrofitClient.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true).build();
+		new RetrofitClient.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true).addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)).build();
 	}
 
 	@Override
