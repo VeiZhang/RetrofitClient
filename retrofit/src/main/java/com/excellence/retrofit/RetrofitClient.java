@@ -56,6 +56,7 @@ public class RetrofitClient
 	public static final String TAG = RetrofitClient.class.getSimpleName();
 
 	private static RetrofitClient mInstance = null;
+	private Retrofit mRetrofit = null;
 	private RetrofitHttpService mService = null;
 	/**
 	 * 全局请求头
@@ -82,6 +83,7 @@ public class RetrofitClient
 
 	private RetrofitClient(Builder builder)
 	{
+		mRetrofit = builder.mRetrofit;
 		mService = builder.mService;
 		mHeaders = builder.mHeaders;
 		mParams = builder.mParams;
@@ -95,6 +97,11 @@ public class RetrofitClient
 				handler.post(command);
 			}
 		};
+	}
+
+	public Retrofit getRetrofit()
+	{
+		return mRetrofit;
 	}
 
 	protected RetrofitHttpService getService()
@@ -235,6 +242,7 @@ public class RetrofitClient
 		private Context mContext = null;
 		private Retrofit.Builder mRetrofitBuilder = null;
 		private OkHttpClient.Builder mHttpClientBuilder = null;
+		private Retrofit mRetrofit = null;
 		private RetrofitHttpService mService = null;
 		private boolean cacheEnable = false;
 		private Cache mCache = null;
@@ -623,8 +631,8 @@ public class RetrofitClient
 				mRetrofitBuilder.addCallAdapterFactory(RxJavaCallAdapterFactory.create());
 			}
 
-			Retrofit retrofit = mRetrofitBuilder.build();
-			mService = retrofit.create(RetrofitHttpService.class);
+			mRetrofit = mRetrofitBuilder.build();
+			mService = mRetrofit.create(RetrofitHttpService.class);
 			mInstance = new RetrofitClient(this);
 		}
 	}
