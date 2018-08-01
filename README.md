@@ -83,6 +83,7 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 
 | 版本 | 描述 |
 | --- | ---- |
+| [1.0.3][RetrofitClient1.0.3] | 开放retrofit对象，可自定义创建请求Service **2018-8-1** |
 | [1.0.2][RetrofitClient1.0.2] | 分离下载封装，优化请求接口 **2018-7-5** |
 | [1.0.1][RetrofitClient1.0.1] | 优化请求和新增异常处理 **2018-3-13** |
 | [1.0.0][RetrofitClient1.0.0] | 创建网络请求：GET、POST、下载、上传 **2017-11-14** |
@@ -97,6 +98,7 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 
 <!-- 版本 -->
 
+[RetrofitClient1.0.3]:https://bintray.com/veizhang/maven/retrofit/1.0.3
 [RetrofitClient1.0.2]:https://bintray.com/veizhang/maven/retrofit/1.0.2
 [RetrofitClient1.0.1]:https://bintray.com/veizhang/maven/retrofit/1.0.1
 [RetrofitClient1.0.0]:https://bintray.com/veizhang/maven/retrofit/1.0.0
