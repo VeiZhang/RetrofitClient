@@ -248,7 +248,9 @@ public class RetrofitClient
 		private Cache mCache = null;
 		private long mCacheTime = DEFAULT_CACHE_TIME;
 		private long mCacheOnlineTime = 0;
+		private boolean isDefaultConvertFactory = true;
 		private List<Converter.Factory> mConverterFactories = new ArrayList<>();
+		private boolean isDefaultCallFactory = true;
 		private List<CallAdapter.Factory> mCallAdapterFactories = new ArrayList<>();
 		/**
 		 * 配置全局请求头
@@ -389,6 +391,10 @@ public class RetrofitClient
 		 */
 		public Builder addConverterFactory(@NonNull Converter.Factory factory)
 		{
+			if (factory instanceof ScalarsConverterFactory)
+			{
+				isDefaultConvertFactory = false;
+			}
 			mConverterFactories.add(factory);
 			return this;
 		}
@@ -401,6 +407,10 @@ public class RetrofitClient
 		 */
 		public Builder addCallAdapterFactory(@NonNull CallAdapter.Factory factory)
 		{
+			if (factory instanceof RxJavaCallAdapterFactory)
+			{
+				isDefaultCallFactory = false;
+			}
 			mCallAdapterFactories.add(factory);
 			return this;
 		}
@@ -601,34 +611,24 @@ public class RetrofitClient
 			OkHttpClient okHttpClient = mHttpClientBuilder.build();
 			mRetrofitBuilder.client(okHttpClient);
 
-			boolean isDefaultFactory = true;
-			for (Converter.Factory converterFactory : mConverterFactories)
-			{
-				if (converterFactory instanceof ScalarsConverterFactory)
-				{
-					isDefaultFactory = false;
-				}
-				mRetrofitBuilder.addConverterFactory(converterFactory);
-			}
-			if (isDefaultFactory)
+			if (isDefaultConvertFactory)
 			{
 				// 默认支持字符串数据转换
 				mRetrofitBuilder.addConverterFactory(ScalarsConverterFactory.create());
 			}
-
-			isDefaultFactory = true;
-			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
+			for (Converter.Factory converterFactory : mConverterFactories)
 			{
-				if (callAdapterFactory instanceof RxJavaCallAdapterFactory)
-				{
-					isDefaultFactory = false;
-				}
-				mRetrofitBuilder.addCallAdapterFactory(callAdapterFactory);
+				mRetrofitBuilder.addConverterFactory(converterFactory);
 			}
-			if (isDefaultFactory)
+
+			if (isDefaultCallFactory)
 			{
 				// 默认支持RxJava回调
 				mRetrofitBuilder.addCallAdapterFactory(RxJavaCallAdapterFactory.create());
+			}
+			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
+			{
+				mRetrofitBuilder.addCallAdapterFactory(callAdapterFactory);
 			}
 
 			mRetrofit = mRetrofitBuilder.build();
