@@ -149,7 +149,7 @@ public class HttpRequest
 		}
 
 		/**
-		 * 单个请求是否使用缓存：文件下载默认不使用缓存，其他请求默认使用缓存
+		 * 单个请求是否使用缓存：默认使用缓存
 		 *
 		 * @param isCacheEnable
 		 * @return

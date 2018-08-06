@@ -32,8 +32,9 @@ compile 'com.excellence:retrofit:latestVersion'
 ```java
 // 默认支持：ScalarsConverterFactory、RxJavaCallAdapterFactory
 // addLog : 是否开启Log打印
-// cacheEnable : 是否开启缓存
-// cache : 自定义缓存目录
+// cacheEnable : 是否开启缓存，默认不开启：开启后，默认每个请求都缓存
+// 单个请求的缓存控制，可设置HttpRequest.Builder#cacheEnable
+// cache : 自定义缓存目录，设置缓存目录后，缓存自动开启，无需设置cacheEnable
 ···
 new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true).build();
 ```
