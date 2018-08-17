@@ -15,7 +15,7 @@
 
 ### 引用
 ```
-compile 'com.excellence:retrofit:latestVersion'
+compile 'com.excellence:retrofit:_latestVersion'
 ```
 
 ### 权限
@@ -103,3 +103,26 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 [RetrofitClient1.0.2]:https://bintray.com/veizhang/maven/retrofit/1.0.2
 [RetrofitClient1.0.1]:https://bintray.com/veizhang/maven/retrofit/1.0.1
 [RetrofitClient1.0.0]:https://bintray.com/veizhang/maven/retrofit/1.0.0
+
+
+<!--
+
+post请求 rxjava 写法
+
+同步请求、异步请求：部分请求，下载没有做
+
+下载断点、下载进度：https://www.jianshu.com/p/8a67302a3377 （不一定重写，哪种方便用哪种）重写ResponseBody的方式、https://www.jianshu.com/p/982a005de665 https://blog.csdn.net/ljd2038/article/details/51189334
+
+上传断点、进度
+
+批量上传
+
+图文上传
+
+New：
+
+参数不能为空，要么设置""，否则会报错：java.lang.IllegalArgumentException: Query map contained null value for key
+
+处理异常时，根据是否开启缓存配置，来处理，有可能网页返回的就是空
+
+-->
