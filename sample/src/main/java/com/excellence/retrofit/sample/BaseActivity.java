@@ -35,7 +35,8 @@ public class BaseActivity extends Activity
 				.cacheEnable(true)
 				.addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
 				// 不自动重定向，拦截30X
-				.followRedirects(false).build();
+				//.followRedirects(false)
+				.build();
 	}
 
 	@Override
