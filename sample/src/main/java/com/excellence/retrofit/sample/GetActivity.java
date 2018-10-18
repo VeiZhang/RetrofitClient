@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.HashMap;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,19 +49,30 @@ public class GetActivity extends BaseActivity implements View.OnClickListener
 	{
 		Retrofit retrofit = RetrofitClient.getInstance().getRetrofit();
 		UserService service = retrofit.create(UserService.class);
-		Call<String> call = service.get("http://www.baidu.com", new HashMap<String, String>(), new HashMap<String, String>());
-		call.enqueue(new Callback<String>()
+		/**
+		 * 设置{@link RetrofitClient.Builder#followRedirects(boolean)} = false，可拦截30X重定向，不让OkHttp自动重定向
+		 */
+		Call<ResponseBody> call = service.get("http://veizhang.github.io", new HashMap<String, String>(), new HashMap<String, String>());
+		call.enqueue(new Callback<ResponseBody>()
 		{
 			@Override
-			public void onResponse(Call<String> call, Response<String> response)
+			public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response)
 			{
-				System.out.println(response.body());
+				try
+				{
+					System.out.println(response.code());
+					System.out.println(response.body().string());
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 
 			@Override
-			public void onFailure(Call<String> call, Throwable t)
+			public void onFailure(Call<ResponseBody> call, Throwable throwable)
 			{
-				t.printStackTrace();
+				throwable.printStackTrace();
 			}
 		});
 

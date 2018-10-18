@@ -2,6 +2,7 @@ package com.excellence.retrofit.sample;
 
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.HeaderMap;
@@ -28,6 +29,6 @@ public interface UserService
 	 * @return
 	 */
 	@GET
-	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+	Call<ResponseBody> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
 }

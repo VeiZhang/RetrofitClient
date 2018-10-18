@@ -29,7 +29,13 @@ public class BaseActivity extends Activity
 	protected void onCreate(@Nullable Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		new RetrofitClient.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true).addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)).build();
+		new RetrofitClient.Builder(this)
+				.baseUrl(BASE_URL)
+				.addLog(true)
+				.cacheEnable(true)
+				.addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+				// 不自动重定向，拦截30X
+				.followRedirects(false).build();
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
+import okhttp3.CookieJar;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -241,7 +242,8 @@ public class RetrofitClient
 
 		private Context mContext = null;
 		private Retrofit.Builder mRetrofitBuilder = null;
-		private OkHttpClient.Builder mHttpClientBuilder = null;
+		private OkHttpClient mOkHttpClient = null;
+		private OkHttpClient.Builder mOkHttpClientBuilder = null;
 		private Retrofit mRetrofit = null;
 		private RetrofitHttpService mService = null;
 		private boolean cacheEnable = false;
@@ -266,7 +268,7 @@ public class RetrofitClient
 		{
 			mContext = context.getApplicationContext();
 			mRetrofitBuilder = new Retrofit.Builder();
-			mHttpClientBuilder = new OkHttpClient.Builder();
+			mOkHttpClientBuilder = new OkHttpClient.Builder();
 		}
 
 		/**
@@ -355,7 +357,7 @@ public class RetrofitClient
 		 */
 		public Builder retryOnConnectionFailure(boolean retryOnConnectionFailure)
 		{
-			mHttpClientBuilder.retryOnConnectionFailure(retryOnConnectionFailure);
+			mOkHttpClientBuilder.retryOnConnectionFailure(retryOnConnectionFailure);
 			return this;
 		}
 
@@ -367,7 +369,7 @@ public class RetrofitClient
 		 */
 		public Builder addInterceptor(@NonNull Interceptor interceptor)
 		{
-			mHttpClientBuilder.addInterceptor(interceptor);
+			mOkHttpClientBuilder.addInterceptor(interceptor);
 			return this;
 		}
 
@@ -379,7 +381,7 @@ public class RetrofitClient
 		 */
 		public Builder addNetworkInterceptor(@NonNull Interceptor interceptor)
 		{
-			mHttpClientBuilder.addNetworkInterceptor(interceptor);
+			mOkHttpClientBuilder.addNetworkInterceptor(interceptor);
 			return this;
 		}
 
@@ -426,11 +428,11 @@ public class RetrofitClient
 		{
 			if (timeout < 0)
 			{
-				mHttpClientBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+				mOkHttpClientBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			}
 			else
 			{
-				mHttpClientBuilder.connectTimeout(timeout, timeUnit);
+				mOkHttpClientBuilder.connectTimeout(timeout, timeUnit);
 			}
 			return this;
 		}
@@ -457,11 +459,11 @@ public class RetrofitClient
 		{
 			if (timeout < 0)
 			{
-				mHttpClientBuilder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+				mOkHttpClientBuilder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			}
 			else
 			{
-				mHttpClientBuilder.readTimeout(timeout, timeUnit);
+				mOkHttpClientBuilder.readTimeout(timeout, timeUnit);
 			}
 			return this;
 		}
@@ -488,11 +490,11 @@ public class RetrofitClient
 		{
 			if (timeout < 0)
 			{
-				mHttpClientBuilder.writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+				mOkHttpClientBuilder.writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			}
 			else
 			{
-				mHttpClientBuilder.writeTimeout(timeout, timeUnit);
+				mOkHttpClientBuilder.writeTimeout(timeout, timeUnit);
 			}
 			return this;
 		}
@@ -569,8 +571,56 @@ public class RetrofitClient
 			Logger.isEnabled(isEnable);
 			if (isEnable)
 			{
-				mHttpClientBuilder.addInterceptor(new LoggingInterceptor());
+				mOkHttpClientBuilder.addInterceptor(new LoggingInterceptor());
 			}
+			return this;
+		}
+
+		/**
+		 * 配置此客户端以跟踪重定向。默认true，自动重定向；如果false，会拦截到状态码30X
+		 *
+		 * @param followRedirects
+		 * @return
+		 */
+		public Builder followRedirects(boolean followRedirects)
+		{
+			mOkHttpClientBuilder.followRedirects(followRedirects);
+			return this;
+		}
+
+		/**
+		 * 配置此客户端以跟踪从HTTPS到HTTP以及从HTTP到HTTPS的重定向。默认true
+		 * 如果未设置，将遵循协议重定向。
+		 * 
+		 * @param followProtocolRedirects
+		 * @return
+		 */
+		public Builder followSslRedirects(boolean followProtocolRedirects)
+		{
+			mOkHttpClientBuilder.followSslRedirects(followProtocolRedirects);
+			return this;
+		}
+
+		/**
+		 * 设置CookieStore
+		 *
+		 * @param cookieJar
+		 */
+		public Builder cookieJar(CookieJar cookieJar)
+		{
+			mOkHttpClientBuilder.cookieJar(cookieJar);
+			return this;
+		}
+
+		/**
+		 * 自定义{@link OkHttpClient}，其他自定义设置会被覆盖，如{@link #followRedirects(boolean)}
+		 *
+		 * @param okHttpClient
+		 * @return
+		 */
+		public Builder okHttpClient(OkHttpClient okHttpClient)
+		{
+			mOkHttpClient = okHttpClient;
 			return this;
 		}
 
@@ -589,7 +639,7 @@ public class RetrofitClient
 			/**
 			 * 防止下载文件缓存
 			 */
-			mHttpClientBuilder.addNetworkInterceptor(new DownloadInterceptor());
+			mOkHttpClientBuilder.addNetworkInterceptor(new DownloadInterceptor());
 
 			if (cacheEnable)
 			{
@@ -600,16 +650,19 @@ public class RetrofitClient
 				{
 					cache(new Cache(mContext.getExternalCacheDir(), DEFAULT_CACHE_SIZE));
 				}
-				mHttpClientBuilder.cache(mCache);
+				mOkHttpClientBuilder.cache(mCache);
 				CacheInterceptor cacheInterceptor = new CacheInterceptor(mContext, mCacheTime);
 				CacheOnlineInterceptor cacheOnlineInterceptor = new CacheOnlineInterceptor(mCacheOnlineTime);
-				mHttpClientBuilder.addInterceptor(cacheInterceptor);
-				mHttpClientBuilder.addNetworkInterceptor(cacheInterceptor);
-				mHttpClientBuilder.addNetworkInterceptor(cacheOnlineInterceptor);
+				mOkHttpClientBuilder.addInterceptor(cacheInterceptor);
+				mOkHttpClientBuilder.addNetworkInterceptor(cacheInterceptor);
+				mOkHttpClientBuilder.addNetworkInterceptor(cacheOnlineInterceptor);
 			}
 
-			OkHttpClient okHttpClient = mHttpClientBuilder.build();
-			mRetrofitBuilder.client(okHttpClient);
+			if (mOkHttpClient == null)
+			{
+				mOkHttpClient = mOkHttpClientBuilder.build();
+			}
+			mRetrofitBuilder.client(mOkHttpClient);
 
 			if (isDefaultConvertFactory)
 			{
