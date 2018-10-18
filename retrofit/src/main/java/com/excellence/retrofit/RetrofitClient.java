@@ -126,13 +126,15 @@ public class RetrofitClient
 	}
 
 	/**
+	 * 由于开放自定义Service，谨慎使用
+	 * 
 	 * 添加网络请求队列，以 tag + url 作为标识
 	 *
 	 * @param tag 标签
 	 * @param url 请求链接
 	 * @param request 网络请求
 	 */
-	protected synchronized void addRequest(Object tag, String url, Object request)
+	public static synchronized void addRequest(Object tag, String url, Object request)
 	{
 		if (tag == null)
 		{
@@ -145,12 +147,14 @@ public class RetrofitClient
 	}
 
 	/**
+	 * 由于开放自定义Service，谨慎使用
+	 *
 	 * 根据tag + url 标识删除队列里的完成、错误的某个网络请求
 	 *
 	 * @param tag 标签
 	 * @param url 请求链接
 	 */
-	protected synchronized void removeRequest(Object tag, String url)
+	public static synchronized void removeRequest(Object tag, String url)
 	{
 		if (tag == null)
 		{

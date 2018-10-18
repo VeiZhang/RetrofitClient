@@ -507,11 +507,11 @@ public class HttpRequest
 
 	private void addRequest(Object request)
 	{
-		mRetrofitClient.addRequest(mTag, mUrl, request);
+		RetrofitClient.addRequest(mTag, mUrl, request);
 	}
 
 	private void removeRequest()
 	{
-		mRetrofitClient.removeRequest(mTag, mUrl);
+		RetrofitClient.removeRequest(mTag, mUrl);
 	}
 }
