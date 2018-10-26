@@ -78,7 +78,7 @@ publish {
     userOrg = org
     groupId = 'com.excellence'
     artifactId = 'retrofit'
-    publishVersion = '1.0.3'
+    publishVersion = '1.0.4'
     desc = 'Retrofit封装'
     website = 'https://github.com/VeiZhang/RetrofitClient'
     licences = ['Apache-2.0']
