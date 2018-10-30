@@ -126,6 +126,33 @@ public class RetrofitClient
 	}
 
 	/**
+	 * 判断请求队列是否存在，以 tag 作为标识
+	 *
+	 * @param tag
+	 * @return
+	 */
+	public static boolean containsRequest(Object tag)
+	{
+		return containsRequest(tag, null);
+	}
+
+	/**
+	 * 判断请求队列是否存在，以 tag + url 作为标识
+	 * 
+	 * @param tag
+	 * @param url
+	 * @return
+	 */
+	public static boolean containsRequest(Object tag, String url)
+	{
+		if (tag == null)
+		{
+			return false;
+		}
+		return CALL_MAP.containsKey(tag.toString() + url);
+	}
+
+	/**
 	 * 由于开放自定义Service，谨慎使用
 	 * 
 	 * 添加网络请求队列，以 tag + url 作为标识
