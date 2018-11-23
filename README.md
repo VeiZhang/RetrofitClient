@@ -84,7 +84,6 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 
 | 版本 | 描述 |
 | --- | ---- |
-
 | [1.0.5][RetrofitClient1.0.5] | 判断请求队列是否存在 **2018-10-30** |
 | [1.0.4][RetrofitClient1.0.4] | 可自定义OkHttp，开放请求队列的增加与删除 **2018-10-25** |
 | [1.0.3][RetrofitClient1.0.3] | 开放retrofit对象，可自定义创建请求Service **2018-8-1** |
