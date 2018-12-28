@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import okhttp3.Cache;
 import okhttp3.CookieJar;
@@ -138,7 +139,7 @@ public class RetrofitClient
 
 	/**
 	 * 判断请求队列是否存在，以 tag + url 作为标识
-	 * 
+	 *
 	 * @param tag
 	 * @param url
 	 * @return
@@ -154,7 +155,7 @@ public class RetrofitClient
 
 	/**
 	 * 由于开放自定义Service，谨慎使用
-	 * 
+	 *
 	 * 添加网络请求队列，以 tag + url 作为标识
 	 *
 	 * @param tag 标签
@@ -218,6 +219,32 @@ public class RetrofitClient
 			{
 				String key = iterator.next();
 				if (key.startsWith(tag.toString()))
+				{
+					mInstance.cancel(key);
+					iterator.remove();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 通过正则表达式取消请求
+	 *
+	 * @param pattern
+	 */
+	public static synchronized void cancel(Pattern pattern)
+	{
+		checkNULL(mInstance, "please init " + Builder.class.getName());
+		if (pattern == null)
+		{
+			return;
+		}
+		synchronized (CALL_MAP)
+		{
+			for (Iterator<String> iterator = CALL_MAP.keySet().iterator(); iterator.hasNext();)
+			{
+				String key = iterator.next();
+				if (pattern.matcher(key).matches())
 				{
 					mInstance.cancel(key);
 					iterator.remove();
@@ -622,7 +649,7 @@ public class RetrofitClient
 		/**
 		 * 配置此客户端以跟踪从HTTPS到HTTP以及从HTTP到HTTPS的重定向。默认true
 		 * 如果未设置，将遵循协议重定向。
-		 * 
+		 *
 		 * @param followProtocolRedirects
 		 * @return
 		 */
