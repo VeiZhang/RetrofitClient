@@ -76,9 +76,9 @@ publish {
     bintrayKey = key
     dryRun = false
     userOrg = org
-    groupId = 'com.excellence'
-    artifactId = 'retrofit'
-    publishVersion = '1.0.5'
+    groupId = 'com.excellence.retrofit'
+    artifactId = 'retrofit2'
+    publishVersion = '2.0.0'
     desc = 'Retrofit封装'
     website = 'https://github.com/VeiZhang/RetrofitClient'
     licences = ['Apache-2.0']

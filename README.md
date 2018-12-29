@@ -15,7 +15,7 @@
 
 ### 引用
 ```
-compile 'com.excellence:retrofit:_latestVersion'
+compile 'com.excellence.retrofit:retrofit2:_latestVersion'
 ```
 
 ### 权限
@@ -30,7 +30,7 @@ compile 'com.excellence:retrofit:_latestVersion'
 * 初始化
 可以在Application中初始化
 ```java
-// 默认支持：ScalarsConverterFactory、RxJavaCallAdapterFactory
+// 默认支持：ScalarsConverterFactory、RxJava2CallAdapterFactory
 // addLog : 是否开启Log打印
 // cacheEnable : 是否开启缓存，默认不开启：开启后，默认每个请求都缓存
 // 单个请求的缓存控制，可设置HttpRequest.Builder#cacheEnable
@@ -84,29 +84,19 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 
 | 版本 | 描述 |
 | --- | ---- |
-| [1.0.5][RetrofitClient1.0.5] | 判断请求队列是否存在 **2018-10-30** |
-| [1.0.4][RetrofitClient1.0.4] | 可自定义OkHttp，开放请求队列的增加与删除 **2018-10-25** |
-| [1.0.3][RetrofitClient1.0.3] | 开放retrofit对象，可自定义创建请求Service **2018-8-1** |
-| [1.0.2][RetrofitClient1.0.2] | 分离下载封装，优化请求接口 **2018-7-5** |
-| [1.0.1][RetrofitClient1.0.1] | 优化请求和新增异常处理 **2018-3-13** |
-| [1.0.0][RetrofitClient1.0.0] | 创建网络请求：GET、POST、下载、上传 **2017-11-14** |
+| [2.0.0][RetrofitClient2.0.0] | 升级rxjava -> rxjava2 **2018-12-29** |
 
 <!-- 网站链接 -->
 
-[download]:https://bintray.com/veizhang/maven/retrofit/_latestVersion "Latest version"
+[download]:https://bintray.com/veizhang/maven/retrofit2/_latestVersion "Latest version"
 
 <!-- 图片链接 -->
 
-[icon_download]:https://api.bintray.com/packages/veizhang/maven/retrofit/images/download.svg
+[icon_download]:https://api.bintray.com/packages/veizhang/maven/retrofit2/images/download.svg
 
 <!-- 版本 -->
 
-[RetrofitClient1.0.5]:https://bintray.com/veizhang/maven/retrofit/1.0.5
-[RetrofitClient1.0.4]:https://bintray.com/veizhang/maven/retrofit/1.0.4
-[RetrofitClient1.0.3]:https://bintray.com/veizhang/maven/retrofit/1.0.3
-[RetrofitClient1.0.2]:https://bintray.com/veizhang/maven/retrofit/1.0.2
-[RetrofitClient1.0.1]:https://bintray.com/veizhang/maven/retrofit/1.0.1
-[RetrofitClient1.0.0]:https://bintray.com/veizhang/maven/retrofit/1.0.0
+[RetrofitClient2.0.0]:https://bintray.com/veizhang/maven/retrofit2/2.0.0
 
 
 <!--
