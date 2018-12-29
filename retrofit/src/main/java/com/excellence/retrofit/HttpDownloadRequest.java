@@ -1,6 +1,12 @@
 package com.excellence.retrofit;
 
-import com.excellence.retrofit.interfaces.IDownloadListener;
+import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
+import static com.excellence.retrofit.utils.HttpUtils.checkHeaders;
+import static com.excellence.retrofit.utils.HttpUtils.checkParams;
+import static com.excellence.retrofit.utils.HttpUtils.checkURL;
+import static com.excellence.retrofit.utils.HttpUtils.printHeader;
+import static com.excellence.retrofit.utils.Utils.inputStream2String;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,22 +19,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import com.excellence.retrofit.interfaces.IDownloadListener;
+import com.excellence.retrofit.utils.HttpUtils.ResponseType;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import rx.Observable;
-import rx.Subscriber;
-import rx.schedulers.Schedulers;
-import com.excellence.retrofit.utils.HttpUtils.ResponseType;
-
-import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
-import static com.excellence.retrofit.utils.HttpUtils.checkHeaders;
-import static com.excellence.retrofit.utils.HttpUtils.checkParams;
-import static com.excellence.retrofit.utils.HttpUtils.checkURL;
-import static com.excellence.retrofit.utils.HttpUtils.printHeader;
-import static com.excellence.retrofit.utils.Utils.inputStream2String;
-import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * <pre>
@@ -214,10 +216,10 @@ public class HttpDownloadRequest
 			{
 				if (response.code() == HTTP_OK)
 				{
-					Observable.create(new Observable.OnSubscribe<Integer>()
+					Observable.create(new ObservableOnSubscribe<Integer>()
 					{
 						@Override
-						public void call(Subscriber<? super Integer> subscriber)
+						public void subscribe(ObservableEmitter<Integer> emitter) throws Exception
 						{
 							dynamicTransmission(listener, response);
 						}
@@ -287,24 +289,19 @@ public class HttpDownloadRequest
 		case SYNC:
 			break;
 		}
-		observable.subscribe(new Subscriber<Response<ResponseBody>>()
+		observable.subscribe(new Consumer<Response<ResponseBody>>()
 		{
 			@Override
-			public void onNext(Response<ResponseBody> response)
+			public void accept(Response<ResponseBody> response) throws Exception
 			{
 				dynamicTransmission(downloadListener, response);
 			}
-
+		}, new Consumer<Throwable>()
+		{
 			@Override
-			public void onCompleted()
+			public void accept(Throwable throwable) throws Exception
 			{
-
-			}
-
-			@Override
-			public void onError(Throwable e)
-			{
-				downloadListener.onError(e);
+				downloadListener.onError(throwable);
 			}
 		});
 	}

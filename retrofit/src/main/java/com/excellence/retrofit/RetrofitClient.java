@@ -1,15 +1,8 @@
 package com.excellence.retrofit;
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.annotation.NonNull;
-
-import com.excellence.retrofit.interceptor.CacheInterceptor;
-import com.excellence.retrofit.interceptor.CacheOnlineInterceptor;
-import com.excellence.retrofit.interceptor.DownloadInterceptor;
-import com.excellence.retrofit.interceptor.LoggingInterceptor;
-import com.excellence.retrofit.utils.Logger;
+import static com.excellence.retrofit.interceptor.CacheInterceptor.DEFAULT_CACHE_TIME;
+import static com.excellence.retrofit.utils.HttpUtils.checkURL;
+import static com.excellence.retrofit.utils.Utils.checkNULL;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +13,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import com.excellence.retrofit.interceptor.CacheInterceptor;
+import com.excellence.retrofit.interceptor.CacheOnlineInterceptor;
+import com.excellence.retrofit.interceptor.DownloadInterceptor;
+import com.excellence.retrofit.interceptor.LoggingInterceptor;
+import com.excellence.retrofit.utils.Logger;
+
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.NonNull;
+
+import io.reactivex.disposables.Disposable;
 import okhttp3.Cache;
 import okhttp3.CookieJar;
 import okhttp3.Interceptor;
@@ -28,13 +33,8 @@ import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
-import rx.Subscription;
-
-import static com.excellence.retrofit.interceptor.CacheInterceptor.DEFAULT_CACHE_TIME;
-import static com.excellence.retrofit.utils.HttpUtils.checkURL;
-import static com.excellence.retrofit.utils.Utils.checkNULL;
 
 /**
  * <pre>
@@ -281,11 +281,11 @@ public class RetrofitClient
 				((Call) request).cancel();
 			}
 		}
-		else if (request instanceof Subscription)
+		else if (request instanceof Disposable)
 		{
-			if (!((Subscription) request).isUnsubscribed())
+			if (!((Disposable) request).isDisposed())
 			{
-				((Subscription) request).unsubscribe();
+				((Disposable) request).dispose();
 			}
 		}
 	}
@@ -467,7 +467,7 @@ public class RetrofitClient
 		 */
 		public Builder addCallAdapterFactory(@NonNull CallAdapter.Factory factory)
 		{
-			if (factory instanceof RxJavaCallAdapterFactory)
+			if (factory instanceof RxJava2CallAdapterFactory)
 			{
 				isDefaultCallFactory = false;
 			}
@@ -735,7 +735,7 @@ public class RetrofitClient
 			if (isDefaultCallFactory)
 			{
 				// 默认支持RxJava回调
-				mRetrofitBuilder.addCallAdapterFactory(RxJavaCallAdapterFactory.create());
+				mRetrofitBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 			}
 			for (CallAdapter.Factory callAdapterFactory : mCallAdapterFactories)
 			{

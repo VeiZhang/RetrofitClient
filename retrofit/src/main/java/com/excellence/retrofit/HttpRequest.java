@@ -1,27 +1,5 @@
 package com.excellence.retrofit;
 
-import android.text.TextUtils;
-
-import com.excellence.retrofit.interfaces.IListener;
-import com.google.gson.Gson;
-
-import java.io.File;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import com.excellence.retrofit.utils.HttpUtils.ResponseType;
-
 import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofit.utils.HttpUtils.checkHeaders;
 import static com.excellence.retrofit.utils.HttpUtils.checkParams;
@@ -29,6 +7,28 @@ import static com.excellence.retrofit.utils.HttpUtils.checkURL;
 import static com.excellence.retrofit.utils.HttpUtils.createImage;
 import static com.excellence.retrofit.utils.Utils.inputStream2String;
 import static java.net.HttpURLConnection.HTTP_OK;
+
+import java.io.File;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.excellence.retrofit.interfaces.IListener;
+import com.excellence.retrofit.utils.HttpUtils.ResponseType;
+import com.google.gson.Gson;
+
+import android.text.TextUtils;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * <pre>
@@ -346,10 +346,10 @@ public class HttpRequest
 			break;
 		}
 
-		Subscription subscription = observable.subscribe(new Subscriber<String>()
+		Disposable disposable = observable.subscribe(new Consumer<String>()
 		{
 			@Override
-			public void onNext(String response)
+			public void accept(String response) throws Exception
 			{
 				try
 				{
@@ -372,21 +372,16 @@ public class HttpRequest
 				}
 				removeRequest();
 			}
-
+		}, new Consumer<Throwable>()
+		{
 			@Override
-			public void onCompleted()
+			public void accept(Throwable throwable) throws Exception
 			{
-
-			}
-
-			@Override
-			public void onError(Throwable e)
-			{
-				handleError(listener, e);
+				handleError(listener, throwable);
 				removeRequest();
 			}
 		});
-		addRequest(subscription);
+		addRequest(disposable);
 	}
 
 	/**
