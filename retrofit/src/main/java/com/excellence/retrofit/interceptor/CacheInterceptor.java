@@ -23,50 +23,46 @@ import static com.excellence.retrofit.utils.Utils.isNetworkAvailable;
  * </pre>
  */
 
-public class CacheInterceptor implements Interceptor
-{
-	public static final String TAG = CacheInterceptor.class.getSimpleName();
+public class CacheInterceptor implements Interceptor {
 
-	public static final String HEADER_PRAGMA = "Pragma";
-	public static final String HEADER_CACHE_CONTROL = "Cache-Control";
-	public static final long DEFAULT_CACHE_TIME = 4 * 7 * 24 * 60 * 60;
+    private static final String TAG = CacheInterceptor.class.getSimpleName();
 
-	private Context mContext = null;
-	private long mCacheTime = 0;
+    public static final String HEADER_PRAGMA = "Pragma";
+    public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    public static final long DEFAULT_CACHE_TIME = 4 * 7 * 24 * 60 * 60;
 
-	public CacheInterceptor(Context context)
-	{
-		this(context, DEFAULT_CACHE_TIME);
-	}
+    private Context mContext = null;
+    private long mCacheTime = 0;
 
-	public CacheInterceptor(Context context, long cacheTime)
-	{
-		mContext = context;
-		mCacheTime = cacheTime;
-	}
+    public CacheInterceptor(Context context) {
+        this(context, DEFAULT_CACHE_TIME);
+    }
 
-	@Override
-	public Response intercept(Chain chain) throws IOException
-	{
-		Request request = chain.request();
+    public CacheInterceptor(Context context, long cacheTime) {
+        mContext = context;
+        mCacheTime = cacheTime;
+    }
 
-		if (!isNetworkAvailable(mContext))
-		{
-			Logger.i(TAG, "network is invalid");
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        Request request = chain.request();
 
-			/**
-			 * 离线缓存设置有效期限，不使用{@link okhttp3.CacheControl#FORCE_CACHE}，因为它有个很大的默认超时时间{@link Integer.MAX_VALUE}
-			 * 新建一个{@link CacheControl}
-			 */
-			CacheControl cacheControl = new CacheControl.Builder().onlyIfCached().maxStale((int) mCacheTime, TimeUnit.SECONDS).build();
-			request = request.newBuilder().cacheControl(cacheControl).build();
-			Response response = chain.proceed(request);
-			/**
-			 * 离线缓存，重新设置请求
-			 * max-stale设置缓存策略，及超时策略
-			 */
-			return response.newBuilder().removeHeader(HEADER_PRAGMA).removeHeader(HEADER_CACHE_CONTROL).header(HEADER_CACHE_CONTROL, "public, only-if-cached, max-stale=" + mCacheTime).build();
-		}
-		return chain.proceed(request);
-	}
+        if (!isNetworkAvailable(mContext)) {
+            Logger.i(TAG, "network is invalid");
+
+            /**
+             * 离线缓存设置有效期限，不使用{@link okhttp3.CacheControl#FORCE_CACHE}，因为它有个很大的默认超时时间{@link Integer.MAX_VALUE}
+             * 新建一个{@link CacheControl}
+             */
+            CacheControl cacheControl = new CacheControl.Builder().onlyIfCached().maxStale((int) mCacheTime, TimeUnit.SECONDS).build();
+            request = request.newBuilder().cacheControl(cacheControl).build();
+            Response response = chain.proceed(request);
+            /**
+             * 离线缓存，重新设置请求
+             * max-stale设置缓存策略，及超时策略
+             */
+            return response.newBuilder().removeHeader(HEADER_PRAGMA).removeHeader(HEADER_CACHE_CONTROL).header(HEADER_CACHE_CONTROL, "public, only-if-cached, max-stale=" + mCacheTime).build();
+        }
+        return chain.proceed(request);
+    }
 }

@@ -17,58 +17,48 @@ import com.excellence.permission.PermissionRequest;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener
-{
-	private GridView mGridView = null;
-	private String[] mActivityNames = null;
-	private String[] mActivities = null;
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+    private GridView mGridView = null;
+    private String[] mActivityNames = null;
+    private String[] mActivities = null;
 
-		mActivityNames = getResources().getStringArray(R.array.activity_names);
-		mActivities = getResources().getStringArray(R.array.activities);
-		mGridView = (GridView) findViewById(R.id.gridview);
-		mGridView.setAdapter(new ActivityAdapter(this, mActivityNames, android.R.layout.simple_list_item_1));
-		mGridView.setOnItemClickListener(this);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-		PermissionRequest.with(this).permission(WRITE_EXTERNAL_STORAGE).request(new PermissionListener()
-		{
-			@Override
-			public void onPermissionsDenied()
-			{
-				Toast.makeText(MainActivity.this, "请授权，否则下载功能不能使用", Toast.LENGTH_SHORT).show();
-			}
-		});
-	}
+        mActivityNames = getResources().getStringArray(R.array.activity_names);
+        mActivities = getResources().getStringArray(R.array.activities);
+        mGridView = (GridView) findViewById(R.id.gridview);
+        mGridView.setAdapter(new ActivityAdapter(this, mActivityNames, android.R.layout.simple_list_item_1));
+        mGridView.setOnItemClickListener(this);
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-	{
-		try
-		{
-			ActivityUtils.startAnotherActivity(this, (Class<? extends Activity>) Class.forName(mActivities[position]));
-		}
-		catch (Exception e)
-		{
-			Toast.makeText(this, String.format("没有%1$s的栗子", mActivityNames[position]), Toast.LENGTH_SHORT).show();
-		}
-	}
+        PermissionRequest.with(this).permission(WRITE_EXTERNAL_STORAGE).request(new PermissionListener() {
+            @Override
+            public void onPermissionsDenied() {
+                Toast.makeText(MainActivity.this, "请授权，否则下载功能不能使用", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-	private class ActivityAdapter extends CommonAdapter<String>
-	{
-		public ActivityAdapter(Context context, String[] activityNames, int layoutId)
-		{
-			super(context, activityNames, layoutId);
-		}
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        try {
+            ActivityUtils.startAnotherActivity(this, (Class<? extends Activity>) Class.forName(mActivities[position]));
+        } catch (Exception e) {
+            Toast.makeText(this, String.format("没有%1$s的栗子", mActivityNames[position]), Toast.LENGTH_SHORT).show();
+        }
+    }
 
-		@Override
-		public void convert(ViewHolder viewHolder, String item, int position)
-		{
-			viewHolder.setText(android.R.id.text1, item);
-		}
-	}
+    private class ActivityAdapter extends CommonAdapter<String> {
+        public ActivityAdapter(Context context, String[] activityNames, int layoutId) {
+            super(context, activityNames, layoutId);
+        }
+
+        @Override
+        public void convert(ViewHolder viewHolder, String item, int position) {
+            viewHolder.setText(android.R.id.text1, item);
+        }
+    }
 }

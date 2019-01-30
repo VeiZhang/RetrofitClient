@@ -9,17 +9,17 @@ package com.excellence.retrofit.interfaces;
  * </pre>
  */
 
-public interface IListener<T>
-{
-	/**
-	 * 
-	 * @param result 服务器字符串数据
-	 */
-	void onSuccess(T result);
+public interface IListener<T> {
 
-	/**
-	 *
-	 * @param t 异常
-	 */
-	void onError(Throwable t);
+    /**
+     *
+     * @param result 服务器字符串数据
+     */
+    void onSuccess(T result);
+
+    /**
+     *
+     * @param t 异常
+     */
+    void onError(Throwable t);
 }

@@ -17,18 +17,17 @@ import okhttp3.Response;
  * </pre>
  */
 
-public class LoggingInterceptor implements Interceptor
-{
-	public static final String TAG = LoggingInterceptor.class.getSimpleName();
+public class LoggingInterceptor implements Interceptor {
 
-	@Override
-	public okhttp3.Response intercept(Chain chain) throws IOException
-	{
-		Request request = chain.request();
-		Response response = chain.proceed(request);
-		Logger.i(TAG, "发送请求 " + request.url());
-		Logger.i(TAG, "发送请求头 " + request.headers());
-		Logger.i(TAG, "接收响应 " + response.headers());
-		return response;
-	}
+    private static final String TAG = LoggingInterceptor.class.getSimpleName();
+
+    @Override
+    public okhttp3.Response intercept(Chain chain) throws IOException {
+        Request request = chain.request();
+        Response response = chain.proceed(request);
+        Logger.i(TAG, "发送请求 " + request.url());
+        Logger.i(TAG, "发送请求头 " + request.headers());
+        Logger.i(TAG, "接收响应 " + response.headers());
+        return response;
+    }
 }

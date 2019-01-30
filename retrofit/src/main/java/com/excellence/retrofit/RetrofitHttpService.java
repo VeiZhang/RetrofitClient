@@ -30,94 +30,94 @@ import retrofit2.http.Url;
  * </pre>
  */
 
-public interface RetrofitHttpService
-{
-	/**
-	 * GET请求
-	 *
-	 * @param url
-	 * @param params
-	 * @param headers
-	 * @return
-	 */
-	@GET
-	Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+public interface RetrofitHttpService {
 
-	/**
-	 * RxJava + GET请求
-	 *
-	 * @param url
-	 * @param params
-	 * @param headers
-	 * @return
-	 */
-	@GET
-	Observable<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+    /**
+     * GET请求
+     *
+     * @param url
+     * @param params
+     * @param headers
+     * @return
+     */
+    @GET
+    Call<String> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
-	/**
-	 * POST表单的方式发送键值对
-	 *
-	 * @param url
-	 * @param params
-	 * @return
-	 */
-	@FormUrlEncoded
-	@POST
-	Call<String> post(@Url String url, @FieldMap Map<String, String> params);
+    /**
+     * RxJava + GET请求
+     *
+     * @param url
+     * @param params
+     * @param headers
+     * @return
+     */
+    @GET
+    Observable<String> obGet(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
-	/**
-	 * POST发送json/xml
-	 *
-	 * @param url
-	 * @param object
-	 * @return
-	 */
-	@POST
-	Call<String> post(@Url String url, @Body Object object);
+    /**
+     * POST表单的方式发送键值对
+     *
+     * @param url
+     * @param params
+     * @return
+     */
+    @FormUrlEncoded
+    @POST
+    Call<String> post(@Url String url, @FieldMap Map<String, String> params);
 
-	/**
-	 * POST发送json/xml
-	 *
-	 * @param url
-	 * @param requestBody
-	 * @return
-	 */
-	@POST
-	Call<String> post(@Url String url, @Body RequestBody requestBody);
+    /**
+     * POST发送json/xml
+     *
+     * @param url
+     * @param object
+     * @return
+     */
+    @POST
+    Call<String> post(@Url String url, @Body Object object);
 
-	/**
-	 * GET下载
-	 *
-	 * @param url
-	 * @param params
-	 * @param headers
-	 * @return
-	 */
-	@Streaming
-	@GET
-	Call<ResponseBody> download(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+    /**
+     * POST发送json/xml
+     *
+     * @param url
+     * @param requestBody
+     * @return
+     */
+    @POST
+    Call<String> post(@Url String url, @Body RequestBody requestBody);
 
-	/**
-	 * RxJava + GET下载
-	 *
-	 * @param url
-	 * @param params
-	 * @param headers
-	 * @return
-	 */
-	@Streaming
-	@GET
-	Observable<Response<ResponseBody>> obDownload(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+    /**
+     * GET下载
+     *
+     * @param url
+     * @param params
+     * @param headers
+     * @return
+     */
+    @Streaming
+    @GET
+    Call<ResponseBody> download(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
-	/**
-	 * 上传文件
-	 *
-	 * @param url
-	 * @param params
-	 * @param requestBody
-	 * @return
-	 */
-	@Multipart
-	@POST
-	Call<String> uploadFile(@Url String url, @PartMap Map<String, String> params, @Part MultipartBody.Part requestBody);
+    /**
+     * RxJava + GET下载
+     *
+     * @param url
+     * @param params
+     * @param headers
+     * @return
+     */
+    @Streaming
+    @GET
+    Observable<Response<ResponseBody>> obDownload(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+
+    /**
+     * 上传文件
+     *
+     * @param url
+     * @param params
+     * @param requestBody
+     * @return
+     */
+    @Multipart
+    @POST
+    Call<String> uploadFile(@Url String url, @PartMap Map<String, String> params, @Part MultipartBody.Part requestBody);
 }

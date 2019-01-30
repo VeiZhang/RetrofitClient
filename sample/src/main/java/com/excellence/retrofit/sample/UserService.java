@@ -18,17 +18,16 @@ import retrofit2.http.Url;
  * </pre>
  */
 
-public interface UserService
-{
-	/**
-	 * GET请求
-	 *
-	 * @param url
-	 * @param params
-	 * @param headers
-	 * @return
-	 */
-	@GET
-	Call<ResponseBody> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
+public interface UserService {
+    /**
+     * GET请求
+     *
+     * @param url
+     * @param params
+     * @param headers
+     * @return
+     */
+    @GET
+    Call<ResponseBody> get(@Url String url, @QueryMap Map<String, String> params, @HeaderMap Map<String, String> headers);
 
 }

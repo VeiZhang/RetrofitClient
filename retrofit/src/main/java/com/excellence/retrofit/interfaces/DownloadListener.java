@@ -9,36 +9,30 @@ package com.excellence.retrofit.interfaces;
  * </pre>
  */
 
-public class DownloadListener implements IDownloadListener
-{
+public class DownloadListener implements IDownloadListener {
 
-	@Override
-	public void onPreExecute(long fileSize)
-	{
+    @Override
+    public void onPreExecute(long fileSize) {
 
-	}
+    }
 
-	@Override
-	public void onProgressChange(long fileSize, long downloadedSize)
-	{
+    @Override
+    public void onProgressChange(long fileSize, long downloadedSize) {
 
-	}
+    }
 
-	@Override
-	public void onCancel()
-	{
+    @Override
+    public void onCancel() {
 
-	}
+    }
 
-	@Override
-	public void onError(Throwable t)
-	{
+    @Override
+    public void onError(Throwable t) {
 
-	}
+    }
 
-	@Override
-	public void onSuccess()
-	{
+    @Override
+    public void onSuccess() {
 
-	}
+    }
 }

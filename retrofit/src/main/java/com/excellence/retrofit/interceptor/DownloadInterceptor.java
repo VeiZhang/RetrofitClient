@@ -21,28 +21,26 @@ import static com.excellence.retrofit.utils.HttpUtils.isURLEmpty;
  * </pre>
  */
 
-public class DownloadInterceptor implements Interceptor
-{
-	public static final String TAG = DownloadInterceptor.class.getSimpleName();
+public class DownloadInterceptor implements Interceptor {
 
-	public static final String DOWNLOAD = "RetrofitDownload";
+    private static final String TAG = DownloadInterceptor.class.getSimpleName();
 
-	@Override
-	public Response intercept(Chain chain) throws IOException
-	{
-		Request request = chain.request();
-		if (!isURLEmpty(request.header(DOWNLOAD)))
-		{
-			Logger.i(TAG, "下载文件");
-			/**
-			 * 文件下载，重新构造网络请求，强制使用网络请求，避免缓存
-			 * 为啥不缓存，因为占用大多缓存空间
-			 */
-			CacheControl cacheControl = new CacheControl.Builder().noStore().build();
-			Request newRequest = request.newBuilder().cacheControl(cacheControl).build();
-			return chain.proceed(newRequest);
-		}
-		// 非文件下载，继续请求
-		return chain.proceed(request);
-	}
+    public static final String DOWNLOAD = "RetrofitDownload";
+
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        Request request = chain.request();
+        if (!isURLEmpty(request.header(DOWNLOAD))) {
+            Logger.i(TAG, "下载文件");
+            /**
+             * 文件下载，重新构造网络请求，强制使用网络请求，避免缓存
+             * 为啥不缓存，因为占用大多缓存空间
+             */
+            CacheControl cacheControl = new CacheControl.Builder().noStore().build();
+            Request newRequest = request.newBuilder().cacheControl(cacheControl).build();
+            return chain.proceed(newRequest);
+        }
+        // 非文件下载，继续请求
+        return chain.proceed(request);
+    }
 }

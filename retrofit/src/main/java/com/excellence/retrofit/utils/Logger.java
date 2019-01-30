@@ -14,175 +14,155 @@ import com.excellence.retrofit.BuildConfig;
  * </pre>
  */
 
-public final class Logger
-{
-	public static final String TAG = Logger.class.getSimpleName();
+public final class Logger {
 
-	private static boolean isEnabled = BuildConfig.DEBUG;
+    private static final String TAG = Logger.class.getSimpleName();
 
-	private enum LogLevel
-	{
-		VERBOSE, DEBUG, INFO, WARN, ERROR
-	}
+    private static boolean isEnabled = BuildConfig.DEBUG;
 
-	public static void v(String tag, String msg, Throwable t)
-	{
-		print(LogLevel.VERBOSE, tag, msg, t);
-	}
+    private enum LogLevel {
+        VERBOSE,
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR
+    }
 
-	public static void v(String tag, String msg)
-	{
-		v(tag, msg, null);
-	}
+    public static void v(String tag, String msg, Throwable t) {
+        print(LogLevel.VERBOSE, tag, msg, t);
+    }
 
-	public static void v(String msg)
-	{
-		v(TAG, msg);
-	}
+    public static void v(String tag, String msg) {
+        v(tag, msg, null);
+    }
 
-	public static void d(String tag, String msg, Throwable t)
-	{
-		print(LogLevel.DEBUG, tag, msg, t);
-	}
+    public static void v(String msg) {
+        v(TAG, msg);
+    }
 
-	public static void d(String tag, String msg)
-	{
-		d(tag, msg, null);
-	}
+    public static void d(String tag, String msg, Throwable t) {
+        print(LogLevel.DEBUG, tag, msg, t);
+    }
 
-	public static void d(String msg)
-	{
-		d(TAG, msg);
-	}
+    public static void d(String tag, String msg) {
+        d(tag, msg, null);
+    }
 
-	public static void i(String tag, String msg, Throwable t)
-	{
-		print(LogLevel.INFO, tag, msg, t);
-	}
+    public static void d(String msg) {
+        d(TAG, msg);
+    }
 
-	public static void i(String tag, String msg)
-	{
-		i(tag, msg, null);
-	}
+    public static void i(String tag, String msg, Throwable t) {
+        print(LogLevel.INFO, tag, msg, t);
+    }
 
-	public static void i(String msg)
-	{
-		i(TAG, msg);
-	}
+    public static void i(String tag, String msg) {
+        i(tag, msg, null);
+    }
 
-	public static void w(String tag, String msg, Throwable t)
-	{
-		print(LogLevel.WARN, tag, msg, t);
-	}
+    public static void i(String msg) {
+        i(TAG, msg);
+    }
 
-	public static void w(String tag, String msg)
-	{
-		w(tag, msg, null);
-	}
+    public static void w(String tag, String msg, Throwable t) {
+        print(LogLevel.WARN, tag, msg, t);
+    }
 
-	public static void w(String msg)
-	{
-		w(TAG, msg);
-	}
+    public static void w(String tag, String msg) {
+        w(tag, msg, null);
+    }
 
-	public static void e(String tag, String msg, Throwable t)
-	{
-		print(LogLevel.ERROR, tag, msg, t);
-	}
+    public static void w(String msg) {
+        w(TAG, msg);
+    }
 
-	public static void e(String tag, String msg)
-	{
-		e(tag, msg, null);
-	}
+    public static void e(String tag, String msg, Throwable t) {
+        print(LogLevel.ERROR, tag, msg, t);
+    }
 
-	public static void e(String msg)
-	{
-		e(TAG, msg);
-	}
+    public static void e(String tag, String msg) {
+        e(tag, msg, null);
+    }
 
-	private static void print(LogLevel level, String tag, String msg, Throwable tr)
-	{
-		if (!isEnabled)
-			return;
+    public static void e(String msg) {
+        e(TAG, msg);
+    }
 
-		if (TextUtils.isEmpty(tag))
-			tag = TAG;
+    private static void print(LogLevel level, String tag, String msg, Throwable tr) {
+        if (!isEnabled) {
+            return;
+        }
 
-		if (msg == null)
-			msg = "";
+        if (TextUtils.isEmpty(tag)) {
+            tag = TAG;
+        }
 
-		StackTraceElement element = getTargetStackTraceElement();
+        if (msg == null) {
+            msg = "";
+        }
 
-		if (element != null)
-		{
-			String log = element.getClassName() + "." + element.getMethodName() + "(" + element.getFileName() + ":" + element.getLineNumber() + ")";
-			msg = log + "\n" + msg;
-		}
+        StackTraceElement element = getTargetStackTraceElement();
 
-		switch (level)
-		{
-		case VERBOSE:
-			Log.v(tag, msg, tr);
-			break;
+        if (element != null) {
+            String log = element.getClassName() + "." + element.getMethodName() + "(" + element.getFileName() + ":" + element.getLineNumber() + ")";
+            msg = log + "\n" + msg;
+        }
 
-		case DEBUG:
-			Log.d(tag, msg, tr);
-			break;
+        switch (level) {
+            case VERBOSE:
+                Log.v(tag, msg, tr);
+                break;
 
-		case INFO:
-			Log.i(tag, msg, tr);
-			break;
+            case DEBUG:
+                Log.d(tag, msg, tr);
+                break;
 
-		case WARN:
-			Log.w(tag, msg, tr);
-			break;
+            case INFO:
+                Log.i(tag, msg, tr);
+                break;
 
-		case ERROR:
-			Log.e(tag, msg, tr);
-			break;
-		}
+            case WARN:
+                Log.w(tag, msg, tr);
+                break;
 
-	}
+            case ERROR:
+                Log.e(tag, msg, tr);
+                break;
+        }
 
-	private static StackTraceElement getTargetStackTraceElement()
-	{
-		StackTraceElement[] sts = Thread.currentThread().getStackTrace();
+    }
 
-		if (sts == null)
-		{
-			return null;
-		}
+    private static StackTraceElement getTargetStackTraceElement() {
+        StackTraceElement[] sts = Thread.currentThread().getStackTrace();
 
-		for (StackTraceElement st : sts)
-		{
-			if (st.isNativeMethod())
-			{
-				continue;
-			}
+        if (sts == null) {
+            return null;
+        }
 
-			if (st.getClassName().equals(Thread.class.getName()))
-			{
-				continue;
-			}
+        for (StackTraceElement st : sts) {
+            if (st.isNativeMethod()) {
+                continue;
+            }
 
-			if (st.getClassName().equals(Logger.class.getName()))
-			{
-				continue;
-			}
+            if (st.getClassName().equals(Thread.class.getName())) {
+                continue;
+            }
 
-			return st;
-		}
-		return null;
-	}
+            if (st.getClassName().equals(Logger.class.getName())) {
+                continue;
+            }
 
-	public static void isEnabled(boolean isEnabled)
-	{
-		Logger.isEnabled = isEnabled;
-	}
+            return st;
+        }
+        return null;
+    }
 
-	public static boolean isEnabled()
-	{
-		return isEnabled;
-	}
+    public static void isEnabled(boolean isEnabled) {
+        Logger.isEnabled = isEnabled;
+    }
+
+    public static boolean isEnabled() {
+        return isEnabled;
+    }
 
 }
