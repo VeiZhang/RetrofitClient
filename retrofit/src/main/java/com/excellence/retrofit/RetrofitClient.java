@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.excellence.retrofit.interceptor.CacheInterceptor;
 import com.excellence.retrofit.interceptor.CacheOnlineInterceptor;
@@ -11,6 +12,7 @@ import com.excellence.retrofit.interceptor.DownloadInterceptor;
 import com.excellence.retrofit.interceptor.LoggingInterceptor;
 import com.excellence.retrofit.utils.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -312,6 +314,7 @@ public class RetrofitClient {
          *
          * 默认缓存
          * 位置: /sdcard/Android/data/YourPackageName/cache/
+         *      /data/data/package/cache
          * 大小: {@link #DEFAULT_CACHE_SIZE}
          *
          * @param cacheEnable
@@ -626,7 +629,13 @@ public class RetrofitClient {
                  * 默认开启的缓存{@link #cacheEnable}
                  */
                 if (mCache == null) {
-                    cache(new Cache(mContext.getExternalCacheDir(), DEFAULT_CACHE_SIZE));
+                    File cacheFile = mContext.getExternalCacheDir();
+                    Log.i(TAG, "cache external: " + cacheFile);
+                    if (cacheFile == null) {
+                        cacheFile = mContext.getCacheDir();
+                        Log.i(TAG, "cache: " + cacheFile);
+                    }
+                    cache(new Cache(cacheFile, DEFAULT_CACHE_SIZE));
                 }
                 mOkHttpClientBuilder.cache(mCache);
                 CacheInterceptor cacheInterceptor = new CacheInterceptor(mContext, mCacheTime);
