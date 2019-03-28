@@ -1,7 +1,6 @@
 package com.excellence.retrofit.sample;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mActivityNames = getResources().getStringArray(R.array.activity_names);
         mActivities = getResources().getStringArray(R.array.activities);
         mGridView = (GridView) findViewById(R.id.gridview);
-        mGridView.setAdapter(new ActivityAdapter(this, mActivityNames, android.R.layout.simple_list_item_1));
+        mGridView.setAdapter(new ActivityAdapter(mActivityNames, android.R.layout.simple_list_item_1));
         mGridView.setOnItemClickListener(this);
 
         PermissionRequest.with(this).permission(WRITE_EXTERNAL_STORAGE).request(new PermissionListener() {
@@ -52,8 +51,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private class ActivityAdapter extends CommonAdapter<String> {
-        public ActivityAdapter(Context context, String[] activityNames, int layoutId) {
-            super(context, activityNames, layoutId);
+        public ActivityAdapter(String[] activityNames, int layoutId) {
+            super(activityNames, layoutId);
         }
 
         @Override
