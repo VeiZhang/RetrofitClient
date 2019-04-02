@@ -1,7 +1,6 @@
 package com.excellence.retrofit.utils;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 import java.util.HashMap;
@@ -37,12 +36,12 @@ public class HttpUtils {
      */
     public static void printHeader(Headers headers) {
         if (headers == null) {
-            Log.i(TAG, "printHeader: header is null");
+            Logger.i(TAG, "printHeader: header is null");
             return;
         }
 
         for (String key : headers.names()) {
-            Log.i(TAG, "[key : " + key + "][value : " + headers.get(key) + "]");
+            Logger.i(TAG, "[key : " + key + "][value : " + headers.get(key) + "]");
         }
     }
 

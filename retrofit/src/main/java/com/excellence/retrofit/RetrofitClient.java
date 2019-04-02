@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.excellence.retrofit.interceptor.CacheInterceptor;
 import com.excellence.retrofit.interceptor.CacheOnlineInterceptor;
@@ -630,10 +629,10 @@ public class RetrofitClient {
                  */
                 if (mCache == null) {
                     File cacheFile = mContext.getExternalCacheDir();
-                    Log.i(TAG, "cache external: " + cacheFile);
+                    Logger.i(TAG, "cache external: " + cacheFile);
                     if (cacheFile == null) {
                         cacheFile = mContext.getCacheDir();
-                        Log.i(TAG, "cache: " + cacheFile);
+                        Logger.i(TAG, "cache: " + cacheFile);
                     }
                     cache(new Cache(cacheFile, DEFAULT_CACHE_SIZE));
                 }
