@@ -1,7 +1,6 @@
 package com.excellence.retrofit.sample;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,6 +9,8 @@ import com.excellence.retrofit.HttpRequest;
 import com.excellence.retrofit.interfaces.IListener;
 
 import java.io.File;
+
+import androidx.annotation.Nullable;
 
 public class PostActivity extends BaseActivity implements View.OnClickListener {
 

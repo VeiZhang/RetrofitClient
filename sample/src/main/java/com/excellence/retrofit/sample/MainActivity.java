@@ -2,7 +2,6 @@ package com.excellence.retrofit.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -13,6 +12,8 @@ import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
 import com.excellence.basetoolslibrary.utils.ActivityUtils;
 import com.excellence.permission.PermissionListener;
 import com.excellence.permission.PermissionRequest;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 

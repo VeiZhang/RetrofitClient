@@ -3,7 +3,6 @@ package com.excellence.retrofit;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 
 import com.excellence.retrofit.interceptor.CacheInterceptor;
 import com.excellence.retrofit.interceptor.CacheOnlineInterceptor;
@@ -21,6 +20,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
 import io.reactivex.disposables.Disposable;
 import okhttp3.Cache;
 import okhttp3.CookieJar;

@@ -2,10 +2,10 @@ package com.excellence.retrofit.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import com.excellence.retrofit.RetrofitClient;
 
+import androidx.annotation.Nullable;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 /**
@@ -28,7 +28,7 @@ public class BaseActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         new RetrofitClient.Builder(this)
                 .baseUrl(BASE_URL)
                 .addLog(true)

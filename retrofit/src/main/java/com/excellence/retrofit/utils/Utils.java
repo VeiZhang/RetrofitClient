@@ -5,11 +5,12 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import androidx.annotation.NonNull;
 
 /**
  * <pre>

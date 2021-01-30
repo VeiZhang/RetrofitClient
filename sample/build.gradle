@@ -1,34 +1,21 @@
-apply plugin: 'com.android.application'
+apply from: 'application.gradle'
+
+def plugins = rootProject.ext.plugins
+def cfg = rootProject.ext.android
+def libs = rootProject.ext.dependencies
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "com.excellence.retrofit.sample"
-        minSdkVersion 17
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    compile project(':retrofit')
-    // compile 'com.excellence:retrofit:_latestVersion'
-    compile 'com.excellence:basetools:1.2.6'
-    compile 'com.excellence:permission:1.0.2'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    implementation project(':retrofit')
+    // implementation 'com.excellence:retrofit:_latestVersion'
+
     // 必须与Okhttp版本一致
-    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
+    implementation libs["okhttp-logging"]
 }
