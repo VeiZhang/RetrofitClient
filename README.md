@@ -84,6 +84,7 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 
 | 版本 | 描述 |
 | --- | ---- |
+| [2.0.1][RetrofitClient2.0.1] | 新增post-upload文件接口 **2021-01-30** |
 | [2.0.0][RetrofitClient2.0.0] | 升级rxjava -> rxjava2 **2018-12-29** |
 
 <!-- 网站链接 -->
@@ -96,6 +97,7 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 
 <!-- 版本 -->
 
+[RetrofitClient2.0.1]:https://bintray.com/veizhang/maven/retrofit2/2.0.1
 [RetrofitClient2.0.0]:https://bintray.com/veizhang/maven/retrofit2/2.0.0
 
 
@@ -109,8 +111,6 @@ new RetrofitUtils.Builder(this).baseUrl(BASE_URL).addLog(true).cacheEnable(true)
 上传断点、进度
 
 批量上传
-
-图文上传
 
 New：
 
