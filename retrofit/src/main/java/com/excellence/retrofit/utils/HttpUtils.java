@@ -98,7 +98,12 @@ public class HttpUtils {
         return headers;
     }
 
-    public static RequestBody createImage(File file) {
+    public static RequestBody mediaTypeFile(File file) {
+        checkNULL(file, "file not null");
+        return RequestBody.create(MediaType.parse("*/*"), file);
+    }
+
+    public static RequestBody mediaTypeImage(File file) {
         checkNULL(file, "file not null");
         return RequestBody.create(MediaType.parse("image/*"), file);
     }

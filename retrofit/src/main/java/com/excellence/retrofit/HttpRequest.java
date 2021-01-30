@@ -1,6 +1,7 @@
 package com.excellence.retrofit;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.excellence.retrofit.interfaces.IListener;
 import com.excellence.retrofit.utils.HttpUtils.ResponseType;
@@ -9,6 +10,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -26,7 +28,8 @@ import static com.excellence.retrofit.interceptor.DownloadInterceptor.DOWNLOAD;
 import static com.excellence.retrofit.utils.HttpUtils.checkHeaders;
 import static com.excellence.retrofit.utils.HttpUtils.checkParams;
 import static com.excellence.retrofit.utils.HttpUtils.checkURL;
-import static com.excellence.retrofit.utils.HttpUtils.createImage;
+import static com.excellence.retrofit.utils.HttpUtils.mediaTypeFile;
+import static com.excellence.retrofit.utils.HttpUtils.mediaTypeImage;
 import static com.excellence.retrofit.utils.Utils.inputStream2String;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -368,6 +371,42 @@ public class HttpRequest {
     }
 
     /**
+     * 上传图片
+     *
+     * @param fileKey 服务器上传文件对应的参数key
+     * @param file 上传文件
+     * @param type
+     * @param listener
+     * @param <T>
+     */
+    public <T> void uploadImg(String fileKey, File file, final Type type, final IListener<T> listener) {
+        addRequestInfo();
+        RequestBody requestBody = mediaTypeImage(file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData(fileKey, file.getName(), requestBody);
+        Call<String> call = mHttpService.uploadFile(checkURL(mUrl), checkParams(mParams), body);
+        switch (mResponseType) {
+            case ASYNC:
+                handleAsyncTask(type, listener, call);
+                break;
+
+            case SYNC:
+                handleSyncTask(type, listener, call);
+                break;
+        }
+    }
+
+    /**
+     * 上传图片
+     *
+     * @param fileKey 服务器上传文件对应的参数key
+     * @param file 上传文件
+     * @param listener
+     */
+    public void uploadImg(String fileKey, File file, final IListener<String> listener) {
+        uploadImg(fileKey, file, String.class, listener);
+    }
+
+    /**
      * 上传文件
      *
      * @param fileKey 服务器上传文件对应的参数key
@@ -378,8 +417,8 @@ public class HttpRequest {
      */
     public <T> void uploadFile(String fileKey, File file, final Type type, final IListener<T> listener) {
         addRequestInfo();
-        RequestBody requestImg = createImage(file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData(fileKey, file.getName(), requestImg);
+        RequestBody requestBody = mediaTypeFile(file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData(fileKey, file.getName(), requestBody);
         Call<String> call = mHttpService.uploadFile(checkURL(mUrl), checkParams(mParams), body);
         switch (mResponseType) {
             case ASYNC:
@@ -401,6 +440,52 @@ public class HttpRequest {
      */
     public void uploadFile(String fileKey, File file, final IListener<String> listener) {
         uploadFile(fileKey, file, String.class, listener);
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param type
+     * @param listener
+     * @param <T>
+     */
+    public <T> void uploadFile(List<MultipartBody.Part> requestBodys, final Type type, final IListener<T> listener) {
+        addRequestInfo();
+        Call<String> call = mHttpService.uploadFile(checkURL(mUrl), checkParams(mParams), requestBodys);
+        switch (mResponseType) {
+            case ASYNC:
+                handleAsyncTask(type, listener, call);
+                break;
+
+            case SYNC:
+                handleSyncTask(type, listener, call);
+                break;
+        }
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param multipartBody {@link MultipartBody.Builder#build()}
+     * @param type
+     * @param listener
+     * @param <T>
+     */
+    public <T> void uploadFile(RequestBody multipartBody, final Type type, final IListener<T> listener) {
+        addRequestInfo();
+
+        Log.w(TAG, "uploadFile: params is not used");
+
+        Call<String> call = mHttpService.uploadFile(checkURL(mUrl), multipartBody);
+        switch (mResponseType) {
+            case ASYNC:
+                handleAsyncTask(type, listener, call);
+                break;
+
+            case SYNC:
+                handleSyncTask(type, listener, call);
+                break;
+        }
     }
 
     /**

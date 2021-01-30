@@ -1,5 +1,6 @@
 package com.excellence.retrofit;
 
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -120,4 +121,27 @@ public interface RetrofitHttpService {
     @Multipart
     @POST
     Call<String> uploadFile(@Url String url, @PartMap Map<String, String> params, @Part MultipartBody.Part requestBody);
+
+    /**
+     * 上传文件
+     *
+     * @param url
+     * @param params
+     * @param requestBodys
+     * @return
+     */
+    @Multipart
+    @POST
+    Call<String> uploadFile(@Url String url, @PartMap Map<String, String> params, @Part() List<MultipartBody.Part> requestBodys);
+
+    /**
+     * 上传文件
+     *
+     * @param url
+     * @param multipartBody
+     * @return
+     */
+    @POST
+    Call<String> uploadFile(@Url String url, @Body RequestBody multipartBody);
+
 }
