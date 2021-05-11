@@ -1,7 +1,5 @@
-apply from: 'application.gradle'
+apply from: 'https://gist.githubusercontent.com/VeiZhang/01779005843bc5b70b11551ca13c2ced/raw/application.gradle'
 
-def plugins = rootProject.ext.plugins
-def cfg = rootProject.ext.android
 def libs = rootProject.ext.dependencies
 
 android {
@@ -10,12 +8,36 @@ android {
     }
 }
 
+configurations.all {
+    // 不使用缓存，使用仓库中最新的包
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testImplementation 'junit:junit:4.12'
+    implementation libs["recyclerview-v7"]
+    implementation libs["androidx-appcompat"]
 
-    implementation project(':retrofit')
-    // implementation 'com.excellence:retrofit:_latestVersion'
+    implementation libs["basetools"]
+    implementation libs["permission"]
 
     // 必须与Okhttp版本一致
     implementation libs["okhttp-logging"]
+
+    /**可以使用远程库或者使用本地Module Library*/
+    /**远程库**/
+    // implementation 'com.excellence.retrofit:retrofit2:_latestVersion'
+    /**或者使用+，自动使用最新依赖包**/
+    // implementation 'com.excellence.retrofit:retrofit2:+'
+    /**本地Library**/
+    implementation project(':retrofit')
+
+    /** Github packages **/
+//    implementation('com.excellence.retrofit:retrofit2:2.0.1') {
+//        changing = true
+//    }
 }
